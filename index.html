@@ -99,7 +99,7 @@
     border: 1px solid var(--border);
     background: transparent;
     color: var(--muted);
-    cursor: zoom-in;
+    cursor: pointer;
     border-radius: 2px;
     transition: all 0.2s;
     text-transform: uppercase;
@@ -122,7 +122,7 @@
     font-size: 13px;
     padding: 5px 10px;
     border-radius: 2px;
-    cursor: zoom-in;
+    cursor: pointer;
     outline: none;
   }
 
@@ -179,14 +179,14 @@
     stroke-linejoin: round;
     stroke-linecap: round;
     transition: stroke-opacity 0.2s, stroke-width 0.15s;
-    cursor: zoom-in;
+    cursor: pointer;
   }
   .empire-line.dimmed { stroke-opacity: 0.06; }
   .empire-line.highlighted { stroke-width: 3; stroke-opacity: 1 !important; }
 
   .empire-dot {
     transition: opacity 0.2s, r 0.15s;
-    cursor: zoom-in;
+    cursor: pointer;
   }
   .empire-dot.dimmed { opacity: 0.05; }
   .empire-dot.highlighted { r: 5; }
@@ -262,7 +262,7 @@
     gap: 6px;
     font-size: 11px;
     color: var(--muted);
-    cursor: zoom-in;
+    cursor: pointer;
     transition: color 0.15s;
     line-height: 1.3;
   }
@@ -303,10 +303,9 @@
     border-radius: 2px;
     width: 160px;
     outline: none;
-    cursor: zoom-in;
+    cursor: pointer;
     transition: border-color 0.2s;
   }
-  #empire-search:focus { cursor: text; }
   #empire-search:focus { border-color: var(--gold); }
   #empire-search::placeholder { color: var(--muted); font-style: italic; }
 
@@ -793,9 +792,9 @@
   body.panel-open #explorer { padding-right: 302px; }
 
   /* ── Event markers — highlighted & clickable ── */
-  .event-marker { cursor: zoom-in; }
+  .event-marker { cursor: pointer; }
   .event-marker line { stroke: var(--gold) !important; opacity: 0.55 !important; stroke-width: 1.5 !important; transition: opacity 0.15s; }
-  .event-marker text { fill: var(--gold-light) !important; opacity: 0.85 !important; cursor: zoom-in; transition: opacity 0.15s; font-weight: 600 !important; }
+  .event-marker text { fill: var(--gold-light) !important; opacity: 0.85 !important; cursor: pointer; transition: opacity 0.15s; font-weight: 600 !important; }
   .event-marker:hover line { opacity: 0.95 !important; }
   .event-marker:hover text { opacity: 1 !important; }
   .event-marker.ev-active line { opacity: 0.95 !important; stroke-width: 2 !important; }
@@ -1758,103 +1757,55 @@ function updateMinimapBrush() {
   mmBrushG.call(mmBrush.move, [mmX(x0), mmX(x1)]);
 }
 
-// Emblems: Wikimedia Commons Special:FilePath URLs (academically recognized symbols)
-const EMPIRE_EMBLEMS = {
-  "Elamite Confideration": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Elamite_Empire_map.svg/240px-Elamite_Empire_map.svg.png",
-  "Akkadian Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Akkadian_Empire_Sargon.png/120px-Akkadian_Empire_Sargon.png",
-  "Neo-Sumerian  Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Ur_III_period.png/120px-Ur_III_period.png",
-  "Assyrian Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Assyria_symbol.svg/120px-Assyria_symbol.svg.png",
-  "Babylonian Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Hammurabi%27s_Babylonia_1.svg/120px-Hammurabi%27s_Babylonia_1.svg.png",
-  "Hittite Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Hittite_sun.svg/120px-Hittite_sun.svg.png",
-  "Egyptian Empire New Kingdom": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Cartouche_Ramesses_II.svg/60px-Cartouche_Ramesses_II.svg.png",
-  "Mitanni Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Mitanni_Kingdom.png/120px-Mitanni_Kingdom.png",
-  "Kushite Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Meroe_Pyramids_23deg_E.jpg/120px-Meroe_Pyramids_23deg_E.jpg",
-  "Punic Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Flag_of_Carthage.svg/120px-Flag_of_Carthage.svg.png",
-  "Median Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Median_Empire_map.png/120px-Median_Empire_map.png",
-  "Chaldean Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Ishtar_Gate_Babylone.jpg/90px-Ishtar_Gate_Babylone.jpg",
-  "Achaemenid Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Faravahar.svg/80px-Faravahar.svg.png",
-  "Garamantian Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Garamantian_Empire.png/120px-Garamantian_Empire.png",
-  "Xiongnu Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Xiongnu_Empire.png/120px-Xiongnu_Empire.png",
-  "Macedonian Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Vergina_Sun_-_Golden_Larnax.png/80px-Vergina_Sun_-_Golden_Larnax.png",
-  "Maurya Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Ashoka_Chakra.svg/100px-Ashoka_Chakra.svg.png",
-  "Seleucid Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Seleucid_Empire_200_BC.png/120px-Seleucid_Empire_200_BC.png",
-  "Ptolemaic Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Egypt_Ptolemaic_Eagle.svg/80px-Egypt_Ptolemaic_Eagle.svg.png",
-  "Parthian Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Arsacid_dynasty_emblem.png/80px-Arsacid_dynasty_emblem.png",
-  "Han Dynasty": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Han_dynasty_1_BCE.png/120px-Han_dynasty_1_BCE.png",
-  "Roman Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Coat_of_arms_of_the_Roman_Empire.svg/80px-Coat_of_arms_of_the_Roman_Empire.svg.png",
-  "Aksumite Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Aksum_obelisk_2.jpg/60px-Aksum_obelisk_2.jpg",
-  "Sasanian Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Sasanian_Farvahar.svg/80px-Sasanian_Farvahar.svg.png",
-  "Ghana Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Ghana_Empire_map.png/120px-Ghana_Empire_map.png",
-  "Gupta Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Gupta_Empire_320_550_CE.png/120px-Gupta_Empire_320_550_CE.png",
-  "Byzantine Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Byzantine_Empire_Emblem.svg/80px-Byzantine_Empire_Emblem.svg.png",
-  "Gokturk Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Gokturk_khaganate.png/120px-Gokturk_khaganate.png",
-  "Tang Dynasty": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Tang_Dynasty_Eagle.svg/80px-Tang_Dynasty_Eagle.svg.png",
-  "Rashidun Caliphate": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Rashidun_Caliphate_at_its_peak.png/120px-Rashidun_Caliphate_at_its_peak.png",
-  "Khazar Khaganate": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Khazar_Khaganate_flood.png/120px-Khazar_Khaganate_flood.png",
-  "Srivijaya Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Srivijaya_empire.png/120px-Srivijaya_empire.png",
-  "Umayyad Caliphate": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Flag_of_the_Umayyad_Caliphate.svg/120px-Flag_of_the_Umayyad_Caliphate.svg.png",
-  "Kanem-Bornu  Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Kanem-Bornu_empire.png/120px-Kanem-Bornu_empire.png",
-  "Abbasid Caliphate": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Flag_of_the_Abbasid_Caliphate.svg/120px-Flag_of_the_Abbasid_Caliphate.svg.png",
-  "Carolingian Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Carolingian_cross.svg/80px-Carolingian_cross.svg.png",
-  "Holy Roman Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Coat_of_Arms_Holy_Roman_Empire.svg/80px-Coat_of_Arms_Holy_Roman_Empire.svg.png",
-  "Fatimid Caliphate": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Flag_of_the_Fatimid_Caliphate.svg/120px-Flag_of_the_Fatimid_Caliphate.svg.png",
-  "Song Dynasty": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Song_Dynasty_Dragon.svg/80px-Song_Dynasty_Dragon.svg.png",
-  "Seljuk Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Flag_of_the_Seljuk_Empire.svg/120px-Flag_of_the_Seljuk_Empire.svg.png",
-  "Almoravid Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Almoravid_dynasty_banner.svg/80px-Almoravid_dynasty_banner.svg.png",
-  "Khmer Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Angkor_Wat_temple.jpg/100px-Angkor_Wat_temple.jpg",
-  "Khwarazmian Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Khwarezm_Empire_1220_-_Map.png/120px-Khwarezm_Empire_1220_-_Map.png",
-  "Almohad Caliphate": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Almohad_banner.svg/80px-Almohad_banner.svg.png",
-  "Ayyubid Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Ayyubid_Dynasty_Eagle.svg/80px-Ayyubid_Dynasty_Eagle.svg.png",
-  "Benin Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Benin_bronze_head.jpg/80px-Benin_bronze_head.jpg",
-  "Delhi Sultanate": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Delhi_Sultanate_at_its_height.png/100px-Delhi_Sultanate_at_its_height.png",
-  "Mongol Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Soyombo_symbol.svg/80px-Soyombo_symbol.svg.png",
-  "Chagatai Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Chagatai_Khanate_flag.svg/120px-Chagatai_Khanate_flag.svg.png",
-  "Mali Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Mali_Empire_map.png/120px-Mali_Empire_map.png",
-  "Mamluk Sultanate": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Mamluk_flag.svg/120px-Mamluk_flag.svg.png",
-  "Ilkhanate": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Ilkhanate_1256_1353.png/120px-Ilkhanate_1256_1353.png",
-  "Ethiopian Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Coat_of_arms_of_Ethiopia_%281975%E2%80%931987%29.svg/80px-Coat_of_arms_of_Ethiopia_%281975%E2%80%931987%29.svg.png",
-  "Yuan Dynasty": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Yuan_dynasty_1294.png/100px-Yuan_dynasty_1294.png",
-  "Majapahit Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Majapahit_Empire_icon.png/80px-Majapahit_Empire_icon.png",
-  "Ottoman Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Ottoman_coat_of_arms.svg/80px-Ottoman_coat_of_arms.svg.png",
-  "Oyo Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Oyo_Empire_1700.png/100px-Oyo_Empire_1700.png",
-  "Jolof Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Jolof_Empire_map.png/100px-Jolof_Empire_map.png",
-  "Ming Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/China_Ming_Dynasty_1415.png/100px-China_Ming_Dynasty_1415.png",
-  "Timurid Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Timurid_Empire.png/120px-Timurid_Empire.png",
-  "Kongo Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Kongo_cross.svg/80px-Kongo_cross.svg.png",
-  "Portugese Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Portuguese_Empire_CoA.svg/80px-Portuguese_Empire_CoA.svg.png",
-  "Aztec Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/Aztec_Sun_Stone_cropped.jpg/100px-Aztec_Sun_Stone_cropped.jpg",
-  "Mutapa Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Great_Zimbabwe_-_The_Great_Enclosure.jpg/100px-Great_Zimbabwe_-_The_Great_Enclosure.jpg",
-  "Songhai Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/54/Songhai_Empire_1500_CE.png/120px-Songhai_Empire_1500_CE.png",
-  "Spanish Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Coat_of_Arms_of_the_Spanish_Empire.svg/80px-Coat_of_Arms_of_the_Spanish_Empire.svg.png",
-  "Safavid Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Flag_of_Iran_%28Lion_and_Sun%29.svg/120px-Flag_of_Iran_%28Lion_and_Sun%29.svg.png",
-  "Adal Sultanate": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Adal_Sultanate_map.png/100px-Adal_Sultanate_map.png",
-  "Mughal Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Royal_Coat_of_Arms_Mughal_Empire.svg/80px-Royal_Coat_of_Arms_Mughal_Empire.svg.png",
-  "French Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Grand_Coat_of_Arms_of_France.svg/80px-Grand_Coat_of_Arms_of_France.svg.png",
-  "Kaabu Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Kaabu_empire.png/100px-Kaabu_empire.png",
-  "Polish-Lithuanian Commonwealth": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Coat_of_arms_of_Polish-Lithuanian_Commonwealth.svg/80px-Coat_of_arms_of_Polish-Lithuanian_Commonwealth.svg.png",
-  "Dutch Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Flag_of_the_Dutch_East_India_Company.svg/120px-Flag_of_the_Dutch_East_India_Company.svg.png",
-  "British Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Royal_Coat_of_Arms_of_the_United_Kingdom.svg/80px-Royal_Coat_of_Arms_of_the_United_Kingdom.svg.png",
-  "Luba Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Luba_empire.png/100px-Luba_empire.png",
-  "Darfur Sultanate": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Darfur_Sultanate.png/100px-Darfur_Sultanate.png",
-  "Tokugawa Shogunate": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Tokugawa_family_crest.svg/80px-Tokugawa_family_crest.svg.png",
-  "Swedish Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Coat_of_arms_of_Sweden.svg/80px-Coat_of_arms_of_Sweden.svg.png",
-  "Wadai Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Wadai_sultanate_map.png/100px-Wadai_sultanate_map.png",
-  "Qing Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/China_Qing_Dynasty_flag_1862-1889.svg/120px-China_Qing_Dynasty_flag_1862-1889.svg.png",
-  "Lunda Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Lunda_empire_map.png/100px-Lunda_empire_map.png",
-  "Ashanti Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Ashanti_stool.svg/80px-Ashanti_stool.svg.png",
-  "Maratha Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Flag_of_the_Maratha_Empire.svg/120px-Flag_of_the_Maratha_Empire.svg.png",
-  "Rozvi Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Great_Zimbabwe_-_The_Great_Enclosure.jpg/100px-Great_Zimbabwe_-_The_Great_Enclosure.jpg",
-  "Russian Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Coat_of_Arms_of_the_Russian_Empire.svg/80px-Coat_of_Arms_of_the_Russian_Empire.svg.png",
-  "Afsharid Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Afsharid_flag.svg/120px-Afsharid_flag.svg.png",
-  "Zand Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Zand_dynasty_map.png/100px-Zand_dynasty_map.png",
-  "Sikh Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Flag_of_the_Sikh_Empire.svg/120px-Flag_of_the_Sikh_Empire.svg.png",
-  "Sokoto Caliphate": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Sokoto_Caliphate_map.png/100px-Sokoto_Caliphate_map.png",
-  "Brazilian Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Coat_of_arms_of_Empire_of_Brazil.svg/80px-Coat_of_arms_of_Empire_of_Brazil.svg.png",
-  "Italian Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Coat_of_arms_of_the_Kingdom_of_Italy_%281890%29.svg/80px-Coat_of_arms_of_the_Kingdom_of_Italy_%281890%29.svg.png",
-  "Austro-Hungarian Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Flag_of_Austria-Hungary_%281869-1918%29.svg/120px-Flag_of_Austria-Hungary_%281869-1918%29.svg.png",
-  "Empire of Japan": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Imperial_Seal_of_Japan.svg/80px-Imperial_Seal_of_Japan.svg.png",
-  "German Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Coat_of_arms_of_the_German_Empire.svg/80px-Coat_of_arms_of_the_German_Empire.svg.png"
+// Emblems: Wikipedia Summary API — fetches the article's lead image dynamically
+// Maps empire names to their Wikipedia article titles (only needed where they differ)
+const EMPIRE_WIKI_ARTICLES = {
+  "Elamite Confideration": "Elam",
+  "Neo-Sumerian  Empire": "Third Dynasty of Ur",
+  "Assyrian Empire": "Neo-Assyrian Empire",
+  "Babylonian Empire": "Babylonia",
+  "Hittite Empire": "Hittites",
+  "Egyptian Empire New Kingdom": "New Kingdom of Egypt",
+  "Mitanni Empire": "Mitanni",
+  "Kushite Empire": "Kingdom of Kush",
+  "Punic Empire": "Carthage",
+  "Median Empire": "Medes",
+  "Chaldean Empire": "Neo-Babylonian Empire",
+  "Garamantian Empire": "Garamantes",
+  "Ptolemaic Empire": "Ptolemaic Kingdom",
+  "Aksumite Empire": "Kingdom of Aksum",
+  "Gokturk Empire": "Göktürks",
+  "Tang Dynasty": "Tang dynasty",
+  "Khazar Khaganate": "Khazars",
+  "Srivijaya Empire": "Srivijaya",
+  "Kanem-Bornu  Empire": "Kanem–Bornu Empire",
+  "Song Dynasty": "Song dynasty",
+  "Almoravid Empire": "Almoravid dynasty",
+  "Ayyubid Empire": "Ayyubid dynasty",
+  "Benin Empire": "Kingdom of Benin",
+  "Chagatai Empire": "Chagatai Khanate",
+  "Yuan Dynasty": "Yuan dynasty",
+  "Majapahit Empire": "Majapahit",
+  "Ming Empire": "Ming dynasty",
+  "Timurid Empire": "Timurid dynasty",
+  "Kongo Empire": "Kingdom of Kongo",
+  "Portugese Empire": "Portuguese Empire",
+  "Mutapa Empire": "Mutapa",
+  "Safavid Empire": "Safavid dynasty",
+  "Kaabu Empire": "Kaabu",
+  "Polish-Lithuanian Commonwealth": "Polish–Lithuanian Commonwealth",
+  "Darfur Sultanate": "Sultanate of Darfur",
+  "Tokugawa Shogunate": "Tokugawa shogunate",
+  "Wadai Empire": "Sultanate of Wadai",
+  "Qing Empire": "Qing dynasty",
+  "Afsharid Empire": "Afsharid dynasty",
+  "Zand Empire": "Zand dynasty",
+  "Brazilian Empire": "Empire of Brazil",
+  "Austro-Hungarian Empire": "Austria-Hungary",
+  "French Empire": "First French Empire"
 };
+
+const emblemCache = {};
 
 // Info panel (Feature C)
 function updateInfoPanel() {
@@ -1877,17 +1828,30 @@ function updateInfoPanel() {
   const peak = pts.reduce((a,b) => b[1]>a[1]?b:a);
   const duration = Math.round(pts[pts.length-1][0] - pts[0][0]);
   document.getElementById("info-region").textContent = emp.region;
+  document.getElementById("info-name").textContent = emp.name;
+
+  // Fetch emblem from Wikipedia Summary API
   const emblemEl = document.getElementById("info-emblem");
   const emblemImg = document.getElementById("info-emblem-img");
-  const emblemUrl = EMPIRE_EMBLEMS[emp.name];
-  if (emblemUrl) {
-    emblemImg.src = emblemUrl;
+  emblemEl.style.display = "none";
+  function setEmblem(url) {
+    emblemImg.src = url;
     emblemImg.alt = emp.name;
     emblemEl.style.display = "flex";
-  } else {
-    emblemEl.style.display = "none";
   }
-  document.getElementById("info-name").textContent = emp.name;
+  if (emblemCache[emp.name] !== undefined) {
+    if (emblemCache[emp.name]) setEmblem(emblemCache[emp.name]);
+  } else {
+    const articleTitle = EMPIRE_WIKI_ARTICLES[emp.name] || emp.name;
+    fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(articleTitle)}`)
+      .then(r => r.json())
+      .then(data => {
+        const url = data.thumbnail ? data.thumbnail.source : null;
+        emblemCache[emp.name] = url || false;
+        if (url && document.getElementById("info-name").textContent === emp.name) setEmblem(url);
+      })
+      .catch(() => { emblemCache[emp.name] = false; });
+  }
   document.getElementById("info-peak").textContent = formatYear(peak[0]);
   document.getElementById("info-duration").textContent = `${Math.abs(duration)} years`;
   document.getElementById("info-score").textContent = peak[1].toFixed(1);
