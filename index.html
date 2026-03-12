@@ -1,0 +1,2277 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Epoch Institute</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Hind+Siliguri:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0c10;
+    --surface: #12141a;
+    --border: #2a2d3a;
+    --text: #e8e0d0;
+    --muted: #7a7060;
+    --gold: #c9a84c;
+    --gold-light: #e8c97a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Crimson Pro', Georgia, serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Subtle parchment noise overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  header {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 36px 24px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  header h1 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(18px, 3vw, 32px);
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--gold-light);
+    text-shadow: 0 0 40px rgba(201,168,76,0.3);
+  }
+
+  header p {
+    margin-top: 8px;
+    font-size: 14px;
+    color: var(--muted);
+    font-style: italic;
+    letter-spacing: 0.04em;
+  }
+
+  .ornament {
+    display: inline-block;
+    color: var(--gold);
+    opacity: 0.5;
+    margin: 0 12px;
+    font-size: 18px;
+  }
+
+  /* Controls bar */
+  .controls {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 14px 24px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .region-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .tab {
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    padding: 5px 12px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: zoom-in;
+    border-radius: 2px;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+  .tab:hover { border-color: var(--gold); color: var(--gold); }
+  .tab.active { background: var(--gold); color: #0b0c10; border-color: var(--gold); font-weight: 600; }
+
+  .right-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .era-select {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Crimson Pro', serif;
+    font-size: 13px;
+    padding: 5px 10px;
+    border-radius: 2px;
+    cursor: zoom-in;
+    outline: none;
+  }
+
+  .toggle-labels {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--muted);
+    cursor: pointer;
+    user-select: none;
+  }
+  .toggle-labels input { accent-color: var(--gold); cursor: pointer; }
+
+  /* Chart area */
+  .chart-wrapper {
+    position: relative;
+    z-index: 1;
+    padding: 16px 24px 0;
+  }
+
+  #chart svg {
+    display: block;
+    width: 100%;
+  }
+
+  /* Axis styling */
+  .axis text {
+    fill: var(--muted);
+    font-family: 'Crimson Pro', serif;
+    font-size: 11px;
+  }
+  .axis line, .axis path {
+    stroke: var(--border);
+  }
+  .grid line {
+    stroke: var(--border);
+    stroke-opacity: 0.4;
+    stroke-dasharray: 2,4;
+  }
+  .grid path { stroke: none; }
+
+  .axis-label {
+    fill: var(--muted);
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+  }
+
+  /* Lines */
+  .empire-line {
+    fill: none;
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    transition: stroke-opacity 0.2s, stroke-width 0.15s;
+    cursor: zoom-in;
+  }
+  .empire-line.dimmed { stroke-opacity: 0.06; }
+  .empire-line.highlighted { stroke-width: 3; stroke-opacity: 1 !important; }
+
+  .empire-dot {
+    transition: opacity 0.2s, r 0.15s;
+    cursor: zoom-in;
+  }
+  .empire-dot.dimmed { opacity: 0.05; }
+  .empire-dot.highlighted { r: 5; }
+
+  /* Tooltip */
+  #tooltip {
+    position: fixed;
+    pointer-events: none;
+    background: var(--surface);
+    border: 1px solid var(--gold);
+    border-radius: 3px;
+    padding: 10px 14px;
+    font-size: 13px;
+    max-width: 220px;
+    z-index: 100;
+    opacity: 0;
+    transition: opacity 0.15s;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.6);
+  }
+  #tooltip.visible { opacity: 1; }
+  #tooltip .tip-empire {
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: var(--gold-light);
+    margin-bottom: 4px;
+  }
+  #tooltip .tip-region {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 6px;
+    font-style: italic;
+  }
+  #tooltip .tip-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    color: var(--text);
+  }
+  #tooltip .tip-val { font-weight: 600; color: var(--gold-light); }
+
+  /* Legend */
+  .legend {
+    position: relative;
+    z-index: 1;
+    padding: 16px 24px 24px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    border-top: 1px solid var(--border);
+    margin-top: 8px;
+  }
+
+  .legend-region {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 160px;
+  }
+
+  .legend-region-title {
+    font-family: 'Cinzel', serif;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 2px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--muted);
+    cursor: zoom-in;
+    transition: color 0.15s;
+    line-height: 1.3;
+  }
+  .legend-item:hover { color: var(--text); }
+  .legend-item.active { color: var(--text); }
+  .legend-item.solo-active { color: var(--gold-light); font-weight: 600; }
+
+  .legend-swatch {
+    width: 20px;
+    height: 2px;
+    border-radius: 1px;
+    flex-shrink: 0;
+  }
+
+  /* Era label overlays */
+  .era-band {
+    pointer-events: none;
+  }
+  .era-label-text {
+    fill: var(--muted);
+    font-family: 'Cinzel', serif;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    opacity: 0.5;
+  }
+
+  /* Search box */
+  .search-wrap {
+    position: relative;
+  }
+  #empire-search {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Crimson Pro', serif;
+    font-size: 13px;
+    padding: 5px 10px;
+    border-radius: 2px;
+    width: 160px;
+    outline: none;
+    cursor: zoom-in;
+    transition: border-color 0.2s;
+  }
+  #empire-search:focus { cursor: text; }
+  #empire-search:focus { border-color: var(--gold); }
+  #empire-search::placeholder { color: var(--muted); font-style: italic; }
+
+  .clear-btn {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    padding: 0 2px;
+    display: none;
+  }
+  .clear-btn.visible { display: block; }
+
+  /* ── Light mode theme ── */
+  [data-theme="light"] {
+    --bg: #f4efe4;
+    --surface: #ebe4d5;
+    --border: #c8b896;
+    --text: #2a2010;
+    --muted: #7a6840;
+    --gold: #8b6914;
+    --gold-light: #6b4e0a;
+  }
+  [data-theme="light"] body::before { opacity: 0.15; }
+  [data-theme="light"] .site-nav.scrolled { background: rgba(244,239,228,0.92); }
+
+  /* ── Nav toggles ── */
+  .nav-toggles { display: flex; align-items: center; gap: 8px; }
+  .nav-toggle-btn {
+    font-family: 'Cinzel', serif;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 4px 10px;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .nav-toggle-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* ── Bangla mode font ── */
+  body.bangla-mode,
+  body.bangla-mode .hero-tagline,
+  body.bangla-mode .hero-mission,
+  body.bangla-mode .explorer-description,
+  body.bangla-mode .guide-body,
+  body.bangla-mode .footer-link,
+  body.bangla-mode .footer-brand-tag {
+    font-family: 'Hind Siliguri', sans-serif;
+  }
+
+  /* ── Zoom-out button ── */
+  .zoom-reset-btn {
+    position: absolute;
+    top: 16px; right: 32px;
+    font-family: 'Cinzel', serif;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: transparent;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    padding: 5px 14px;
+    border-radius: 2px;
+    cursor: pointer;
+    z-index: 10;
+    opacity: 0;
+    pointer-events: none;
+    transition: background 0.2s, color 0.2s, opacity 0.3s;
+  }
+  .zoom-reset-btn.visible { opacity: 1; pointer-events: auto; }
+  .zoom-reset-btn:hover { background: var(--gold); color: var(--bg); }
+
+  /* ── Playback bar ── */
+  .playback-bar {
+    display: none;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 24px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    z-index: 1;
+  }
+  .play-btn, .play-reset-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--gold);
+    font-size: 14px;
+    width: 32px; height: 32px;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  .play-btn:hover, .play-reset-btn:hover { background: var(--gold); color: var(--bg); }
+  .play-year-display {
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    color: var(--gold-light);
+    letter-spacing: 0.1em;
+    min-width: 100px;
+    text-align: center;
+  }
+  .play-scrubber {
+    flex: 1;
+    accent-color: var(--gold);
+    height: 4px;
+    cursor: pointer;
+  }
+
+  /* ── Minimap ── */
+  .minimap-wrapper {
+    padding: 0 24px 8px;
+    position: relative;
+    z-index: 1;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ── Crosshair ── */
+  .crosshair-line { stroke: var(--gold); stroke-width: 1; stroke-dasharray: 3,3; opacity: 0.4; pointer-events:none; }
+  #crosshair-tip {
+    position: fixed; pointer-events: none; background: var(--surface);
+    border: 1px solid var(--border); border-radius:3px; padding:8px 12px;
+    font-size:11px; max-width:200px; z-index:100; opacity:0; transition:opacity 0.1s;
+  }
+  #crosshair-tip.visible { opacity:1; }
+  .crosshair-year { font-family:'Cinzel',serif; font-size:10px; color:var(--gold); margin-bottom:4px; }
+  .crosshair-empire { color:var(--muted); line-height:1.4; }
+
+  /* ── Info panel ── */
+  .info-panel {
+    position: fixed;
+    top: 0; right: 0;
+    width: 300px;
+    height: 100vh;
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    padding: 72px 28px 32px;
+    z-index: 150;
+    transform: translateX(100%);
+    transition: transform 0.4s cubic-bezier(0.25,0.46,0.45,0.94);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .info-panel.open { transform: translateX(0); }
+  .info-close {
+    position: absolute; top: 68px; right: 20px;
+    background: none; border: none; color: var(--muted); font-size: 16px; cursor: pointer;
+    transition: color 0.2s;
+  }
+  .info-close:hover { color: var(--gold); }
+  .info-region {
+    font-family: 'Cinzel', serif; font-size: 8px; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--gold); opacity: 0.7;
+  }
+  .info-emblem {
+    display: flex; justify-content: center; align-items: center;
+    width: 100%; padding: 8px 0 4px;
+  }
+  .info-emblem img {
+    max-width: 80px; max-height: 80px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
+    opacity: 0.9;
+  }
+  .info-name {
+    font-family: 'Cinzel', serif; font-size: clamp(14px, 1.8vw, 20px);
+    color: var(--gold-light); letter-spacing: 0.06em; line-height: 1.3;
+  }
+  .info-stats {
+    display: flex; flex-direction: column; gap: 8px;
+    padding: 12px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+  }
+  .info-stat { display: flex; justify-content: space-between; align-items: center; }
+  .info-stat-label { font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; }
+  .info-stat-val { font-family: 'Crimson Pro', serif; font-size: 14px; color: var(--text); }
+  .info-ornament { width: 40px; height: 1px; background: var(--gold); opacity: 0.4; }
+  .info-summary {
+    font-family: 'Crimson Pro', Georgia, serif; font-style: italic; font-weight: 300;
+    font-size: 14px; color: var(--muted); line-height: 1.75;
+  }
+
+  /* ── Chart guideline ── */
+  #chart-guide {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 80px 24px;
+    min-height: 360px;
+    gap: 16px;
+    position: relative;
+    z-index: 1;
+  }
+  #chart-guide.visible { display: flex; }
+  .guide-ornament {
+    display: block;
+    width: 40px;
+    height: 1px;
+    background: var(--gold);
+    opacity: 0.5;
+    margin: 0 auto 8px;
+  }
+  .guide-title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(16px, 2.5vw, 24px);
+    color: var(--gold-light);
+    letter-spacing: 0.1em;
+  }
+  .guide-body {
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-style: italic;
+    font-size: 15px;
+    color: var(--muted);
+    max-width: 520px;
+    line-height: 1.7;
+  }
+  .guide-steps {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .guide-step {
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--gold);
+    opacity: 0.85;
+    border: 1px solid var(--border);
+    padding: 6px 14px;
+    border-radius: 2px;
+  }
+  .guide-step-sep { color: var(--muted); font-size: 14px; }
+
+  /* ── Smooth scroll ── */
+  html { scroll-behavior: smooth; }
+  section { scroll-margin-top: 60px; }
+
+  /* ── Fixed nav ── */
+  .site-nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+    z-index: 200;
+    transition: background 0.3s, border-color 0.3s;
+  }
+  .site-nav.scrolled {
+    background: rgba(11,12,16,0.92);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    color: var(--gold);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-logo:hover { color: var(--gold-light); }
+  .nav-links { display: flex; gap: 32px; }
+  .nav-link {
+    font-family: 'Cinzel', serif;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-link:hover { color: var(--gold); }
+
+  /* ── Hero section ── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 80px 24px;
+    position: relative;
+    z-index: 1;
+  }
+  .hero-ornament {
+    display: block;
+    width: 60px;
+    height: 1px;
+    background: var(--gold);
+    opacity: 0.6;
+    margin: 0 auto 20px;
+  }
+  .hero-ornament + .hero-title + .hero-ornament {
+    margin: 20px auto 0;
+  }
+  .hero-title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(24px, 5vw, 52px);
+    font-weight: 700;
+    color: var(--gold-light);
+    letter-spacing: 0.2em;
+    text-shadow: 0 0 60px rgba(232,201,122,0.2);
+    margin: 0;
+  }
+  .hero-tagline {
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: clamp(14px, 2vw, 20px);
+    color: var(--text);
+    opacity: 0.85;
+    margin: 28px 0 0;
+    letter-spacing: 0.02em;
+  }
+  .hero-mission {
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-weight: 400;
+    font-size: clamp(13px, 1.5vw, 16px);
+    color: var(--muted);
+    max-width: 560px;
+    line-height: 1.75;
+    margin: 24px auto 0;
+  }
+  .hero-cta {
+    display: inline-block;
+    margin-top: 48px;
+    padding: 12px 36px;
+    border: 1px solid var(--gold);
+    background: transparent;
+    color: var(--gold);
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: background 0.25s, color 0.25s;
+  }
+  .hero-cta:hover { background: var(--gold); color: var(--bg); }
+  .scroll-indicator {
+    display: block;
+    width: 1px;
+    height: 28px;
+    background: linear-gradient(to bottom, rgba(201,168,76,0.5), transparent);
+    margin: 40px auto 0;
+    animation: scrollPulse 1.8s ease-in-out infinite;
+  }
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; }
+  }
+
+  /* ── Explorer section header ── */
+  .explorer-header {
+    padding: 72px 40px 32px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    z-index: 1;
+  }
+  .explorer-label {
+    font-family: 'Cinzel', serif;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    opacity: 0.75;
+    margin: 0 0 12px;
+  }
+  .explorer-title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(20px, 3.5vw, 34px);
+    font-weight: 700;
+    color: var(--gold-light);
+    letter-spacing: 0.08em;
+    margin: 0 0 16px;
+  }
+  .explorer-description {
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: 15px;
+    color: var(--muted);
+    max-width: 680px;
+    line-height: 1.75;
+    margin: 0;
+  }
+
+  /* ── Enhanced footer ── */
+  footer {
+    padding: 48px 40px 24px;
+    border-top: 1px solid var(--border);
+    position: relative;
+    z-index: 1;
+  }
+  .footer-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 40px;
+    margin-bottom: 40px;
+  }
+  .footer-brand {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .footer-logo {
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    color: var(--gold-light);
+  }
+  .footer-brand-tag {
+    font-size: 12px;
+    color: var(--muted);
+    font-style: italic;
+  }
+  .footer-links {
+    display: flex;
+    gap: 48px;
+    flex-wrap: wrap;
+  }
+  .footer-col {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .footer-col-title {
+    font-family: 'Cinzel', serif;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold);
+    opacity: 0.7;
+    margin-bottom: 4px;
+  }
+  .footer-link {
+    font-size: 13px;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.15s;
+    font-family: 'Crimson Pro', Georgia, serif;
+  }
+  .footer-link:hover { color: var(--text); }
+  .footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    border-top: 1px solid var(--border);
+    padding-top: 20px;
+    font-size: 11px;
+    color: var(--muted);
+    font-style: italic;
+    letter-spacing: 0.03em;
+  }
+
+  /* ── Panel-open: push chart content left ── */
+  #explorer { transition: padding-right 0.4s cubic-bezier(0.25,0.46,0.45,0.94); }
+  body.panel-open #explorer { padding-right: 302px; }
+
+  /* ── Event markers — highlighted & clickable ── */
+  .event-marker { cursor: zoom-in; }
+  .event-marker line { stroke: var(--gold) !important; opacity: 0.55 !important; stroke-width: 1.5 !important; transition: opacity 0.15s; }
+  .event-marker text { fill: var(--gold-light) !important; opacity: 0.85 !important; cursor: zoom-in; transition: opacity 0.15s; font-weight: 600 !important; }
+  .event-marker:hover line { opacity: 0.95 !important; }
+  .event-marker:hover text { opacity: 1 !important; }
+  .event-marker.ev-active line { opacity: 0.95 !important; stroke-width: 2 !important; }
+  .event-marker.ev-active text { opacity: 1 !important; }
+
+  /* ── Event description tooltip ── */
+  #event-tooltip {
+    position: fixed; pointer-events: none;
+    background: var(--surface); border: 1px solid var(--gold);
+    border-radius: 3px; padding: 12px 16px;
+    max-width: 280px; z-index: 110; opacity: 0; transition: opacity 0.15s;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.6);
+  }
+  #event-tooltip.visible { opacity: 1; }
+  .event-tip-label { font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.08em; color: var(--gold-light); margin-bottom: 4px; }
+  .event-tip-year { font-size: 11px; color: var(--muted); margin-bottom: 8px; font-style: italic; }
+  .event-tip-desc { font-family: 'Crimson Pro', serif; font-size: 13px; color: var(--text); line-height: 1.65; }
+
+  /* ── Mobile: tablet (≤768px) ── */
+  @media (max-width: 768px) {
+    .site-nav { padding: 0 20px; gap: 12px; }
+    .nav-links { gap: 18px; }
+    .nav-toggle-btn { font-size: 8px; padding: 4px 8px; }
+    .hero { padding: 100px 24px 60px; }
+    .explorer-section { padding: 24px 16px 40px; }
+    .chart-controls { flex-wrap: wrap; gap: 8px; }
+    .region-tabs { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
+    .tab { font-size: 9px; padding: 5px 10px; white-space: nowrap; flex-shrink: 0; }
+    .chart-wrapper { padding: 12px 12px 0; }
+    .info-panel { width: min(300px, 92vw); }
+    body.panel-open #explorer { padding-right: min(302px, 94vw); }
+    .legend-region { min-width: 120px; }
+    .right-controls { gap: 8px; }
+    #empire-search { width: 130px; }
+  }
+
+  /* ── Mobile: phone (≤480px) ── */
+  @media (max-width: 480px) {
+    .site-nav { padding: 0 14px; height: 54px; }
+    .nav-links { display: none; }
+    .nav-toggle-btn { font-size: 8px; padding: 4px 7px; }
+    .nav-toggles { gap: 6px; }
+    section { scroll-margin-top: 54px; }
+    .hero { padding: 86px 18px 48px; }
+    .explorer-section { padding: 16px 10px 32px; }
+    .explorer-title { font-size: clamp(16px, 5vw, 22px); }
+    .explorer-description { font-size: 13px; }
+    .chart-controls { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .right-controls { gap: 6px; flex-wrap: wrap; }
+    .region-tabs { gap: 4px; }
+    .tab { font-size: 8px; padding: 5px 8px; min-height: 30px; }
+    .era-select { font-size: 12px; padding: 5px 8px; }
+    .chart-wrapper { padding: 8px 8px 0; }
+    #empire-search { width: 120px; font-size: 12px; }
+    /* Info panel: full-width, slide up from bottom on phones */
+    .info-panel {
+      width: 100vw;
+      height: auto;
+      max-height: 70vh;
+      top: auto;
+      bottom: 0;
+      right: 0;
+      left: 0;
+      border-left: none;
+      border-top: 1px solid var(--border);
+      transform: translateY(100%);
+      padding: 20px 20px 28px;
+      border-radius: 12px 12px 0 0;
+    }
+    .info-panel.open { transform: translateY(0); }
+    .info-close { top: 16px; right: 16px; }
+    body.panel-open #explorer { padding-right: 0; padding-bottom: 72vh; }
+    .legend { padding: 0 8px; }
+    .legend-item { font-size: 10px; }
+    .legend-region { min-width: 100px; }
+    .legend-region-title { font-size: 7px; }
+    .info-emblem img { max-width: 64px; max-height: 64px; }
+    .axis text { font-size: 9px; }
+    .guide-steps { gap: 6px; }
+    .guide-step { font-size: 8px; padding: 5px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Fixed Navigation -->
+<nav class="site-nav" id="site-nav">
+  <a href="#hero" class="nav-logo">THE EPOCH INSTITUTE</a>
+  <div class="nav-links">
+    <a href="#explorer" class="nav-link" data-i18n="nav_research">Research</a>
+    <a href="#community" class="nav-link" data-i18n="nav_community">Community</a>
+    <a href="#explorer" class="nav-link" data-i18n="nav_explorer">Explorer</a>
+  </div>
+  <div class="nav-toggles">
+    <button class="nav-toggle-btn" id="export-btn" title="Export PNG" data-i18n="export_btn">↓ PNG</button>
+    <button class="nav-toggle-btn" id="lang-toggle" title="Language">বাং</button>
+    <button class="nav-toggle-btn" id="theme-toggle" title="Toggle theme">☀</button>
+  </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero" id="hero">
+  <span class="hero-ornament"></span>
+  <h1 class="hero-title">THE EPOCH INSTITUTE</h1>
+  <span class="hero-ornament"></span>
+  <p class="hero-tagline" data-i18n="hero_tagline">Understanding civilizational patterns to illuminate the present.</p>
+  <p class="hero-mission" data-i18n="hero_mission">We map the rise and decline of civilizations across five millennia — not as history lessons, but as living data for understanding societal momentum, resilience, and collapse.</p>
+  <a href="#explorer" class="hero-cta" data-i18n="hero_cta">Explore the Chart</a>
+  <span class="scroll-indicator"></span>
+</section>
+
+<!-- Explorer Section -->
+<section id="explorer">
+  <div class="explorer-header">
+    <p class="explorer-label" data-i18n="exp_label">Interactive Explorer</p>
+    <h2 class="explorer-title" data-i18n="exp_title">The Rise &amp; Fall of Empires</h2>
+    <p class="explorer-description" data-i18n="exp_desc">Ninety civilizations. Five millennia. Each trajectory scaled to its own peak — so you can compare not absolute size, but the shape of a civilization's story. Use the controls below to filter by region, era, or search for a specific empire.</p>
+  </div>
+
+  <div class="controls">
+    <div class="region-tabs" id="region-tabs">
+      <button class="tab" data-region="All" data-i18n="tab_all">All Regions</button>
+      <button class="tab" data-region="Ancient Near East" data-i18n="tab_ane">Ancient Near East</button>
+      <button class="tab" data-region="Egypt & North Africa" data-i18n="tab_ena">Egypt & N. Africa</button>
+      <button class="tab" data-region="Sub-Saharan Africa" data-i18n="tab_ssa">Sub-Saharan Africa</button>
+      <button class="tab" data-region="Europe" data-i18n="tab_eur">Europe</button>
+      <button class="tab" data-region="Islamic Caliphates & Middle East" data-i18n="tab_isl">Islamic & Middle East</button>
+      <button class="tab" data-region="Central & East Asia" data-i18n="tab_cea">Central & East Asia</button>
+      <button class="tab" data-region="South & Southeast Asia" data-i18n="tab_sea">South & SE Asia</button>
+      <button class="tab" data-region="Americas" data-i18n="tab_ame">Americas</button>
+    </div>
+    <div class="right-controls">
+      <div class="search-wrap">
+        <input type="text" id="empire-search" placeholder="Search empire…">
+        <button class="clear-btn" id="clear-search">✕</button>
+      </div>
+      <select class="era-select" id="era-select">
+        <option value="" disabled selected data-i18n="era_placeholder">— Select Era —</option>
+        <option value="all" data-i18n="era_all">Full Timeline</option>
+        <option value="ancient" data-i18n="era_ancient">Ancient (2700–500 BCE)</option>
+        <option value="classical" data-i18n="era_classical">Classical (500 BCE–500 CE)</option>
+        <option value="medieval" data-i18n="era_medieval">Medieval (500–1400 CE)</option>
+        <option value="early-modern" data-i18n="era_earlymodern">Early Modern (1400–1800 CE)</option>
+        <option value="modern" data-i18n="era_modern">Modern (1800–1980 CE)</option>
+      </select>
+      <label class="toggle-labels">
+        <input type="checkbox" id="toggle-events"> <span data-i18n="events">Events</span>
+      </label>
+      <label class="toggle-labels">
+        <input type="checkbox" id="toggle-labels"> <span data-i18n="labels">Labels</span>
+      </label>
+    </div>
+  </div>
+
+  <div class="playback-bar" id="playback-bar" style="display:none">
+    <button class="play-btn" id="play-btn">▶</button>
+    <div class="play-year-display" id="play-year">—</div>
+    <input type="range" class="play-scrubber" id="play-scrubber" min="0" max="100" value="0" step="0.1">
+    <button class="play-reset-btn" id="play-reset">⟳</button>
+  </div>
+
+  <div class="minimap-wrapper" id="minimap-wrapper" style="display:none">
+    <div id="minimap"></div>
+  </div>
+
+  <div class="chart-wrapper">
+    <button id="zoom-reset-btn" class="zoom-reset-btn" data-i18n="zoom_out">← Zoom Out</button>
+    <div id="chart-guide" class="visible">
+      <span class="guide-ornament"></span>
+      <p class="guide-title" data-i18n="guide_title">Begin Your Exploration</p>
+      <p class="guide-body" data-i18n="guide_body">Select a region tab and an era above to reveal the trajectories of civilizations across time.</p>
+      <div class="guide-steps">
+        <span class="guide-step" data-i18n="guide_step1">① Choose a Region</span>
+        <span class="guide-step-sep">→</span>
+        <span class="guide-step" data-i18n="guide_step2">② Choose an Era</span>
+        <span class="guide-step-sep">→</span>
+        <span class="guide-step" data-i18n="guide_step3">③ Explore</span>
+      </div>
+    </div>
+    <div id="chart"></div>
+  </div>
+
+  <div class="legend" id="legend"></div>
+</section>
+
+<div id="info-panel" class="info-panel">
+  <button class="info-close" id="info-close">✕</button>
+  <div class="info-region" id="info-region"></div>
+  <div class="info-emblem" id="info-emblem" style="display:none">
+    <img id="info-emblem-img" src="" alt="" onerror="this.parentElement.style.display='none'">
+  </div>
+  <h3 class="info-name" id="info-name"></h3>
+  <div class="info-stats">
+    <div class="info-stat"><span class="info-stat-label">Peak</span><span class="info-stat-val" id="info-peak"></span></div>
+    <div class="info-stat"><span class="info-stat-label">Duration</span><span class="info-stat-val" id="info-duration"></span></div>
+    <div class="info-stat"><span class="info-stat-label">Score</span><span class="info-stat-val" id="info-score">10.0</span></div>
+  </div>
+  <div class="info-ornament"></div>
+  <p class="info-summary" id="info-summary"></p>
+  <div id="info-divider2" class="info-ornament" style="display:none; margin-top:8px"></div>
+  <div id="info-compare-section" style="display:none; flex-direction:column; gap:12px">
+    <div class="info-region" id="info-compare-region"></div>
+    <h3 class="info-name" id="info-compare-name"></h3>
+    <div class="info-stats">
+      <div class="info-stat"><span class="info-stat-label">Peak</span><span class="info-stat-val" id="info-compare-peak"></span></div>
+      <div class="info-stat"><span class="info-stat-label">Duration</span><span class="info-stat-val" id="info-compare-duration"></span></div>
+      <div class="info-stat"><span class="info-stat-label">Score</span><span class="info-stat-val" id="info-compare-score"></span></div>
+    </div>
+    <div class="info-ornament"></div>
+    <p class="info-summary" id="info-compare-summary"></p>
+  </div>
+</div>
+
+<div id="crosshair-tip"></div>
+<div id="event-tooltip"></div>
+<div id="tooltip"></div>
+
+<!-- Footer -->
+<footer id="community">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <span class="footer-logo">THE EPOCH INSTITUTE</span>
+      <span class="footer-brand-tag" data-i18n="brand_tag">Historical &amp; Societal Research</span>
+    </div>
+    <div class="footer-links">
+      <div class="footer-col">
+        <span class="footer-col-title" data-i18n="footer_research">Research</span>
+        <a class="footer-link" href="#explorer" data-i18n="footer_explorer_link">Empire Explorer</a>
+        <a class="footer-link" href="#" data-i18n="footer_methodology">Methodology</a>
+        <a class="footer-link" href="#" data-i18n="footer_sources">Data Sources</a>
+      </div>
+      <div class="footer-col">
+        <span class="footer-col-title" data-i18n="footer_community">Community</span>
+        <a class="footer-link" href="#" data-i18n="footer_join">Join the Institute</a>
+        <a class="footer-link" href="#" data-i18n="footer_newsletter">Newsletter</a>
+        <a class="footer-link" href="#" data-i18n="footer_discussion">Discussion</a>
+      </div>
+      <div class="footer-col">
+        <span class="footer-col-title" data-i18n="footer_about">About</span>
+        <a class="footer-link" href="#" data-i18n="footer_mission">Our Mission</a>
+        <a class="footer-link" href="#" data-i18n="footer_contact">Contact</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span data-i18n="footer_hint">Hover over a line to inspect · Click to isolate · Use region tabs or era selector to filter</span>
+    <span data-i18n="footer_copy">© 2025 The Epoch Institute</span>
+  </div>
+</footer>
+
+<script>
+const EMPIRES = [{"name": "Elamite Confideration", "region": "Ancient Near East", "points": [[-2700.0, 2.0], [-2550.0, 3.0], [-2350.0, 1.0], [-2240.0, 6.0], [-2200.0, 4.0], [-2004.0, 5.0], [-2000.0, 7.0], [-1900.0, 6.0], [-1780.0, 8.0], [-1760.0, 6.0], [-1700.0, 9.0], [-1600.0, 4.0], [-1500.0, 4.0], [-1340.0, 6.0], [-1240.0, 7.0], [-1200.0, 9.0], [-1158.0, 10.0], [-1100.0, 5.0], [-900.0, 2.0], [-800.0, 3.0], [-743.0, 4.0], [-710.0, 3.0], [-660.0, 2.0], [-646.0, 1.0], [-600.0, 1.0], [-539.0, 0.0]]}, {"name": "Akkadian Empire", "region": "Ancient Near East", "points": [[-2334.0, 3.0], [-2310.0, 5.0], [-2300.0, 6.0], [-2279.0, 5.0], [-2270.0, 6.0], [-2254.0, 9.0], [-2240.0, 10.0], [-2218.0, 8.0], [-2200.0, 5.0], [-2193.0, 3.0], [-2170.0, 2.0], [-2154.0, 0.0]]}, {"name": "Neo-Sumerian  Empire", "region": "Ancient Near East", "points": [[-2112.0, 3.0], [-2100.0, 5.0], [-2094.0, 6.0], [-2074.0, 8.0], [-2070.0, 10.0], [-2050.0, 8.0], [-2046.0, 7.0], [-2037.0, 6.0], [-2028.0, 4.0], [-2020.0, 3.0], [-2004.0, 0.0]]}, {"name": "Assyrian Empire", "region": "Ancient Near East", "points": [[-2025.0, 2.0], [-1950.0, 3.0], [-1900.0, 4.0], [-1808.0, 5.0], [-1800.0, 7.0], [-1700.0, 3.0], [-1595.0, 1.0], [-1400.0, 1.0], [-1363.0, 3.0], [-1307.0, 5.0], [-1300.0, 6.0], [-1250.0, 8.0], [-1225.0, 9.0], [-1115.0, 4.0], [-1050.0, 2.0], [-935.0, 1.0], [-912.0, 1.0], [-911.0, 3.0], [-883.0, 5.0], [-850.0, 6.0], [-782.0, 5.0], [-745.0, 8.0], [-722.0, 9.0], [-700.0, 9.0], [-671.0, 10.0], [-650.0, 8.0], [-630.0, 5.0], [-627.0, 5.0], [-614.0, 2.0], [-612.0, 1.0], [-609.0, 0.0]]}, {"name": "Babylonian Empire", "region": "Ancient Near East", "points": [[-1894.0, 2.0], [-1860.0, 3.0], [-1800.0, 4.0], [-1792.0, 4.0], [-1764.0, 7.0], [-1760.0, 9.0], [-1750.0, 10.0], [-1749.0, 7.0], [-1740.0, 4.0], [-1700.0, 3.0], [-1650.0, 2.0], [-1600.0, 1.0], [-1595.0, 0.0]]}, {"name": "Hittite Empire", "region": "Ancient Near East", "points": [[-1650.0, 2.0], [-1600.0, 5.0], [-1595.0, 7.0], [-1540.0, 2.0], [-1500.0, 3.0], [-1450.0, 2.0], [-1400.0, 5.0], [-1360.0, 3.0], [-1344.0, 7.0], [-1322.0, 9.0], [-1300.0, 10.0], [-1274.0, 8.0], [-1250.0, 7.0], [-1245.0, 6.0], [-1207.0, 4.0], [-1200.0, 3.0], [-1190.0, 2.0], [-1178.0, 0.0]]}, {"name": "Mitanni Empire", "region": "Ancient Near East", "points": [[-1590.0, 1.0], [-1500.0, 3.0], [-1475.0, 4.0], [-1450.0, 7.0], [-1420.0, 8.0], [-1400.0, 8.0], [-1380.0, 10.0], [-1365.0, 8.0], [-1350.0, 6.0], [-1340.0, 3.0], [-1307.0, 2.0], [-1300.0, 1.0], [-1250.0, 0.0]]}, {"name": "Chaldean Empire", "region": "Ancient Near East", "points": [[-626.0, 3.0], [-620.0, 4.0], [-612.0, 7.0], [-609.0, 7.0], [-605.0, 8.0], [-601.0, 7.0], [-600.0, 8.0], [-597.0, 9.0], [-587.0, 10.0], [-580.0, 9.0], [-573.0, 8.0], [-562.0, 7.0], [-560.0, 4.0], [-556.0, 3.0], [-552.0, 2.0], [-539.0, 0.0]]}, {"name": "Median Empire", "region": "Ancient Near East", "points": [[-678.0, 2.0], [-670.0, 4.0], [-650.0, 2.0], [-625.0, 5.0], [-614.0, 7.0], [-612.0, 9.0], [-600.0, 10.0], [-585.0, 8.0], [-560.0, 5.0], [-553.0, 2.0], [-550.0, 0.0], [-549.0, 0.0]]}, {"name": "Achaemenid Empire", "region": "Ancient Near East", "points": [[-559.0, 2.0], [-550.0, 3.0], [-546.0, 5.0], [-539.0, 7.0], [-530.0, 7.0], [-525.0, 8.0], [-522.0, 6.0], [-520.0, 9.0], [-513.0, 10.0], [-500.0, 10.0], [-493.0, 9.0], [-490.0, 9.0], [-480.0, 8.0], [-479.0, 7.0], [-465.0, 7.0], [-450.0, 6.0], [-404.0, 4.0], [-401.0, 4.0], [-400.0, 5.0], [-370.0, 4.0], [-343.0, 5.0], [-338.0, 3.0], [-334.0, 2.0], [-330.0, 0.0]]}, {"name": "Egyptian Empire New Kingdom", "region": "Egypt & North Africa", "points": [[-1550.0, 3.0], [-1510.0, 5.0], [-1500.0, 4.0], [-1458.0, 7.0], [-1450.0, 9.0], [-1425.0, 9.0], [-1370.0, 10.0], [-1336.0, 5.0], [-1323.0, 6.0], [-1279.0, 7.0], [-1274.0, 8.0], [-1213.0, 7.0], [-1200.0, 4.0], [-1177.0, 5.0], [-1100.0, 2.0], [-1070.0, 0.0]]}, {"name": "Kushite Empire", "region": "Egypt & North Africa", "points": [[-1070.0, 2.0], [-1069.0, 2.0], [-800.0, 4.0], [-750.0, 6.0], [-727.0, 7.0], [-720.0, 8.0], [-712.0, 8.0], [-690.0, 10.0], [-670.0, 7.0], [-661.0, 4.0], [-640.0, 3.0], [-600.0, 3.0], [-591.0, 2.0], [-350.0, 3.0], [-300.0, 1.0], [-295.0, 6.0], [-100.0, 6.0], [100.0, 4.0], [300.0, 1.0], [350.0, 0.0]]}, {"name": "Punic Empire", "region": "Egypt & North Africa", "points": [[-814.0, 1.0], [-650.0, 2.0], [-600.0, 3.0], [-509.0, 4.0], [-500.0, 5.0], [-409.0, 7.0], [-400.0, 7.0], [-332.0, 8.0], [-300.0, 9.0], [-265.0, 10.0], [-241.0, 4.0], [-220.0, 6.0], [-216.0, 7.0], [-201.0, 2.0], [-155.0, 2.0], [-146.0, 0.0]]}, {"name": "Garamantian Empire", "region": "Egypt & North Africa", "points": [[-1000.0, 1.0], [-500.0, 2.0], [-400.0, 3.0], [-300.0, 5.0], [-200.0, 7.0], [-100.0, 8.0], [0.0, 9.0], [100.0, 10.0], [200.0, 8.0], [300.0, 6.0], [400.0, 5.0], [430.0, 3.0], [500.0, 3.0], [600.0, 1.0], [700.0, 0.0]]}, {"name": "Fatimid Caliphate", "region": "Egypt & North Africa", "points": [[909.0, 3.0], [934.0, 4.0], [943.0, 1.0], [953.0, 5.0], [969.0, 7.0], [975.0, 8.0], [1000.0, 10.0], [1021.0, 8.0], [1047.0, 7.0], [1050.0, 7.0], [1057.0, 6.0], [1062.0, 3.0], [1073.0, 3.0], [1080.0, 5.0], [1094.0, 4.0], [1100.0, 4.0], [1150.0, 3.0], [1153.0, 2.0], [1163.0, 1.0], [1171.0, 0.0]]}, {"name": "Almohad Caliphate", "region": "Egypt & North Africa", "points": [[1121.0, 2.0], [1124.0, 2.0], [1130.0, 2.0], [1139.0, 3.0], [1147.0, 6.0], [1159.0, 8.0], [1163.0, 8.0], [1170.0, 9.0], [1184.0, 9.0], [1195.0, 10.0], [1200.0, 9.0], [1212.0, 5.0], [1224.0, 3.0], [1229.0, 2.0], [1236.0, 2.0], [1250.0, 3.0], [1269.0, 0.0]]}, {"name": "Almoravid Empire", "region": "Egypt & North Africa", "points": [[1040.0, 2.0], [1056.0, 4.0], [1070.0, 6.0], [1086.0, 7.0], [1097.0, 9.0], [1100.0, 10.0], [1113.0, 8.0], [1130.0, 5.0], [1138.0, 3.0], [1147.0, 0.0]]}, {"name": "Ptolemaic Empire", "region": "Egypt & North Africa", "points": [[-323.0, 1.0], [-305.0, 2.0], [-300.0, 4.0], [-283.0, 7.0], [-280.0, 6.0], [-260.0, 5.0], [-250.0, 8.0], [-246.0, 9.0], [-241.0, 10.0], [-221.0, 7.0], [-217.0, 7.0], [-200.0, 4.0], [-170.0, 4.0], [-100.0, 3.0], [-51.0, 4.0], [-34.0, 5.0], [-31.0, 2.0], [-30.0, 0.0]]}, {"name": "Aksumite Empire", "region": "Sub-Saharan Africa", "points": [[100.0, 3.0], [200.0, 4.0], [270.0, 6.0], [320.0, 8.0], [350.0, 10.0], [500.0, 7.0], [520.0, 8.0], [575.0, 4.0], [600.0, 5.0], [800.0, 3.0], [900.0, 1.0], [940.0, 0.0]]}, {"name": "Ghana Empire", "region": "Sub-Saharan Africa", "points": [[300.0, 1.0], [500.0, 3.0], [700.0, 6.0], [800.0, 7.0], [872.0, 8.0], [992.0, 10.0], [1000.0, 10.0], [1050.0, 9.0], [1054.0, 7.0], [1076.0, 5.0], [1087.0, 4.0], [1100.0, 4.0], [1140.0, 2.0], [1200.0, 1.0], [1240.0, 0.0]]}, {"name": "Kanem-Bornu  Empire", "region": "Sub-Saharan Africa", "points": [[700.0, 2.0], [872.0, 3.0], [900.0, 4.0], [1068.0, 5.0], [1100.0, 6.0], [1200.0, 7.0], [1240.0, 9.0], [1300.0, 4.0], [1380.0, 1.0], [1400.0, 3.0], [1460.0, 5.0], [1500.0, 7.0], [1590.0, 10.0], [1600.0, 10.0], [1650.0, 7.0], [1700.0, 6.0], [1780.0, 4.0], [1800.0, 4.0], [1808.0, 2.0], [1846.0, 2.0], [1893.0, 0.0]]}, {"name": "Ethiopian Empire", "region": "Sub-Saharan Africa", "points": [[1270.0, 2.0], [1285.0, 2.0], [1300.0, 4.0], [1314.0, 5.0], [1340.0, 7.0], [1400.0, 6.0], [1434.0, 8.0], [1450.0, 9.0], [1500.0, 4.0], [1529.0, 2.0], [1543.0, 5.0], [1600.0, 6.0], [1636.0, 7.0], [1700.0, 4.0], [1769.0, 2.0], [1855.0, 5.0], [1889.0, 6.0], [1896.0, 10.0], [1930.0, 7.0], [1941.0, 4.0], [1960.0, 7.0], [1974.0, 0.0]]}, {"name": "Mali Empire", "region": "Sub-Saharan Africa", "points": [[1235.0, 2.0], [1255.0, 3.0], [1285.0, 4.0], [1300.0, 5.0], [1312.0, 7.0], [1337.0, 10.0], [1350.0, 7.0], [1390.0, 4.0], [1400.0, 4.0], [1433.0, 2.0], [1450.0, 3.0], [1468.0, 1.0], [1500.0, 2.0], [1600.0, 0.0]]}, {"name": "Benin Empire", "region": "Sub-Saharan Africa", "points": [[1180.0, 2.0], [1260.0, 3.0], [1280.0, 3.0], [1300.0, 3.0], [1400.0, 4.0], [1440.0, 6.0], [1473.0, 7.0], [1480.0, 7.0], [1500.0, 9.0], [1560.0, 10.0], [1600.0, 7.0], [1650.0, 6.0], [1700.0, 5.0], [1750.0, 6.0], [1800.0, 3.0], [1850.0, 3.0], [1897.0, 0.0]]}, {"name": "Songhai Empire", "region": "Sub-Saharan Africa", "points": [[1430.0, 2.0], [1464.0, 5.0], [1468.0, 6.0], [1480.0, 8.0], [1493.0, 8.0], [1510.0, 10.0], [1528.0, 9.0], [1540.0, 6.0], [1560.0, 7.0], [1582.0, 5.0], [1591.0, 1.0], [1600.0, 0.0]]}, {"name": "Oyo Empire", "region": "Sub-Saharan Africa", "points": [[1300.0, 2.0], [1400.0, 4.0], [1500.0, 3.0], [1535.0, 1.0], [1600.0, 7.0], [1650.0, 8.0], [1700.0, 9.0], [1748.0, 10.0], [1750.0, 8.0], [1774.0, 7.0], [1800.0, 4.0], [1823.0, 3.0], [1830.0, 3.0], [1835.0, 1.0], [1888.0, 1.0], [1896.0, 0.0]]}, {"name": "Jolof Empire", "region": "Sub-Saharan Africa", "points": [[1300.0, 1.0], [1350.0, 3.0], [1360.0, 4.0], [1380.0, 5.0], [1400.0, 6.0], [1444.0, 8.0], [1450.0, 9.0], [1460.0, 10.0], [1489.0, 6.0], [1500.0, 6.0], [1513.0, 5.0], [1530.0, 3.0], [1549.0, 0.0]]}, {"name": "Kongo Empire", "region": "Sub-Saharan Africa", "points": [[1390.0, 2.0], [1420.0, 3.0], [1450.0, 4.0], [1483.0, 6.0], [1491.0, 7.0], [1500.0, 7.0], [1512.0, 9.0], [1520.0, 10.0], [1526.0, 8.0], [1542.0, 6.0], [1568.0, 4.0], [1580.0, 5.0], [1600.0, 5.0], [1641.0, 6.0], [1665.0, 2.0], [1700.0, 2.0], [1709.0, 3.0], [1800.0, 2.0], [1885.0, 1.0], [1914.0, 0.0]]}, {"name": "Mutapa Empire", "region": "Sub-Saharan Africa", "points": [[1430.0, 2.0], [1450.0, 4.0], [1480.0, 8.0], [1500.0, 7.0], [1530.0, 10.0], [1550.0, 9.0], [1570.0, 7.0], [1600.0, 6.0], [1629.0, 2.0], [1650.0, 2.0], [1693.0, 3.0], [1700.0, 2.0], [1760.0, 0.0]]}, {"name": "Luba Empire", "region": "Sub-Saharan Africa", "points": [[1500.0, 1.0], [1585.0, 3.0], [1600.0, 4.0], [1650.0, 5.0], [1700.0, 7.0], [1750.0, 8.0], [1790.0, 9.0], [1800.0, 9.0], [1825.0, 10.0], [1850.0, 9.0], [1870.0, 6.0], [1880.0, 3.0], [1889.0, 0.0]]}, {"name": "Darfur Sultanate", "region": "Sub-Saharan Africa", "points": [[1600.0, 2.0], [1650.0, 4.0], [1700.0, 6.0], [1730.0, 5.0], [1750.0, 7.0], [1786.0, 9.0], [1800.0, 10.0], [1821.0, 7.0], [1850.0, 5.0], [1874.0, 1.0], [1884.0, 1.0], [1898.0, 4.0], [1916.0, 0.0]]}, {"name": "Ashanti Empire", "region": "Sub-Saharan Africa", "points": [[1670.0, 3.0], [1700.0, 4.0], [1701.0, 5.0], [1717.0, 5.0], [1730.0, 7.0], [1750.0, 8.0], [1765.0, 8.0], [1800.0, 9.0], [1817.0, 10.0], [1824.0, 10.0], [1826.0, 8.0], [1850.0, 8.0], [1874.0, 5.0], [1883.0, 5.0], [1896.0, 2.0], [1900.0, 1.0], [1902.0, 0.0]]}, {"name": "Rozvi Empire", "region": "Sub-Saharan Africa", "points": [[1684.0, 4.0], [1696.0, 7.0], [1700.0, 7.0], [1720.0, 9.0], [1750.0, 10.0], [1788.0, 7.0], [1800.0, 5.0], [1820.0, 4.0], [1831.0, 1.0], [1836.0, 0.0]]}, {"name": "Lunda Empire", "region": "Sub-Saharan Africa", "points": [[1600.0, 1.0], [1650.0, 2.0], [1665.0, 2.0], [1695.0, 3.0], [1700.0, 4.0], [1720.0, 5.0], [1750.0, 7.0], [1770.0, 8.0], [1800.0, 9.0], [1820.0, 10.0], [1850.0, 9.0], [1860.0, 6.0], [1870.0, 4.0], [1884.0, 1.0], [1887.0, 0.0]]}, {"name": "Adal Sultanate", "region": "Sub-Saharan Africa", "points": [[1415.0, 2.0], [1443.0, 4.0], [1445.0, 2.0], [1450.0, 3.0], [1490.0, 4.0], [1518.0, 1.0], [1527.0, 5.0], [1529.0, 7.0], [1531.0, 9.0], [1535.0, 10.0], [1543.0, 3.0], [1550.0, 4.0], [1559.0, 5.0], [1565.0, 3.0], [1577.0, 0.0]]}, {"name": "Kaabu Empire", "region": "Sub-Saharan Africa", "points": [[1537.0, 2.0], [1580.0, 4.0], [1600.0, 6.0], [1650.0, 10.0], [1700.0, 9.0], [1750.0, 8.0], [1776.0, 6.0], [1800.0, 5.0], [1840.0, 3.0], [1860.0, 1.0], [1867.0, 0.0]]}, {"name": "Wadai Empire", "region": "Sub-Saharan Africa", "points": [[1611.0, 1.0], [1635.0, 2.0], [1655.0, 3.0], [1681.0, 4.0], [1700.0, 5.0], [1747.0, 6.0], [1750.0, 7.0], [1790.0, 9.0], [1800.0, 10.0], [1815.0, 7.0], [1820.0, 5.0], [1838.0, 4.0], [1846.0, 7.0], [1850.0, 7.0], [1865.0, 8.0], [1880.0, 8.0], [1900.0, 3.0], [1906.0, 2.0], [1909.0, 1.0], [1912.0, 0.0]]}, {"name": "Sokoto Caliphate", "region": "Sub-Saharan Africa", "points": [[1804.0, 3.0], [1808.0, 6.0], [1810.0, 6.0], [1815.0, 7.0], [1837.0, 10.0], [1850.0, 8.0], [1870.0, 7.0], [1890.0, 4.0], [1900.0, 2.0], [1903.0, 0.0]]}, {"name": "Macedonian Empire", "region": "Europe", "points": [[-336.0, 3.0], [-335.0, 4.0], [-334.0, 5.0], [-333.0, 6.0], [-332.0, 7.0], [-331.0, 9.0], [-330.0, 9.0], [-328.0, 8.0], [-326.0, 10.0], [-325.0, 8.0], [-324.0, 7.0], [-323.0, 0.0]]}, {"name": "Roman Empire", "region": "Europe", "points": [[-27.0, 4.0], [9.0, 5.0], [14.0, 6.0], [69.0, 6.0], [117.0, 10.0], [165.0, 8.0], [180.0, 8.0], [235.0, 5.0], [284.0, 6.0], [312.0, 7.0], [330.0, 8.0], [378.0, 5.0], [395.0, 6.0], [410.0, 3.0], [455.0, 2.0], [476.0, 0.0]]}, {"name": "Byzantine Empire", "region": "Europe", "points": [[330.0, 3.0], [395.0, 5.0], [476.0, 5.0], [527.0, 8.0], [541.0, 9.0], [565.0, 10.0], [600.0, 7.0], [610.0, 6.0], [642.0, 3.0], [700.0, 4.0], [718.0, 5.0], [867.0, 6.0], [1000.0, 9.0], [1071.0, 5.0], [1143.0, 7.0], [1204.0, 2.0], [1261.0, 3.0], [1350.0, 3.0], [1453.0, 0.0]]}, {"name": "Carolingian Empire", "region": "Europe", "points": [[768.0, 2.0], [771.0, 3.0], [774.0, 5.0], [778.0, 4.0], [800.0, 10.0], [814.0, 7.0], [830.0, 5.0], [840.0, 5.0], [843.0, 4.0], [870.0, 3.0], [884.0, 2.0], [888.0, 0.0]]}, {"name": "Holy Roman Empire", "region": "Europe", "points": [[800.0, 3.0], [850.0, 4.0], [900.0, 3.0], [946.0, 5.0], [962.0, 7.0], [1000.0, 7.0], [1050.0, 8.0], [1076.0, 4.0], [1122.0, 6.0], [1150.0, 8.0], [1180.0, 10.0], [1230.0, 8.0], [1250.0, 5.0], [1350.0, 5.0], [1500.0, 6.0], [1555.0, 4.0], [1618.0, 4.0], [1648.0, 3.0], [1700.0, 4.0], [1806.0, 0.0]]}, {"name": "Polish-Lithuanian Commonwealth", "region": "Europe", "points": [[1569.0, 4.0], [1573.0, 5.0], [1582.0, 6.0], [1600.0, 7.0], [1618.0, 10.0], [1634.0, 8.0], [1648.0, 6.0], [1650.0, 7.0], [1660.0, 4.0], [1683.0, 5.0], [1700.0, 3.0], [1720.0, 2.0], [1764.0, 3.0], [1772.0, 3.0], [1791.0, 4.0], [1795.0, 0.0]]}, {"name": "Swedish Empire", "region": "Europe", "points": [[1611.0, 0.0], [1617.0, 2.0], [1629.0, 4.0], [1630.0, 5.0], [1631.0, 7.0], [1632.0, 6.0], [1648.0, 8.0], [1650.0, 8.0], [1658.0, 10.0], [1680.0, 9.0], [1700.0, 7.0], [1706.0, 6.0], [1709.0, 2.0], [1718.0, 1.0], [1721.0, 0.0]]}, {"name": "British Empire", "region": "Europe", "points": [[1583.0, 3.0], [1607.0, 3.0], [1650.0, 5.0], [1707.0, 6.0], [1713.0, 7.0], [1757.0, 7.0], [1763.0, 9.0], [1783.0, 7.0], [1815.0, 10.0], [1850.0, 9.0], [1858.0, 8.0], [1876.0, 9.0], [1900.0, 8.0], [1918.0, 8.0], [1931.0, 7.0], [1945.0, 6.0], [1947.0, 5.0], [1956.0, 4.0], [1960.0, 3.0], [1997.0, 0.0]]}, {"name": "French Empire", "region": "Europe", "points": [[1534.0, 2.0], [1608.0, 4.0], [1664.0, 5.0], [1700.0, 7.0], [1710.0, 8.0], [1763.0, 2.0], [1783.0, 3.0], [1804.0, 5.0], [1812.0, 6.0], [1815.0, 2.0], [1830.0, 3.0], [1870.0, 5.0], [1880.0, 7.0], [1914.0, 9.0], [1931.0, 10.0], [1940.0, 6.0], [1950.0, 4.0], [1954.0, 3.0], [1960.0, 2.0], [1962.0, 1.0], [1980.0, 0.0]]}, {"name": "Spanish Empire", "region": "Europe", "points": [[1492.0, 3.0], [1516.0, 5.0], [1520.0, 7.0], [1521.0, 7.0], [1545.0, 9.0], [1556.0, 9.0], [1570.0, 9.0], [1580.0, 10.0], [1588.0, 8.0], [1600.0, 7.0], [1621.0, 6.0], [1640.0, 5.0], [1648.0, 4.0], [1650.0, 4.0], [1700.0, 4.0], [1713.0, 3.0], [1762.0, 3.0], [1778.0, 4.0], [1800.0, 4.0], [1808.0, 2.0], [1825.0, 1.0], [1898.0, 0.0]]}, {"name": "Portugese Empire", "region": "Europe", "points": [[1415.0, 2.0], [1460.0, 3.0], [1488.0, 4.0], [1498.0, 5.0], [1510.0, 8.0], [1521.0, 9.0], [1550.0, 10.0], [1578.0, 7.0], [1600.0, 6.0], [1640.0, 5.0], [1661.0, 4.0], [1700.0, 7.0], [1720.0, 7.0], [1755.0, 6.0], [1808.0, 4.0], [1822.0, 5.0], [1890.0, 3.0], [1900.0, 4.0], [1961.0, 3.0], [1975.0, 0.0]]}, {"name": "Dutch Empire", "region": "Europe", "points": [[1581.0, 2.0], [1595.0, 3.0], [1602.0, 5.0], [1621.0, 6.0], [1641.0, 8.0], [1650.0, 10.0], [1667.0, 8.0], [1672.0, 6.0], [1700.0, 7.0], [1783.0, 3.0], [1800.0, 3.0], [1816.0, 4.0], [1850.0, 6.0], [1900.0, 7.0], [1942.0, 2.0], [1949.0, 2.0], [1975.0, 0.0]]}, {"name": "Italian Empire", "region": "Europe", "points": [[1861.0, 2.0], [1889.0, 3.0], [1896.0, 1.0], [1911.0, 4.0], [1922.0, 5.0], [1936.0, 8.0], [1939.0, 9.0], [1941.0, 10.0], [1942.0, 3.0], [1943.0, 0.0]]}, {"name": "Austro-Hungarian Empire", "region": "Europe", "points": [[1867.0, 4.0], [1870.0, 5.0], [1878.0, 8.0], [1880.0, 7.0], [1895.0, 9.0], [1900.0, 10.0], [1908.0, 7.0], [1914.0, 5.0], [1916.0, 4.0], [1917.0, 3.0], [1918.0, 0.0]]}, {"name": "German Empire", "region": "Europe", "points": [[1871.0, 4.0], [1880.0, 6.0], [1884.0, 7.0], [1890.0, 8.0], [1900.0, 9.0], [1910.0, 9.0], [1912.0, 10.0], [1914.0, 9.0], [1916.0, 5.0], [1918.0, 0.0]]}, {"name": "Russian Empire", "region": "Europe", "points": [[1721.0, 4.0], [1760.0, 6.0], [1762.0, 7.0], [1796.0, 9.0], [1800.0, 8.0], [1815.0, 9.0], [1856.0, 6.0], [1870.0, 9.0], [1885.0, 10.0], [1905.0, 6.0], [1914.0, 5.0], [1917.0, 0.0]]}, {"name": "Brazilian Empire", "region": "Europe", "points": [[1822.0, 2.0], [1831.0, 2.0], [1840.0, 5.0], [1850.0, 6.0], [1860.0, 8.0], [1870.0, 10.0], [1875.0, 9.0], [1885.0, 5.0], [1888.0, 3.0], [1889.0, 0.0]]}, {"name": "Rashidun Caliphate", "region": "Islamic Caliphates & Middle East", "points": [[632.0, 3.0], [633.0, 5.0], [634.0, 5.0], [636.0, 8.0], [637.0, 9.0], [640.0, 8.0], [644.0, 8.0], [650.0, 10.0], [656.0, 4.0], [657.0, 3.0], [661.0, 0.0]]}, {"name": "Umayyad Caliphate", "region": "Islamic Caliphates & Middle East", "points": [[661.0, 4.0], [668.0, 5.0], [680.0, 3.0], [684.0, 2.0], [692.0, 6.0], [700.0, 9.0], [710.0, 10.0], [715.0, 8.0], [717.0, 7.0], [720.0, 7.0], [724.0, 7.0], [732.0, 6.0], [740.0, 4.0], [743.0, 4.0], [744.0, 2.0], [747.0, 1.0], [750.0, 0.0]]}, {"name": "Abbasid Caliphate", "region": "Islamic Caliphates & Middle East", "points": [[750.0, 4.0], [762.0, 5.0], [786.0, 8.0], [800.0, 9.0], [820.0, 10.0], [836.0, 7.0], [850.0, 7.0], [861.0, 4.0], [870.0, 3.0], [900.0, 5.0], [945.0, 2.0], [950.0, 2.0], [1055.0, 5.0], [1150.0, 5.0], [1200.0, 6.0], [1258.0, 0.0], [1261.0, 2.0], [1350.0, 1.0], [1517.0, 0.0]]}, {"name": "Ayyubid Empire", "region": "Islamic Caliphates & Middle East", "points": [[1171.0, 3.0], [1174.0, 5.0], [1183.0, 7.0], [1187.0, 10.0], [1192.0, 8.0], [1193.0, 7.0], [1200.0, 7.0], [1210.0, 7.0], [1218.0, 6.0], [1220.0, 7.0], [1229.0, 5.0], [1238.0, 5.0], [1240.0, 4.0], [1247.0, 4.0], [1250.0, 2.0], [1258.0, 1.0], [1260.0, 0.0]]}, {"name": "Mamluk Sultanate", "region": "Islamic Caliphates & Middle East", "points": [[1250.0, 3.0], [1255.0, 2.0], [1260.0, 7.0], [1268.0, 8.0], [1277.0, 7.0], [1281.0, 8.0], [1290.0, 8.0], [1291.0, 9.0], [1299.0, 6.0], [1310.0, 9.0], [1320.0, 10.0], [1341.0, 8.0], [1347.0, 6.0], [1360.0, 5.0], [1382.0, 4.0], [1400.0, 3.0], [1426.0, 4.0], [1450.0, 3.0], [1468.0, 4.0], [1500.0, 2.0], [1516.0, 1.0], [1517.0, 0.0]]}, {"name": "Delhi Sultanate", "region": "Islamic Caliphates & Middle East", "points": [[1206.0, 2.0], [1211.0, 2.0], [1229.0, 4.0], [1266.0, 5.0], [1300.0, 7.0], [1311.0, 9.0], [1320.0, 6.0], [1330.0, 10.0], [1350.0, 5.0], [1388.0, 3.0], [1398.0, 2.0], [1420.0, 2.0], [1451.0, 3.0], [1500.0, 5.0], [1526.0, 0.0]]}, {"name": "Seljuk Empire", "region": "Islamic Caliphates & Middle East", "points": [[1037.0, 2.0], [1040.0, 3.0], [1046.0, 4.0], [1055.0, 5.0], [1063.0, 6.0], [1071.0, 8.0], [1090.0, 10.0], [1092.0, 7.0], [1100.0, 5.0], [1118.0, 7.0], [1135.0, 5.0], [1141.0, 3.0], [1150.0, 3.0], [1153.0, 2.0], [1157.0, 1.0], [1194.0, 0.0]]}, {"name": "Safavid Empire", "region": "Islamic Caliphates & Middle East", "points": [[1501.0, 3.0], [1510.0, 5.0], [1514.0, 2.0], [1524.0, 3.0], [1550.0, 5.0], [1555.0, 5.0], [1576.0, 3.0], [1588.0, 3.0], [1598.0, 7.0], [1600.0, 8.0], [1620.0, 10.0], [1629.0, 9.0], [1638.0, 6.0], [1650.0, 7.0], [1666.0, 4.0], [1694.0, 3.0], [1700.0, 5.0], [1722.0, 2.0], [1736.0, 0.0]]}, {"name": "Afsharid Empire", "region": "Islamic Caliphates & Middle East", "points": [[1729.0, 3.0], [1736.0, 5.0], [1739.0, 9.0], [1741.0, 10.0], [1744.0, 8.0], [1747.0, 2.0], [1748.0, 1.0], [1760.0, 2.0], [1780.0, 2.0], [1796.0, 0.0]]}, {"name": "Zand Empire", "region": "Islamic Caliphates & Middle East", "points": [[1747.0, 1.0], [1751.0, 3.0], [1759.0, 5.0], [1760.0, 6.0], [1770.0, 7.0], [1775.0, 9.0], [1776.0, 10.0], [1779.0, 4.0], [1785.0, 3.0], [1789.0, 2.0], [1794.0, 0.0]]}, {"name": "Mughal Empire", "region": "Islamic Caliphates & Middle East", "points": [[1526.0, 3.0], [1530.0, 2.0], [1540.0, 1.0], [1556.0, 6.0], [1580.0, 9.0], [1600.0, 9.0], [1628.0, 9.0], [1648.0, 10.0], [1658.0, 7.0], [1690.0, 8.0], [1707.0, 5.0], [1720.0, 3.0], [1739.0, 2.0], [1750.0, 3.0], [1784.0, 2.0], [1800.0, 2.0], [1857.0, 0.0]]}, {"name": "Ottoman Empire", "region": "Islamic Caliphates & Middle East", "points": [[1299.0, 2.0], [1326.0, 4.0], [1389.0, 6.0], [1402.0, 1.0], [1413.0, 4.0], [1453.0, 8.0], [1512.0, 9.0], [1520.0, 10.0], [1566.0, 9.0], [1600.0, 8.0], [1683.0, 7.0], [1699.0, 6.0], [1700.0, 6.0], [1800.0, 5.0], [1878.0, 3.0], [1913.0, 2.0], [1914.0, 2.0], [1920.0, 1.0], [1922.0, 0.0]]}, {"name": "Ilkhanate", "region": "Islamic Caliphates & Middle East", "points": [[1256.0, 3.0], [1258.0, 7.0], [1260.0, 4.0], [1270.0, 6.0], [1282.0, 5.0], [1291.0, 5.0], [1295.0, 7.0], [1300.0, 10.0], [1305.0, 8.0], [1310.0, 7.0], [1320.0, 6.0], [1330.0, 4.0], [1335.0, 1.0], [1350.0, 2.0], [1357.0, 0.0]]}, {"name": "Khwarazmian Empire", "region": "Islamic Caliphates & Middle East", "points": [[1077.0, 2.0], [1097.0, 2.0], [1127.0, 3.0], [1150.0, 4.0], [1156.0, 5.0], [1172.0, 5.0], [1190.0, 7.0], [1194.0, 7.0], [1200.0, 8.0], [1210.0, 9.0], [1215.0, 9.0], [1217.0, 10.0], [1218.0, 8.0], [1219.0, 5.0], [1220.0, 3.0], [1221.0, 2.0], [1225.0, 1.0], [1231.0, 0.0]]}, {"name": "Xiongnu Empire", "region": "Central & East Asia", "points": [[-318.0, 1.0], [-300.0, 2.0], [-250.0, 3.0], [-220.0, 3.0], [-215.0, 2.0], [-209.0, 5.0], [-208.0, 7.0], [-200.0, 9.0], [-176.0, 9.0], [-174.0, 10.0], [-170.0, 10.0], [-161.0, 9.0], [-133.0, 8.0], [-130.0, 7.0], [-127.0, 6.0], [-121.0, 5.0], [-119.0, 4.0], [-100.0, 4.0], [-87.0, 3.0], [-60.0, 2.0], [-53.0, 1.0], [-50.0, 1.0], [-36.0, 0.0]]}, {"name": "Han Dynasty", "region": "Central & East Asia", "points": [[-206.0, 0.0], [-202.0, 1.0], [-200.0, 2.0], [-180.0, 4.0], [-140.0, 6.0], [-119.0, 9.0], [-100.0, 9.0], [-87.0, 8.0], [-50.0, 10.0], [9.0, 4.0], [23.0, 1.0], [50.0, 7.0], [75.0, 8.0], [150.0, 5.0], [184.0, 2.0], [189.0, 1.0], [220.0, 0.0]]}, {"name": "Tang Dynasty", "region": "Central & East Asia", "points": [[618.0, 2.0], [621.0, 3.0], [626.0, 4.0], [630.0, 6.0], [649.0, 8.0], [650.0, 7.0], [668.0, 9.0], [690.0, 6.0], [700.0, 7.0], [712.0, 8.0], [740.0, 10.0], [751.0, 8.0], [755.0, 4.0], [763.0, 3.0], [780.0, 4.0], [800.0, 5.0], [820.0, 5.0], [850.0, 5.0], [875.0, 3.0], [881.0, 2.0], [900.0, 2.0], [907.0, 0.0]]}, {"name": "Song Dynasty", "region": "Central & East Asia", "points": [[960.0, 0.0], [976.0, 2.0], [1000.0, 4.0], [1044.0, 5.0], [1050.0, 6.0], [1076.0, 7.0], [1100.0, 8.0], [1127.0, 2.0], [1142.0, 4.0], [1150.0, 5.0], [1200.0, 4.0], [1234.0, 3.0], [1258.0, 2.0], [1276.0, 1.0], [1279.0, 0.0]]}, {"name": "Ming Empire", "region": "Central & East Asia", "points": [[1368.0, 3.0], [1380.0, 5.0], [1398.0, 3.0], [1402.0, 5.0], [1405.0, 8.0], [1413.0, 9.0], [1420.0, 10.0], [1424.0, 8.0], [1430.0, 8.0], [1435.0, 7.0], [1450.0, 5.0], [1487.0, 6.0], [1519.0, 5.0], [1550.0, 6.0], [1572.0, 7.0], [1582.0, 5.0], [1600.0, 5.0], [1618.0, 3.0], [1630.0, 2.0], [1644.0, 0.0]]}, {"name": "Qing Empire", "region": "Central & East Asia", "points": [[1644.0, 2.0], [1661.0, 3.0], [1680.0, 5.0], [1689.0, 7.0], [1700.0, 8.0], [1720.0, 9.0], [1735.0, 9.0], [1750.0, 9.0], [1760.0, 10.0], [1780.0, 10.0], [1796.0, 7.0], [1804.0, 6.0], [1820.0, 5.5], [1839.0, 5.0], [1842.0, 4.0], [1850.0, 3.0], [1860.0, 2.5], [1864.0, 3.5], [1875.0, 4.0], [1895.0, 3.0], [1900.0, 2.0], [1908.0, 1.5], [1911.0, 1.0], [1912.0, 0.0]]}, {"name": "Yuan Dynasty", "region": "Central & East Asia", "points": [[1271.0, 4.0], [1279.0, 8.0], [1285.0, 10.0], [1290.0, 7.0], [1300.0, 7.0], [1310.0, 5.0], [1320.0, 6.0], [1330.0, 5.0], [1340.0, 3.0], [1350.0, 2.0], [1368.0, 0.0]]}, {"name": "Mongol Empire", "region": "Central & East Asia", "points": [[1206.0, 3.0], [1215.0, 5.0], [1219.0, 6.0], [1227.0, 7.0], [1236.0, 9.0], [1241.0, 10.0], [1258.0, 9.0], [1260.0, 6.0], [1279.0, 8.0], [1280.0, 7.0], [1294.0, 5.0], [1300.0, 4.0], [1351.0, 2.0], [1368.0, 0.0]]}, {"name": "Chagatai Empire", "region": "Central & East Asia", "points": [[1225.0, 0.0], [1227.0, 1.0], [1250.0, 2.0], [1260.0, 4.0], [1300.0, 5.0], [1307.0, 10.0], [1320.0, 8.0], [1334.0, 7.0], [1340.0, 3.0], [1363.0, 1.0], [1370.0, 3.0], [1400.0, 2.0], [1500.0, 0.0]]}, {"name": "Timurid Empire", "region": "Central & East Asia", "points": [[1363.0, 1.0], [1370.0, 2.0], [1380.0, 4.0], [1390.0, 6.0], [1398.0, 9.0], [1400.0, 8.0], [1402.0, 10.0], [1405.0, 6.0], [1415.0, 7.0], [1420.0, 7.0], [1447.0, 5.0], [1450.0, 3.0], [1460.0, 4.0], [1469.0, 2.0], [1480.0, 3.0], [1500.0, 2.0], [1507.0, 0.0]]}, {"name": "Gokturk Empire", "region": "Central & East Asia", "points": [[546.0, 1.0], [552.0, 0.0], [570.0, 7.0], [576.0, 8.0], [600.0, 6.0], [603.0, 4.0], [630.0, 3.0], [657.0, 2.0], [680.0, 2.0], [682.0, 3.0], [710.0, 10.0], [716.0, 8.0], [730.0, 8.0], [734.0, 5.0], [744.0, 0.0]]}, {"name": "Khazar Khaganate", "region": "Central & East Asia", "points": [[650.0, 3.0], [653.0, 4.0], [700.0, 5.0], [722.0, 4.0], [730.0, 7.0], [737.0, 6.0], [750.0, 8.0], [800.0, 10.0], [832.0, 8.0], [850.0, 7.0], [900.0, 4.0], [932.0, 4.0], [950.0, 2.0], [965.0, 1.0], [969.0, 0.0]]}, {"name": "Tokugawa Shogunate", "region": "Central & East Asia", "points": [[1603.0, 3.0], [1615.0, 5.0], [1635.0, 7.0], [1650.0, 7.0], [1695.0, 10.0], [1700.0, 9.0], [1750.0, 8.0], [1800.0, 7.0], [1837.0, 5.0], [1853.0, 4.0], [1863.0, 2.0], [1868.0, 0.0]]}, {"name": "Empire of Japan", "region": "Central & East Asia", "points": [[1868.0, 3.0], [1885.0, 5.0], [1895.0, 6.0], [1905.0, 8.0], [1919.0, 8.0], [1931.0, 8.0], [1937.0, 9.0], [1941.0, 9.0], [1942.0, 10.0], [1943.0, 5.0], [1945.0, 0.0]]}, {"name": "Maurya Empire", "region": "South & Southeast Asia", "points": [[-322.0, 3.0], [-305.0, 6.0], [-300.0, 5.0], [-297.0, 6.0], [-290.0, 7.0], [-273.0, 6.0], [-268.0, 8.0], [-261.0, 9.0], [-250.0, 10.0], [-232.0, 7.0], [-230.0, 5.0], [-215.0, 4.0], [-200.0, 4.0], [-185.0, 0.0]]}, {"name": "Gupta Empire", "region": "South & Southeast Asia", "points": [[240.0, 1.0], [319.0, 2.0], [335.0, 5.0], [375.0, 9.0], [380.0, 9.0], [400.0, 10.0], [415.0, 9.0], [450.0, 8.0], [455.0, 7.0], [467.0, 5.0], [485.0, 3.0], [500.0, 4.0], [532.0, 2.0], [550.0, 0.0]]}, {"name": "Srivijaya Empire", "region": "South & Southeast Asia", "points": [[650.0, 2.0], [683.0, 3.0], [695.0, 5.0], [750.0, 6.0], [860.0, 8.0], [900.0, 8.0], [1000.0, 10.0], [1025.0, 6.0], [1100.0, 5.0], [1200.0, 5.0], [1288.0, 2.0], [1300.0, 3.0], [1377.0, 0.0]]}, {"name": "Khmer Empire", "region": "South & Southeast Asia", "points": [[802.0, 2.0], [835.0, 2.0], [850.0, 4.0], [889.0, 5.0], [950.0, 6.0], [1040.0, 7.0], [1100.0, 7.0], [1130.0, 9.0], [1177.0, 3.0], [1200.0, 10.0], [1250.0, 7.0], [1300.0, 6.0], [1350.0, 3.0], [1393.0, 2.0], [1431.0, 0.0]]}, {"name": "Majapahit Empire", "region": "South & Southeast Asia", "points": [[1293.0, 3.0], [1309.0, 4.0], [1320.0, 2.0], [1330.0, 6.0], [1334.0, 7.0], [1343.0, 8.0], [1357.0, 8.0], [1360.0, 9.0], [1365.0, 10.0], [1380.0, 9.0], [1389.0, 8.0], [1406.0, 6.0], [1420.0, 5.0], [1430.0, 4.0], [1450.0, 3.0], [1468.0, 2.0], [1478.0, 2.0], [1510.0, 1.0], [1527.0, 0.0]]}, {"name": "Sikh Empire", "region": "South & Southeast Asia", "points": [[1799.0, 3.0], [1801.0, 4.0], [1810.0, 6.0], [1820.0, 8.0], [1823.0, 9.0], [1835.0, 10.0], [1839.0, 9.0], [1841.0, 7.0], [1845.0, 4.0], [1849.0, 0.0]]}, {"name": "Parthian Empire", "region": "South & Southeast Asia", "points": [[-247.0, 2.0], [-209.0, 1.0], [-200.0, 3.0], [-188.0, 4.0], [-150.0, 6.0], [-141.0, 7.0], [-129.0, 8.0], [-100.0, 10.0], [-80.0, 5.0], [-53.0, 9.0], [-36.0, 8.0], [-20.0, 7.0], [50.0, 8.0], [117.0, 6.0], [150.0, 5.0], [165.0, 4.0], [200.0, 3.0], [224.0, 0.0]]}, {"name": "Sasanian Empire", "region": "South & Southeast Asia", "points": [[224.0, 3.0], [260.0, 7.0], [300.0, 5.0], [350.0, 9.0], [400.0, 8.0], [500.0, 7.0], [550.0, 10.0], [600.0, 8.0], [615.0, 9.0], [628.0, 2.0], [636.0, 1.0], [651.0, 0.0]]}, {"name": "Seleucid Empire", "region": "South & Southeast Asia", "points": [[-312.0, 3.0], [-305.0, 6.0], [-301.0, 7.0], [-300.0, 5.0], [-281.0, 8.0], [-280.0, 8.0], [-250.0, 6.0], [-223.0, 5.0], [-200.0, 10.0], [-190.0, 5.0], [-175.0, 5.0], [-150.0, 4.0], [-100.0, 2.0], [-83.0, 1.0], [-63.0, 0.0]]}, {"name": "Maratha Empire", "region": "South & Southeast Asia", "points": [[1674.0, 3.0], [1680.0, 3.0], [1689.0, 1.0], [1700.0, 5.0], [1707.0, 7.0], [1720.0, 8.0], [1737.0, 9.0], [1750.0, 9.0], [1758.0, 10.0], [1761.0, 3.0], [1770.0, 6.0], [1780.0, 6.0], [1800.0, 3.0], [1818.0, 0.0]]}, {"name": "Aztec Empire", "region": "Americas", "points": [[1325.0, 0.0], [1375.0, 2.0], [1427.0, 4.0], [1428.0, 6.0], [1450.0, 7.0], [1470.0, 8.0], [1490.0, 9.0], [1502.0, 9.0], [1519.0, 10.0], [1520.0, 4.0], [1521.0, 0.0]]}];
+
+const REGIONS = ["Ancient Near East","Egypt & North Africa","Sub-Saharan Africa","Europe","Islamic Caliphates & Middle East","Central & East Asia","South & Southeast Asia","Americas"];
+
+const EMPIRE_INFO = {
+  "Elamite Confideration": "One of the world's earliest civilizations, the Elamites flourished in southwestern Iran for over two millennia. At their peak they sacked Babylon and carried off the famous Code of Hammurabi stele.",
+  "Akkadian Empire": "Founded by Sargon of Akkad around 2334 BCE, the Akkadian Empire is considered history's first true empire. Sargon's conquests united Mesopotamia under a single ruler for the first time.",
+  "Neo-Sumerian  Empire": "The Third Dynasty of Ur (Ur III) represented a Sumerian renaissance, with an elaborate bureaucratic state and monumental ziggurats including the great Ziggurat of Ur.",
+  "Assyrian Empire": "The Neo-Assyrian Empire became the ancient world's most feared military power, pioneering siege warfare and psychological terror tactics. At its height it stretched from Egypt to Iran.",
+  "Babylonian Empire": "Under Hammurabi, Babylon became the cultural and commercial center of the ancient world. The Code of Hammurabi, one of history's first law codes, defined Babylonian society.",
+  "Hittite Empire": "The Hittites were ancient Anatolia's dominant power and among the first to master iron-working. Their battle at Kadesh with Egypt in 1274 BCE resulted in history's earliest known peace treaty.",
+  "Mitanni Empire": "A powerful Hurrian kingdom that dominated northern Mesopotamia and Syria, the Mitanni were renowned chariot warriors who established diplomatic marriages with Egypt's pharaohs.",
+  "Chaldean Empire": "The Neo-Babylonian Empire under Nebuchadnezzar II destroyed Jerusalem, built the legendary Hanging Gardens, and made Babylon one of antiquity's greatest cities.",
+  "Median Empire": "The first Iranian empire, the Medes overthrew Assyrian dominance by sacking Nineveh in 612 BCE. They laid the groundwork for subsequent Persian imperial organization.",
+  "Achaemenid Empire": "Founded by Cyrus the Great, the Achaemenid Persian Empire was history's largest empire to that point, stretching from Greece to India. It introduced revolutionary concepts of religious tolerance and human rights.",
+  "Egyptian Empire New Kingdom": "The New Kingdom saw Egypt reach the height of its imperial power, with warrior pharaohs like Thutmose III and Ramesses II expanding into Nubia and the Levant.",
+  "Kushite Empire": "The Kingdom of Kush outlasted Egypt's own empire, with the Nubian 25th Dynasty even ruling Egypt itself for nearly a century. Its later Meroitic phase pioneered iron smelting in Africa.",
+  "Punic Empire": "Carthage, founded by Phoenician settlers, became the Mediterranean's greatest trading empire. Its clash with Rome in three Punic Wars shaped the destiny of Western civilization.",
+  "Garamantian Empire": "A remarkable Saharan empire that built an underground irrigation network (foggaras) stretching thousands of kilometers, enabling agriculture in the heart of the desert.",
+  "Fatimid Caliphate": "The Fatimid Caliphate was a Shia Islamic dynasty that ruled much of North Africa and founded Cairo as their capital. Al-Azhar University, still operating today, is their enduring legacy.",
+  "Almohad Caliphate": "A Berber Muslim dynasty that ruled North Africa and Iberia, the Almohads transformed the intellectual landscape of the medieval Islamic world through rigorous religious reform.",
+  "Almoravid Empire": "A Berber dynasty that arose from religious reformers in the Sahara, the Almoravids united the Maghreb and Iberia and halted the Christian Reconquista at the Battle of Sagrajas.",
+  "Ptolemaic Empire": "Founded by one of Alexander's generals, the Ptolemaic dynasty made Alexandria the world's intellectual capital. The Great Library and Cleopatra VII were among its most famous legacies.",
+  "Aksumite Empire": "One of antiquity's great trading powers, Aksum controlled the Red Sea trade routes and was among the first states to adopt Christianity. The obelisks of Aksum still stand today.",
+  "Ghana Empire": "The first great empire of West Africa, Ghana controlled the trans-Saharan gold and salt trade, becoming fabulously wealthy long before European contact with the region.",
+  "Kanem-Bornu  Empire": "One of Africa's longest-lasting empires, Kanem-Bornu endured nearly a thousand years through successive dynasties, controlling central Saharan trade routes from the Lake Chad basin.",
+  "Ethiopian Empire": "The Ethiopian Empire traces its legendary origins to King Solomon, and its victory over Italy at Adwa in 1896 made it a symbol of African independence against colonialism.",
+  "Mali Empire": "The Mali Empire produced Mansa Musa, whose 1324 pilgrimage to Mecca was so laden with gold it caused currency inflation across the Mediterranean world.",
+  "Benin Empire": "The Kingdom of Benin in modern Nigeria produced the famous Benin Bronzes, among Africa's greatest artistic achievements, now displayed in museums worldwide.",
+  "Songhai Empire": "The largest empire in African history, Songhai's capital Gao and intellectual center Timbuktu were among the medieval world's most important cities.",
+  "Oyo Empire": "The Oyo Empire was the dominant Yoruba state and one of West Africa's most powerful kingdoms, with a sophisticated constitutional system that could depose an unpopular ruler.",
+  "Jolof Empire": "The Jolof Empire united the Wolof peoples of Senegal in one of West Africa's early confederacies, controlling trade between the coast and the interior.",
+  "Kongo Empire": "The Kingdom of Kongo was among Africa's most sophisticated states, with a royal bureaucracy, written records after Portuguese contact, and diplomatic relations with the Vatican.",
+  "Mutapa Empire": "The Empire of Mutapa in southern Africa controlled the gold trade between the interior and coastal Swahili merchants, accumulating vast wealth from Great Zimbabwe.",
+  "Luba Empire": "The Luba Empire in central Africa developed a sophisticated system of sacred kingship and memory devices (lukasa boards) to record royal history and cosmology.",
+  "Darfur Sultanate": "The Sultanate of Darfur was a powerful Islamic state in central Sudan that controlled trans-Saharan trade routes between North Africa and sub-Saharan kingdoms.",
+  "Ashanti Empire": "The Ashanti Confederacy of Ghana was renowned for its wealth in gold and the sacred Golden Stool, symbol of the nation's soul. Their resistance to British colonialism was fierce and prolonged.",
+  "Rozvi Empire": "The Rozvi Empire of southern Africa was the successor to Great Zimbabwe, maintaining the stone-building tradition and controlling the gold and ivory trade to the coast.",
+  "Lunda Empire": "The Lunda Empire of central Africa created a remarkably flexible political system that expanded by incorporating local rulers, spreading Lunda culture across a vast region.",
+  "Adal Sultanate": "The Sultanate of Adal launched a devastating jihad against Christian Ethiopia under Ahmad ibn Ibrahim, nearly extinguishing the ancient Ethiopian Empire.",
+  "Kaabu Empire": "The Empire of Kaabu emerged from Mali's western provinces to become a dominant Mandé state in West Africa, controlling coastal trade in modern Guinea-Bissau and Senegal.",
+  "Wadai Empire": "The Sultanate of Wadai was a powerful Islamic state in the eastern Sahel that resisted both Egyptian and French imperial expansion well into the 20th century.",
+  "Sokoto Caliphate": "Founded by the reformer Usman dan Fodio, the Sokoto Caliphate was one of Africa's largest 19th-century states, a theocratic empire spanning much of modern Nigeria.",
+  "Macedonian Empire": "Alexander the Great's twelve-year campaign created history's largest empire to that point, spreading Greek culture from Egypt to India and fundamentally transforming the ancient world.",
+  "Roman Empire": "At its peak, the Roman Empire encompassed over five million square kilometers and 70 million people. Roman law, language, and engineering shaped Western civilization for two millennia.",
+  "Byzantine Empire": "The Eastern Roman Empire survived a millennium after Rome's fall, preserving classical knowledge and Orthodox Christianity. Constantinople fell to the Ottomans only in 1453.",
+  "Carolingian Empire": "Charlemagne's empire united Western Europe for the first time since Rome, launching the Carolingian Renaissance and laying the political foundations of modern France and Germany.",
+  "Holy Roman Empire": "Voltaire famously said it was 'neither Holy, nor Roman, nor an Empire', yet this complex German confederation dominated central European politics for over a thousand years.",
+  "Polish-Lithuanian Commonwealth": "One of Europe's largest states and an early experiment in constitutional monarchy, the Commonwealth's noble democracy shaped Central European culture and politics.",
+  "Swedish Empire": "Sweden's Age of Greatness saw this small Nordic kingdom become a major European power controlling much of the Baltic Sea, before overextension led to collapse at Poltava.",
+  "British Empire": "The largest empire in history, covering a quarter of the Earth's land surface, the British Empire shaped global trade, language, law, and culture on an unprecedented scale.",
+  "French Empire": "France's imperial ambitions reached their peak under Napoleon, who redrew Europe's map, and again in the 19th century when France built the world's second-largest colonial empire.",
+  "Spanish Empire": "The first truly global empire, Spain's conquista opened the Americas to European colonization. The Spanish silver from Potosí financed European wars and transformed the global economy.",
+  "Portugese Empire": "Portugal, a tiny nation, launched the Age of Discovery and established the first truly global maritime empire, with footholds from Brazil to Japan to West Africa.",
+  "Dutch Empire": "The Dutch Golden Age saw this small republic become the world's dominant trading empire. The Dutch East India Company (VOC) was history's first multinational corporation.",
+  "Italian Empire": "Italy's brief imperial ambitions under Mussolini sought to recreate a Mediterranean Roman empire but ended in military disaster across Ethiopia, North Africa, and the Balkans.",
+  "Austro-Hungarian Empire": "The Dual Monarchy was Europe's most ethnically complex empire, containing over a dozen nationalities. Its dissolution after WWI created the fractured map of modern Central Europe.",
+  "German Empire": "The Kaiserreich's rapid industrialization made Germany Europe's economic powerhouse, but aggressive militarism and imperial rivalry triggered the catastrophe of the First World War.",
+  "Russian Empire": "Stretching eleven time zones at its peak, the Russian Empire was the world's third-largest ever. Its sudden collapse in 1917 reshaped global geopolitics for a century.",
+  "Brazilian Empire": "Brazil's constitutional monarchy was the only stable empire in the Americas, presiding over the abolition of slavery and rapid economic development before a military coup ended it.",
+  "Rashidun Caliphate": "The Rashidun Caliphate, led by the first four caliphs after Muhammad, conquered more territory in 25 years than Rome did in centuries, spreading Islam from Spain to Persia.",
+  "Umayyad Caliphate": "The Umayyad Caliphate created the largest empire the world had yet seen, stretching from Spain to Central Asia, and established Arabic as the lingua franca of the medieval world.",
+  "Abbasid Caliphate": "The Abbasid Golden Age produced extraordinary advances in mathematics, astronomy, medicine, and philosophy. Baghdad's House of Wisdom was the world's greatest intellectual center.",
+  "Ayyubid Empire": "Saladin's Ayyubid dynasty recaptured Jerusalem from the Crusaders in 1187, reshaping the balance of power in the medieval Middle East and becoming heroes of Islamic civilization.",
+  "Mamluk Sultanate": "The Mamluks — former slave soldiers — halted the Mongol advance at Ain Jalut in 1260, saving the Islamic heartland. They ruled Egypt for nearly three centuries.",
+  "Delhi Sultanate": "Five successive dynasties made the Delhi Sultanate the dominant power in medieval India, introducing Persian administrative culture and creating syncretic Indo-Islamic civilization.",
+  "Seljuk Empire": "The Seljuks revitalized the Abbasid Caliphate, crushed Byzantine power at Manzikert in 1071, and triggered the Crusades with their control of the Holy Land.",
+  "Safavid Empire": "The Safavids established Shia Islam as Persia's state religion, creating the enduring Shia-Sunni geopolitical divide. Their capital Isfahan was among the world's most beautiful cities.",
+  "Afsharid Empire": "Nader Shah, the Napoleon of Persia, briefly reunited Iran and launched campaigns from Delhi to the Caucasus. His sack of Delhi in 1739 broke Mughal power permanently.",
+  "Zand Empire": "The Zand dynasty under Karim Khan provided a rare period of stability and artistic flourishing in 18th-century Persia, with Shiraz emerging as a cultural center.",
+  "Mughal Empire": "The Mughals united the Indian subcontinent under a sophisticated syncretic culture. The Taj Mahal, built by Shah Jahan, remains the world's most visited monument.",
+  "Ottoman Empire": "The Ottoman Empire lasted over six centuries, at its height controlling three continents. The Ottomans preserved and transmitted classical knowledge while developing their own brilliant civilization.",
+  "Ilkhanate": "The Mongol Ilkhanate ruled Persia and Mesopotamia, initially devastating Islamic civilization but later converting to Islam and becoming patrons of Persian art and scholarship.",
+  "Khwarazmian Empire": "The Khwarazmian Empire briefly dominated Central Asia before Genghis Khan's devastating invasion, one of history's most catastrophic conquests, largely triggered by Khwarazmian provocation.",
+  "Xiongnu Empire": "The Xiongnu steppe confederation was China's greatest nomadic adversary for centuries. The Great Wall was built largely to counter their raids, and they may have been the ancestors of the Huns.",
+  "Han Dynasty": "The Han Dynasty defined Chinese civilization for two millennia. The Silk Road opened under Han expansion, and the Chinese still call themselves 'Han people' in their honor.",
+  "Tang Dynasty": "The Tang Dynasty is considered China's golden age, when Chang'an was the world's largest city and a cosmopolitan hub of art, poetry, and international trade.",
+  "Song Dynasty": "The Song Dynasty pioneered gunpowder weapons, printing, the compass, and paper money — four inventions that transformed the world — while producing China's most refined culture.",
+  "Ming Empire": "The Ming Dynasty built the Forbidden City and the final Great Wall, restored Chinese sovereignty after Mongol rule, and launched Zheng He's extraordinary naval expeditions.",
+  "Qing Empire": "The Manchu Qing Dynasty was China's last imperial dynasty, expanding China to its greatest territorial extent before decline under European pressure in the 19th century.",
+  "Yuan Dynasty": "Kublai Khan's Yuan Dynasty represented the Mongol Empire's Chinese chapter, unifying China and opening the Silk Road that Marco Polo traveled to the amazement of Europe.",
+  "Mongol Empire": "The Mongol Empire remains history's largest contiguous land empire. Its Pax Mongolica enabled unprecedented trade and exchange across Eurasia, connecting civilizations from China to Europe.",
+  "Chagatai Empire": "The Chagatai Khanate, Genghis Khan's middle son's inheritance, dominated Central Asia for centuries, becoming a key bridge between the Islamic world and China.",
+  "Timurid Empire": "Timur (Tamerlane) built an empire of extraordinary artistic refinement alongside devastating conquest. The Timurid Renaissance in Samarkand and Herat produced some of Islam's greatest art.",
+  "Gokturk Empire": "The First Turkic Khaganate established the Turkic peoples as a major force in Eurasian history, creating the first political entity to use the word 'Türk' as an identity.",
+  "Khazar Khaganate": "The Khazar Khaganate made the remarkable choice to adopt Judaism as its state religion, creating a unique buffer state between the Islamic world and Christian Byzantium.",
+  "Tokugawa Shogunate": "The Tokugawa Shogunate enforced over 250 years of peace in Japan through strict isolationism. This Edo period produced kabuki, woodblock prints, and haiku poetry.",
+  "Empire of Japan": "Imperial Japan's rapid modernization after 1868 transformed an isolated feudal state into a major industrial and military power within a single generation.",
+  "Maurya Empire": "Under Ashoka the Great, the Maurya Empire reached its peak and then transformed — Ashoka's conversion to Buddhism and his edicts promoting nonviolence spread dharma across Asia.",
+  "Gupta Empire": "The Gupta period is considered India's Golden Age, when the decimal system, the concept of zero, and major advances in mathematics, astronomy, and literature flourished.",
+  "Srivijaya Empire": "Srivijaya was Southeast Asia's first great maritime empire, dominating the Strait of Malacca and controlling the trade route between India and China for centuries.",
+  "Khmer Empire": "The Khmer Empire built Angkor Wat, the world's largest religious monument, as the heart of a hydraulic empire that fed millions through elaborate water management.",
+  "Majapahit Empire": "Majapahit was Southeast Asia's greatest empire, a Hindu-Buddhist maritime power that claimed suzerainty over most of the modern Indonesian archipelago.",
+  "Sikh Empire": "The Sikh Empire under Maharaja Ranjit Singh was one of the last major powers to resist British expansion in India, renowned for its disciplined Khalsa army and religious tolerance.",
+  "Parthian Empire": "The Parthian Empire held the vital Silk Road between Rome and China, enriching itself as the middleman of Eurasian trade while successfully resisting Roman conquest for centuries.",
+  "Sasanian Empire": "The last great pre-Islamic Persian empire, the Sasanians rivaled Rome and Byzantium for four centuries. Their art and administrative systems profoundly influenced early Islamic civilization.",
+  "Seleucid Empire": "Founded by one of Alexander's generals, the Seleucid Empire spread Greek culture across the Middle East, creating the Hellenistic world that shaped early Christianity and Judaism.",
+  "Maratha Empire": "The Maratha Confederacy nearly expelled the Mughals and British from India at its height, with Shivaji's guerrilla tactics inspiring Indian military strategy for generations.",
+  "Aztec Empire": "The Triple Alliance at Tenochtitlan built one of the ancient world's most populous cities on a lake island. Their sophisticated calendar, art, and ritual culture stunned Spanish conquistadors."
+};
+
+const EVENTS = [
+  {year: -776, label: "First Olympics", desc: "The ancient Olympic Games were held at Olympia in Greece for the first time, inaugurating a sacred truce among warring city-states and a tradition of athletic competition that would endure for over a millennium."},
+  {year: -509, label: "Roman Republic Founded", desc: "Rome expelled its last king, Tarquinius Superbus, and established a republican government. The Senate, consuls, and assemblies it created would shape Western political thought for two thousand years."},
+  {year: -330, label: "Alexander's Empire", desc: "Alexander the Great completed his conquest of the Achaemenid Persian Empire, reaching from Macedonia to the borders of India. His campaigns spread Greek language and culture across the ancient world in what we now call the Hellenistic Age."},
+  {year: -221, label: "Qin Unifies China", desc: "Qin Shi Huang unified the Warring States, becoming the first Emperor of a united China. He standardized weights, measures, writing, and coinage — and began construction of the Great Wall."},
+  {year: -44, label: "Caesar Assassinated", desc: "Julius Caesar was assassinated on the Ides of March by a group of senators led by Brutus and Cassius. His death plunged Rome into civil war and ultimately led to the end of the Republic and the rise of the Roman Empire."},
+  {year: 79, label: "Vesuvius Erupts", desc: "Mount Vesuvius erupted catastrophically, burying the Roman cities of Pompeii and Herculaneum under meters of volcanic ash. The preserved ruins have provided an unparalleled window into daily life in the ancient Roman world."},
+  {year: 476, label: "Fall of W. Rome", desc: "The Germanic chieftain Odoacer deposed Romulus Augustulus, the last Western Roman Emperor. Traditionally marking the end of Antiquity and the beginning of the Middle Ages in Europe."},
+  {year: 570, label: "Birth of Muhammad", desc: "The Prophet Muhammad was born in Mecca, Arabia. His revelations, compiled as the Quran, would give rise to Islam — a faith that within a century would unite the Arabian Peninsula and reshape the political map of three continents."},
+  {year: 632, label: "Islamic Expansion", desc: "Following the death of Muhammad, the Rashidun Caliphate launched a series of rapid conquests. Within a generation, Arab armies had subdued Persia, the Levant, Egypt, and North Africa in one of history's most dramatic imperial expansions."},
+  {year: 800, label: "Charlemagne Crowned", desc: "Pope Leo III crowned Charlemagne Emperor of the Romans on Christmas Day in Rome. This coronation revived the idea of a Western Empire, laid the foundations of medieval Europe, and shaped the political geography of France and Germany."},
+  {year: 1066, label: "Norman Conquest", desc: "William the Conqueror defeated King Harold II at the Battle of Hastings, fundamentally transforming England. The Norman Conquest reshaped English language, law, culture, and aristocracy in ways that persist to the present day."},
+  {year: 1206, label: "Genghis Khan", desc: "Temüjin was proclaimed Genghis Khan — Universal Ruler — at a grand assembly of Mongol tribes. He then launched a series of conquests that would create history's largest contiguous land empire, forever altering Eurasia's political landscape."},
+  {year: 1347, label: "Black Death", desc: "The bubonic plague reached Sicily from Central Asia, spreading across Europe with devastating speed. Within five years it had killed an estimated one-third of Europe's population, triggering profound social, economic, and religious upheaval."},
+  {year: 1453, label: "Fall of Constantinople", desc: "Ottoman Sultan Mehmed II conquered Constantinople after a 53-day siege, ending the Byzantine Empire and the last remnant of Rome. The fall accelerated the Renaissance as Greek scholars fled west, and marked a new era of Ottoman dominance."},
+  {year: 1492, label: "Columbus Voyage", desc: "Christopher Columbus, sailing for the Spanish Crown, reached the Americas. His voyage initiated sustained contact between the Old and New Worlds, leading to the Columbian Exchange and the era of European colonial empires."},
+  {year: 1517, label: "Reformation", desc: "Martin Luther published his Ninety-Five Theses challenging papal authority and the sale of indulgences. His protest sparked the Protestant Reformation, permanently fracturing Western Christendom and reshaping European politics for centuries."},
+  {year: 1648, label: "Peace of Westphalia", desc: "The treaties ending the Thirty Years' War established the modern concept of state sovereignty and non-interference in internal affairs. The Westphalian system remains the foundational framework of international relations."},
+  {year: 1776, label: "American Independence", desc: "The thirteen American colonies declared independence from Britain, articulating Enlightenment ideals of liberty and self-governance. The United States that followed became a model for republican government worldwide."},
+  {year: 1789, label: "French Revolution", desc: "The French Revolution overthrew the monarchy and swept away the old aristocratic order. Its ideals of liberté, égalité, fraternité — and the terror that followed — sent shockwaves through every royal court in Europe."},
+  {year: 1815, label: "Congress of Vienna", desc: "After Napoleon's defeat, European powers met in Vienna to redraw the map of Europe. The conservative order they established maintained relative peace for nearly a century, reshaping borders and balance of power."},
+  {year: 1914, label: "WWI Begins", desc: "The assassination of Archduke Franz Ferdinand triggered a chain of alliances that engulfed Europe in a catastrophic war. The Great War killed 20 million people, destroyed four empires, and set the conditions for an even deadlier conflict."},
+  {year: 1945, label: "WWII Ends", desc: "World War II ended with the defeat of Nazi Germany and Imperial Japan. The war's aftermath — the United Nations, decolonization, the Cold War, and the atomic age — defined the second half of the twentieth century."},
+];
+
+const REGION_PALETTES = {
+  "Ancient Near East":           ["#e8a87c","#d4845a","#c06638","#a84820","#f0c090","#b87040","#e09060","#c87850","#d06040","#f0a870"],
+  "Egypt & North Africa":        ["#78b4d0","#5090b8","#2870a0","#1050a0","#90c8d8","#6080b0","#4090c0","#3878b0","#5098b8","#2860a8"],
+  "Sub-Saharan Africa":          ["#88cc88","#60b060","#389038","#207020","#a0d880","#50a050","#70bc70","#409040","#80c060","#30a030","#c0e890","#48a848","#90d070","#58b858","#a8e078","#38982c","#68c058","#78b868","#48a840","#b8e08c"],
+  "Europe":                      ["#cc88aa","#b86080","#a03858","#881838","#e0a0c0","#c070a0","#d090b0","#b85888","#c878a0","#a04068","#d880a8","#b04878","#c06890","#a85878","#b068a0","#982860","#e090b8"],
+  "Islamic Caliphates & Middle East": ["#c8a840","#b09020","#907800","#d0b848","#e0c858","#a08818","#b8a030","#c8b040","#d8b838","#908020","#b89818","#c0a028","#a89010","#d0b030"],
+  "Central & East Asia":         ["#a888d0","#8860b8","#6838a0","#501888","#c0a0e0","#9870c8","#b090d8","#7848b0","#a080c8","#6040a0","#c8a8e0","#8868c0","#b898d8","#6848a8"],
+  "South & Southeast Asia":      ["#70c8b8","#40a898","#108878","#006858","#88d8c8","#50b8a8","#60c0b0","#30a090","#80ccc0","#209080","#98d8c8","#48b0a0"],
+  "Americas":                    ["#e86050"]
+};
+
+const ERAS = {
+  all:           [-2700, 1980],
+  ancient:       [-2700, -500],
+  classical:     [-500,   500],
+  medieval:      [500,   1400],
+  "early-modern":[1400,  1800],
+  modern:        [1800,  1980]
+};
+
+// Translations
+const TRANSLATIONS = {
+  en: {
+    nav_research:"Research", nav_community:"Community", nav_explorer:"Explorer",
+    hero_tagline:"Understanding civilizational patterns to illuminate the present.",
+    hero_mission:"We map the rise and decline of civilizations across five millennia — not as history lessons, but as living data for understanding societal momentum, resilience, and collapse.",
+    hero_cta:"Explore the Chart",
+    exp_label:"Interactive Explorer", exp_title:"The Rise & Fall of Empires",
+    exp_desc:"Ninety civilizations. Five millennia. Each trajectory scaled to its own peak — so you can compare not absolute size, but the shape of a civilization's story. Use the controls below to filter by region, era, or search for a specific empire.",
+    tab_all:"All Regions", tab_ane:"Ancient Near East", tab_ena:"Egypt & N. Africa",
+    tab_ssa:"Sub-Saharan Africa", tab_eur:"Europe", tab_isl:"Islamic & Middle East",
+    tab_cea:"Central & East Asia", tab_sea:"South & SE Asia", tab_ame:"Americas",
+    era_placeholder:"— Select Era —", era_all:"Full Timeline",
+    era_ancient:"Ancient (2700–500 BCE)", era_classical:"Classical (500 BCE–500 CE)",
+    era_medieval:"Medieval (500–1400 CE)", era_earlymodern:"Early Modern (1400–1800 CE)",
+    era_modern:"Modern (1800–1980 CE)",
+    labels:"Labels", search_placeholder:"Search empire…",
+    tip_year:"Year", tip_power:"Power Score",
+    axis_year:"YEAR", axis_power:"POWER SCORE (0–10)",
+    guide_title:"Begin Your Exploration",
+    guide_body:"Select a region tab and an era above to reveal the trajectories of civilizations across time.",
+    guide_step1:"① Choose a Region", guide_step2:"② Choose an Era", guide_step3:"③ Explore",
+    footer_research:"Research", footer_community:"Community", footer_about:"About",
+    footer_explorer_link:"Empire Explorer", footer_methodology:"Methodology", footer_sources:"Data Sources",
+    footer_join:"Join the Institute", footer_newsletter:"Newsletter", footer_discussion:"Discussion",
+    footer_mission:"Our Mission", footer_contact:"Contact",
+    footer_hint:"Hover over a line to inspect · Click to isolate · Use region tabs or era selector to filter",
+    footer_copy:"© 2025 The Epoch Institute", brand_tag:"Historical & Societal Research",
+    zoom_out:"← Zoom Out",
+    events:"Events", export_btn:"↓ PNG"
+  },
+  bn: {
+    nav_research:"গবেষণা", nav_community:"সম্প্রদায়", nav_explorer:"অন্বেষণ",
+    hero_tagline:"সভ্যতার নিদর্শন বিশ্লেষণ করে বর্তমানকে আলোকিত করা।",
+    hero_mission:"আমরা পাঁচ সহস্রাব্দ জুড়ে সভ্যতার উত্থান ও পতন ম্যাপ করি — ইতিহাসের পাঠ হিসেবে নয়, বরং সামাজিক গতিশীলতা, স্থিতিস্থাপকতা ও পতন বোঝার জীবন্ত ডেটা হিসেবে।",
+    hero_cta:"চার্ট দেখুন",
+    exp_label:"ইন্টারেক্টিভ অন্বেষণকারী", exp_title:"সাম্রাজ্যের উত্থান ও পতন",
+    exp_desc:"নব্বইটি সভ্যতা। পাঁচ সহস্রাব্দ। প্রতিটি পথ তার নিজস্ব শীর্ষ অনুযায়ী স্কেল করা — যাতে আপনি পরম আকার নয়, একটি সভ্যতার গল্পের আকৃতি তুলনা করতে পারেন।",
+    tab_all:"সব অঞ্চল", tab_ane:"প্রাচীন মধ্যপ্রাচ্য", tab_ena:"মিশর ও উ. আফ্রিকা",
+    tab_ssa:"সাহারা-দক্ষিণ আফ্রিকা", tab_eur:"ইউরোপ", tab_isl:"ইসলামি ও মধ্যপ্রাচ্য",
+    tab_cea:"মধ্য ও পূর্ব এশিয়া", tab_sea:"দক্ষিণ ও দক্ষিণ-পূর্ব এশিয়া", tab_ame:"আমেরিকাস",
+    era_placeholder:"— যুগ বেছে নিন —", era_all:"সম্পূর্ণ সময়রেখা",
+    era_ancient:"প্রাচীন (২৭০০–৫০০ খ্রিপূ)", era_classical:"ধ্রুপদী (৫০০ খ্রিপূ–৫০০ খ্রি)",
+    era_medieval:"মধ্যযুগীয় (৫০০–১৪০০ খ্রি)", era_earlymodern:"প্রারম্ভিক আধুনিক (১৪০০–১৮০০)",
+    era_modern:"আধুনিক (১৮০০–১৯৮০)",
+    labels:"লেবেল", search_placeholder:"সাম্রাজ্য খুঁজুন…",
+    tip_year:"বছর", tip_power:"ক্ষমতা স্কোর",
+    axis_year:"বছর", axis_power:"ক্ষমতা স্কোর (০–১০)",
+    guide_title:"অন্বেষণ শুরু করুন",
+    guide_body:"সময়ের সাথে সভ্যতার গতিপথ দেখতে উপরে একটি অঞ্চল এবং একটি যুগ বেছে নিন।",
+    guide_step1:"① অঞ্চল বেছে নিন", guide_step2:"② যুগ বেছে নিন", guide_step3:"③ অন্বেষণ করুন",
+    footer_research:"গবেষণা", footer_community:"সম্প্রদায়", footer_about:"পরিচিতি",
+    footer_explorer_link:"সাম্রাজ্য অন্বেষণকারী", footer_methodology:"পদ্ধতি", footer_sources:"তথ্যসূত্র",
+    footer_join:"ইনস্টিটিউটে যোগ দিন", footer_newsletter:"নিউজলেটার", footer_discussion:"আলোচনা",
+    footer_mission:"আমাদের লক্ষ্য", footer_contact:"যোগাযোগ",
+    footer_hint:"পরিদর্শন করতে লাইনের উপর হোভার করুন · বিচ্ছিন্ন করতে ক্লিক করুন",
+    footer_copy:"© ২০২৫ দ্য ইপক ইনস্টিটিউট", brand_tag:"ঐতিহাসিক ও সামাজিক গবেষণা",
+    zoom_out:"← জুম আউট",
+    events:"ঘটনা", export_btn:"↓ PNG"
+  }
+};
+let currentLang = "en";
+
+// Assign colors
+let regionColorIdx = {};
+REGIONS.forEach(r => regionColorIdx[r] = 0);
+EMPIRES.forEach(e => {
+  const palette = REGION_PALETTES[e.region];
+  const idx = regionColorIdx[e.region]++;
+  e.color = palette[idx % palette.length];
+});
+
+// State
+let activeRegion = null;
+let soloEmpire = null;
+let compareEmpire = null;
+let showLabels = false;
+let showEvents = false;
+let xRange = null;
+let viewDomain = null;
+let searchTerm = "";
+let playYear = null;
+let playTimer = null;
+let isPlaying = false;
+
+// Layout
+const margin = { top: 20, right: 24, bottom: 48, left: 44 };
+let W, H, innerW, innerH;
+
+const container = document.getElementById("chart");
+const svg = d3.select("#chart").append("svg");
+const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+const defs = svg.append("defs");
+defs.append("clipPath").attr("id","chart-clip")
+  .append("rect").attr("x",0).attr("y",0);
+
+const xAxisG = g.append("g").attr("class","axis x-axis");
+const yAxisG = g.append("g").attr("class","axis y-axis");
+const gridG = g.append("g").attr("class","grid");
+const eraBandsG = g.append("g").attr("class","era-bands");
+const areaG = g.append("g").attr("class","areas");
+const linesG = g.append("g").attr("class","lines").attr("clip-path","url(#chart-clip)");
+const dotsG = g.append("g").attr("class","dots").attr("clip-path","url(#chart-clip)");
+const labelsG = g.append("g").attr("class","empire-labels");
+const peaksG = g.append("g").attr("class","peaks");
+const crosshairG = g.append("g").attr("class","crosshair-group");
+
+const xScale = d3.scaleLinear();
+const yScale = d3.scaleLinear().domain([0, 10]);
+
+const lineGen = d3.line()
+  .x(d => xScale(d[0]))
+  .y(d => yScale(d[1]))
+  .curve(d3.curveCatmullRom.alpha(0.5));
+
+const areaGen = d3.area()
+  .x(d => xScale(d[0]))
+  .y0(d => yScale(0))
+  .y1(d => yScale(d[1]))
+  .curve(d3.curveCatmullRom.alpha(0.5));
+
+const tooltip = document.getElementById("tooltip");
+
+function getEffectiveDomain() {
+  return viewDomain || xRange || ERAS.all;
+}
+
+function formatYear(y) {
+  if (y < 0) return `${Math.abs(Math.round(y))} BCE`;
+  return `${Math.round(y)} CE`;
+}
+
+function isVisible(empire) {
+  if (activeRegion !== null && activeRegion !== "All" && empire.region !== activeRegion) return false;
+  const [x0, x1] = getEffectiveDomain();
+  return empire.points.some(p => p[0] >= x0 && p[0] <= x1);
+}
+
+function getPointsInRange(empire) {
+  const effectivePts = (playYear !== null)
+    ? empire.points.filter(p => p[0] <= playYear)
+    : empire.points;
+  if (!effectivePts.length) return [];
+
+  if (soloEmpire === empire.name) return effectivePts;
+  const [x0, x1] = getEffectiveDomain();
+  return effectivePts.filter((p, i, arr) => {
+    const inRange = p[0] >= x0 && p[0] <= x1;
+    const prevIn = i > 0 && arr[i-1][0] >= x0 && arr[i-1][0] <= x1;
+    const nextIn = i < arr.length-1 && arr[i+1][0] >= x0 && arr[i+1][0] <= x1;
+    return inRange || prevIn || nextIn;
+  });
+}
+
+function resize() {
+  W = container.clientWidth;
+  H = Math.max(480, Math.min(600, window.innerHeight * 0.55));
+  innerW = W - margin.left - margin.right;
+  innerH = H - margin.top - margin.bottom;
+
+  svg.attr("width", W).attr("height", H);
+  xScale.range([0, innerW]);
+  yScale.range([innerH, 0]);
+  svg.select("#chart-clip rect").attr("width", innerW).attr("height", innerH + 10);
+  render();
+}
+
+function render() {
+  const guide = document.getElementById("chart-guide");
+  if (activeRegion === null || xRange === null) {
+    linesG.selectAll("*").remove();
+    dotsG.selectAll("*").remove();
+    labelsG.selectAll("*").remove();
+    eraBandsG.selectAll("*").remove();
+    areaG.selectAll("*").remove();
+    peaksG.selectAll("*").remove();
+    crosshairG.selectAll("*").remove();
+    xAxisG.selectAll("*").remove();
+    yAxisG.selectAll("*").remove();
+    gridG.selectAll("*").remove();
+    svg.selectAll(".axis-label-x,.axis-label-y").remove();
+    guide.classList.add("visible");
+    updateLegend([]);
+    document.getElementById("playback-bar").style.display = "none";
+    document.getElementById("minimap-wrapper").style.display = "none";
+    return;
+  }
+  guide.classList.remove("visible");
+  document.getElementById("playback-bar").style.display = (activeRegion && xRange) ? "flex" : "none";
+  document.getElementById("minimap-wrapper").style.display = activeRegion ? "block" : "none";
+
+  xScale.domain(getEffectiveDomain());
+  yScale.domain([0, 10]);
+
+  // X Axis
+  const tickCount = Math.max(4, Math.min(12, Math.round(innerW / 100)));
+  xAxisG.attr("transform", `translate(0,${innerH})`).call(
+    d3.axisBottom(xScale).ticks(tickCount).tickFormat(y => {
+      const v = Math.round(y);
+      if (v < 0) return `${Math.abs(v)}BCE`;
+      return `${v}CE`;
+    })
+  );
+
+  // Y Axis
+  yAxisG.call(d3.axisLeft(yScale).ticks(5).tickFormat(d => d));
+
+  // Grid
+  gridG.call(
+    d3.axisLeft(yScale).ticks(5).tickSize(-innerW).tickFormat("")
+  );
+
+  // Axis label
+  svg.selectAll(".axis-label-x").remove();
+  svg.selectAll(".axis-label-y").remove();
+  svg.append("text").attr("class","axis-label axis-label-x")
+    .attr("x", margin.left + innerW/2).attr("y", H - 4)
+    .attr("text-anchor","middle").text(TRANSLATIONS[currentLang].axis_year);
+  svg.append("text").attr("class","axis-label axis-label-y")
+    .attr("transform",`translate(10,${margin.top + innerH/2}) rotate(-90)`)
+    .attr("text-anchor","middle").text(TRANSLATIONS[currentLang].axis_power);
+
+  // Era band lines
+  eraBandsG.selectAll("*").remove();
+  const [ed0, ed1] = getEffectiveDomain();
+  const eraMarkers = [-2000,-1000,0,500,1000,1500,1800];
+  eraMarkers.forEach(yr => {
+    if (yr < ed0 || yr > ed1) return;
+    const x = xScale(yr);
+    eraBandsG.append("line")
+      .attr("x1",x).attr("x2",x).attr("y1",0).attr("y2",innerH)
+      .attr("stroke","#3a3d4a").attr("stroke-width",1).attr("stroke-dasharray","4,4").attr("opacity",0.5);
+    eraBandsG.append("text").attr("class","era-label-text")
+      .attr("x",x+3).attr("y",12).text(formatYear(yr));
+  });
+
+  // Area fill under solo line (Feature B)
+  areaG.selectAll("*").remove();
+  if (soloEmpire) {
+    const emp = EMPIRES.find(e => e.name === soloEmpire);
+    if (emp) {
+      const gradId = "area-grad-" + emp.name.replace(/\s+/g,"_");
+      let defs = svg.select("defs");
+      if (defs.empty()) defs = svg.insert("defs","g");
+      defs.selectAll("#" + gradId).remove();
+      const grad = defs.append("linearGradient")
+        .attr("id", gradId).attr("x1","0").attr("y1","0").attr("x2","0").attr("y2","1");
+      grad.append("stop").attr("offset","0%").attr("stop-color", emp.color).attr("stop-opacity", 0.22);
+      grad.append("stop").attr("offset","100%").attr("stop-color", emp.color).attr("stop-opacity", 0);
+      areaG.append("path")
+        .datum(getPointsInRange(emp))
+        .attr("fill", `url(#${gradId})`)
+        .attr("d", areaGen);
+    }
+  }
+
+  // Event annotations (Feature J)
+  const eventsG_sel = g.selectAll(".event-marker").data(showEvents ? EVENTS.filter(ev => { const [x0,x1]=getEffectiveDomain(); return ev.year>=x0&&ev.year<=x1; }) : []);
+  eventsG_sel.exit().remove();
+  const evEnter = eventsG_sel.enter().append("g").attr("class","event-marker");
+  evEnter.append("line").attr("y1",0).attr("stroke-dasharray","2,6");
+  evEnter.append("text").attr("y",-4).attr("text-anchor","middle").attr("font-family","'Cinzel',serif").attr("font-size","8px");
+  const evMerge = eventsG_sel.merge(evEnter);
+  evMerge.attr("transform", d => `translate(${xScale(d.year)},0)`);
+  evMerge.select("line").attr("y1",0).attr("y2",innerH);
+  evMerge.select("text").text(d => d.label);
+  evMerge.on("click", function(event, d) {
+    event.stopPropagation();
+    const evTip = document.getElementById("event-tooltip");
+    const isActive = this.classList.contains("ev-active");
+    g.selectAll(".event-marker").classed("ev-active", false);
+    if (!isActive) {
+      this.classList.add("ev-active");
+      evTip.innerHTML = `<div class="event-tip-label">${d.label}</div><div class="event-tip-year">${formatYear(d.year)}</div><div class="event-tip-desc">${d.desc}</div>`;
+      const [mx, my] = d3.pointer(event, document.body);
+      evTip.style.left = Math.min(mx + 14, window.innerWidth - 300) + "px";
+      evTip.style.top = Math.min(my - 10, window.innerHeight - 160) + "px";
+      evTip.classList.add("visible");
+    } else {
+      evTip.classList.remove("visible");
+    }
+  });
+
+  const visible = EMPIRES.filter(isVisible);
+
+  // Lines
+  const linesSel = linesG.selectAll(".empire-line").data(visible, d => d.name);
+  linesSel.exit().remove();
+  const linesEnter = linesSel.enter().append("path").attr("class","empire-line");
+  const linesMerge = linesEnter.merge(linesSel);
+
+  linesMerge
+    .attr("d", d => lineGen(getPointsInRange(d)))
+    .attr("stroke", d => d.color)
+    .attr("stroke-opacity", d => getLineOpacity(d))
+    .attr("stroke-width", d => (soloEmpire === d.name || compareEmpire === d.name) ? 2.8 : 1.5)
+    .on("mousemove", (event, d) => showTooltip(event, d))
+    .on("mouseleave", hideTooltip)
+    .on("click", (event, d) => {
+      if (event.shiftKey && soloEmpire && soloEmpire !== d.name) {
+        compareEmpire = compareEmpire === d.name ? null : d.name;
+        if (compareEmpire) zoomToCompare();
+        render();
+        updateLegendActive();
+        updateInfoPanel();
+      } else {
+        compareEmpire = null;
+        toggleSolo(d.name);
+      }
+    });
+
+  // Dots (only show when solo or searching)
+  dotsG.selectAll("*").remove();
+  if (soloEmpire || searchTerm) {
+    const dotEmpires = soloEmpire
+      ? visible.filter(e => e.name === soloEmpire)
+      : visible.filter(e => e.name.toLowerCase().includes(searchTerm));
+    dotEmpires.forEach(empire => {
+      empire.points.filter(p => p[0] >= xRange[0] && p[0] <= xRange[1]).forEach(p => {
+        dotsG.append("circle")
+          .attr("cx", xScale(p[0])).attr("cy", yScale(p[1]))
+          .attr("r", 3.5)
+          .attr("fill", empire.color)
+          .attr("stroke", "#0b0c10").attr("stroke-width", 1)
+          .attr("opacity", 0.9);
+      });
+    });
+  }
+
+  // Labels
+  labelsG.selectAll("*").remove();
+  if (showLabels) {
+    const labelEmpires = soloEmpire
+      ? visible.filter(e => e.name === soloEmpire)
+      : searchTerm
+        ? visible.filter(e => e.name.toLowerCase().includes(searchTerm))
+        : visible;
+
+    labelEmpires.forEach(empire => {
+      const pts = getPointsInRange(empire);
+      if (!pts.length) return;
+      // Find the peak point in range
+      const peakPt = pts.reduce((a,b) => b[1] > a[1] ? b : a);
+      const x = xScale(peakPt[0]);
+      const y = yScale(peakPt[1]) - 7;
+      labelsG.append("text")
+        .attr("x", x).attr("y", y)
+        .attr("text-anchor","middle")
+        .attr("fill", empire.color)
+        .attr("font-family","'Crimson Pro', serif")
+        .attr("font-size", soloEmpire ? "12px" : "9px")
+        .attr("font-style","italic")
+        .attr("opacity", soloEmpire || searchTerm ? 1 : 0.7)
+        .text(empire.name);
+    });
+  }
+
+  // Peak markers (Feature G)
+  peaksG.selectAll("*").remove();
+  const peakEmpires = soloEmpire ? visible.filter(e => e.name === soloEmpire || e.name === compareEmpire) : visible;
+  peakEmpires.forEach(emp => {
+    const pts = getPointsInRange(emp);
+    if (!pts.length) return;
+    const peak = pts.reduce((a,b) => b[1] > a[1] ? b : a);
+    peaksG.append("text")
+      .attr("x", xScale(peak[0])).attr("y", yScale(peak[1]) - 2)
+      .attr("text-anchor","middle")
+      .attr("font-size","10px")
+      .attr("fill", emp.color)
+      .attr("opacity", soloEmpire ? 1 : 0.6)
+      .attr("class","peak-marker")
+      .text("◆")
+      .append("title").text(`${emp.name} peak: ${formatYear(peak[0])}`);
+  });
+
+  // Crosshair overlay (Feature K) - only set up once
+  crosshairG.selectAll("*").remove();
+  if (!soloEmpire) {
+    crosshairG.append("rect")
+      .attr("width", innerW).attr("height", innerH)
+      .attr("fill", "transparent")
+      .attr("class", "crosshair-overlay")
+      .on("mousemove", function(event) {
+        const [px] = d3.pointer(event);
+        const mouseX = xScale.invert(px);
+        const active = EMPIRES.filter(e => isVisible(e) && e.points.some((p,i,arr) => {
+          if (i === arr.length-1) return false;
+          return p[0] <= mouseX && arr[i+1][0] >= mouseX;
+        }));
+        crosshairG.selectAll(".crosshair-line").remove();
+        crosshairG.append("line")
+          .attr("class","crosshair-line")
+          .attr("x1",px).attr("x2",px).attr("y1",0).attr("y2",innerH);
+        const tip = document.getElementById("crosshair-tip");
+        const names = active.slice(0,8).map(e => `<span style="color:${e.color}">${e.name}</span>`).join("<br>");
+        tip.innerHTML = `<div class="crosshair-year">${formatYear(mouseX)}</div><div class="crosshair-empire">${names || "—"}</div>`;
+        tip.classList.add("visible");
+        const [mx, my] = d3.pointer(event, document.body);
+        tip.style.left = Math.min(mx + 14, window.innerWidth - 220) + "px";
+        tip.style.top = Math.min(my - 10, window.innerHeight - 160) + "px";
+      })
+      .on("mouseleave", function() {
+        crosshairG.selectAll(".crosshair-line").remove();
+        document.getElementById("crosshair-tip").classList.remove("visible");
+      })
+      .on("click", function(event) {
+        const [px, py] = d3.pointer(event);
+        const mouseX = xScale.invert(px);
+        let nearest = null, minPixelDist = Infinity;
+        EMPIRES.filter(isVisible).forEach(emp => {
+          const pts = getPointsInRange(emp);
+          for (let i = 0; i < pts.length - 1; i++) {
+            if (pts[i][0] <= mouseX && pts[i+1][0] >= mouseX) {
+              const t = (mouseX - pts[i][0]) / (pts[i+1][0] - pts[i][0]);
+              const interpY = pts[i][1] + t * (pts[i+1][1] - pts[i][1]);
+              const dist = Math.abs(yScale(interpY) - py);
+              if (dist < minPixelDist) { minPixelDist = dist; nearest = emp; }
+            }
+          }
+        });
+        if (nearest && minPixelDist < 16) {
+          compareEmpire = null;
+          toggleSolo(nearest.name);
+        }
+      });
+  }
+
+  // Playback cursor
+  g.selectAll(".play-cursor").remove();
+  if (playYear !== null) {
+    const [x0,x1] = getEffectiveDomain();
+    if (playYear >= x0 && playYear <= x1) {
+      g.append("line").attr("class","play-cursor")
+        .attr("x1", xScale(playYear)).attr("x2", xScale(playYear))
+        .attr("y1", 0).attr("y2", innerH)
+        .attr("stroke","var(--gold)").attr("stroke-width",1.5)
+        .attr("opacity",0.7).attr("pointer-events","none");
+    }
+  }
+
+  updateLegend(visible);
+  updateMinimapBrush();
+}
+
+function getLineOpacity(d) {
+  if (soloEmpire) {
+    if (d.name === soloEmpire || d.name === compareEmpire) return 1;
+    return 0.04;
+  }
+  if (searchTerm) return d.name.toLowerCase().includes(searchTerm) ? 0.95 : 0.06;
+  return 0.75;
+}
+
+// Playback functions (Feature A)
+function getPlayRange() {
+  return xRange || ERAS.all;
+}
+
+function setPlayYear(yr) {
+  playYear = yr;
+  const [start, end] = getPlayRange();
+  const pct = ((yr - start) / (end - start)) * 100;
+  document.getElementById("play-scrubber").value = pct;
+  document.getElementById("play-year").textContent = formatYear(yr);
+  render();
+}
+
+function startPlay() {
+  if (isPlaying) return;
+  isPlaying = true;
+  document.getElementById("play-btn").textContent = "⏸";
+  const [start, end] = getPlayRange();
+  if (playYear === null || playYear >= end) playYear = start;
+  const totalMs = 12000;
+  const range = end - start;
+  let lastTime = null;
+  playTimer = d3.timer(elapsed => {
+    if (!isPlaying) { playTimer.stop(); return; }
+    if (lastTime === null) lastTime = elapsed;
+    const dt = elapsed - lastTime;
+    lastTime = elapsed;
+    playYear = Math.min(end, playYear + (range * dt / totalMs));
+    setPlayYear(playYear);
+    if (playYear >= end) {
+      stopPlay();
+    }
+  });
+}
+
+function stopPlay() {
+  isPlaying = false;
+  if (playTimer) { playTimer.stop(); playTimer = null; }
+  document.getElementById("play-btn").textContent = "▶";
+}
+
+// Minimap functions (Feature D)
+const mmMargin = {top:4, right:24, bottom:16, left:44};
+const mmH = 48;
+let mmSvg, mmX, mmBrush, mmBrushG;
+
+function buildMinimap() {
+  const wrapper = document.getElementById("minimap");
+  wrapper.innerHTML = "";
+  const W2 = wrapper.clientWidth || container.clientWidth;
+  const mmInnerW = W2 - mmMargin.left - mmMargin.right;
+  const mmInnerH = mmH - mmMargin.top - mmMargin.bottom;
+
+  mmSvg = d3.select("#minimap").append("svg")
+    .attr("width", W2).attr("height", mmH);
+  const mmG = mmSvg.append("g").attr("transform",`translate(${mmMargin.left},${mmMargin.top})`);
+
+  mmX = d3.scaleLinear().domain(ERAS.all).range([0, mmInnerW]);
+  const mmY = d3.scaleLinear().domain([0,10]).range([mmInnerH, 0]);
+  const mmLine = d3.line().x(d=>mmX(d[0])).y(d=>mmY(d[1])).curve(d3.curveCatmullRom.alpha(0.5));
+
+  const filtered = activeRegion && activeRegion !== "All"
+    ? EMPIRES.filter(e => e.region === activeRegion)
+    : EMPIRES;
+
+  filtered.forEach(emp => {
+    mmG.append("path").datum(emp.points)
+      .attr("fill","none").attr("stroke",emp.color)
+      .attr("stroke-width",0.5).attr("opacity",0.3)
+      .attr("d", mmLine);
+  });
+
+  mmG.append("g").attr("transform",`translate(0,${mmInnerH})`).call(
+    d3.axisBottom(mmX).ticks(8).tickFormat(y => { const v=Math.round(y); return v<0?`${Math.abs(v)}B`:`${v}`; }).tickSize(3)
+  ).selectAll("text").attr("fill","var(--muted)").attr("font-size","8px");
+  mmG.select(".domain").attr("stroke","var(--border)");
+
+  mmBrush = d3.brushX()
+    .extent([[0,0],[mmInnerW, mmInnerH]])
+    .on("brush end", ({selection, sourceEvent}) => {
+      if (!sourceEvent) return;
+      if (!selection) return;
+      const [x0, x1] = selection.map(mmX.invert);
+      xRange = [x0, x1];
+      viewDomain = null;
+      soloEmpire = null;
+      compareEmpire = null;
+      stopPlay();
+      playYear = null;
+      updateZoomButton();
+      document.getElementById("era-select").value = "";
+      render();
+      encodeState();
+    });
+
+  mmBrushG = mmG.append("g").attr("class","brush").call(mmBrush);
+  mmBrushG.select(".selection")
+    .attr("fill","var(--gold)").attr("fill-opacity",0.15)
+    .attr("stroke","var(--gold)").attr("stroke-width",1);
+
+  updateMinimapBrush();
+}
+
+function updateMinimapBrush() {
+  if (!mmBrush || !mmBrushG || !xRange) return;
+  const [x0,x1] = xRange;
+  if (!mmX) return;
+  mmBrushG.call(mmBrush.move, [mmX(x0), mmX(x1)]);
+}
+
+// Emblems: Wikimedia Commons Special:FilePath URLs (academically recognized symbols)
+const EMPIRE_EMBLEMS = {
+  "Elamite Confideration": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Elamite_Empire_map.svg/240px-Elamite_Empire_map.svg.png",
+  "Akkadian Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Akkadian_Empire_Sargon.png/120px-Akkadian_Empire_Sargon.png",
+  "Neo-Sumerian  Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Ur_III_period.png/120px-Ur_III_period.png",
+  "Assyrian Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Assyria_symbol.svg/120px-Assyria_symbol.svg.png",
+  "Babylonian Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Hammurabi%27s_Babylonia_1.svg/120px-Hammurabi%27s_Babylonia_1.svg.png",
+  "Hittite Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Hittite_sun.svg/120px-Hittite_sun.svg.png",
+  "Egyptian Empire New Kingdom": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Cartouche_Ramesses_II.svg/60px-Cartouche_Ramesses_II.svg.png",
+  "Mitanni Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Mitanni_Kingdom.png/120px-Mitanni_Kingdom.png",
+  "Kushite Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Meroe_Pyramids_23deg_E.jpg/120px-Meroe_Pyramids_23deg_E.jpg",
+  "Punic Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Flag_of_Carthage.svg/120px-Flag_of_Carthage.svg.png",
+  "Median Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Median_Empire_map.png/120px-Median_Empire_map.png",
+  "Chaldean Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Ishtar_Gate_Babylone.jpg/90px-Ishtar_Gate_Babylone.jpg",
+  "Achaemenid Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Faravahar.svg/80px-Faravahar.svg.png",
+  "Garamantian Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Garamantian_Empire.png/120px-Garamantian_Empire.png",
+  "Xiongnu Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Xiongnu_Empire.png/120px-Xiongnu_Empire.png",
+  "Macedonian Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Vergina_Sun_-_Golden_Larnax.png/80px-Vergina_Sun_-_Golden_Larnax.png",
+  "Maurya Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Ashoka_Chakra.svg/100px-Ashoka_Chakra.svg.png",
+  "Seleucid Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Seleucid_Empire_200_BC.png/120px-Seleucid_Empire_200_BC.png",
+  "Ptolemaic Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Egypt_Ptolemaic_Eagle.svg/80px-Egypt_Ptolemaic_Eagle.svg.png",
+  "Parthian Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Arsacid_dynasty_emblem.png/80px-Arsacid_dynasty_emblem.png",
+  "Han Dynasty": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Han_dynasty_1_BCE.png/120px-Han_dynasty_1_BCE.png",
+  "Roman Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Coat_of_arms_of_the_Roman_Empire.svg/80px-Coat_of_arms_of_the_Roman_Empire.svg.png",
+  "Aksumite Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Aksum_obelisk_2.jpg/60px-Aksum_obelisk_2.jpg",
+  "Sasanian Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Sasanian_Farvahar.svg/80px-Sasanian_Farvahar.svg.png",
+  "Ghana Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Ghana_Empire_map.png/120px-Ghana_Empire_map.png",
+  "Gupta Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Gupta_Empire_320_550_CE.png/120px-Gupta_Empire_320_550_CE.png",
+  "Byzantine Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Byzantine_Empire_Emblem.svg/80px-Byzantine_Empire_Emblem.svg.png",
+  "Gokturk Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Gokturk_khaganate.png/120px-Gokturk_khaganate.png",
+  "Tang Dynasty": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Tang_Dynasty_Eagle.svg/80px-Tang_Dynasty_Eagle.svg.png",
+  "Rashidun Caliphate": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Rashidun_Caliphate_at_its_peak.png/120px-Rashidun_Caliphate_at_its_peak.png",
+  "Khazar Khaganate": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Khazar_Khaganate_flood.png/120px-Khazar_Khaganate_flood.png",
+  "Srivijaya Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Srivijaya_empire.png/120px-Srivijaya_empire.png",
+  "Umayyad Caliphate": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Flag_of_the_Umayyad_Caliphate.svg/120px-Flag_of_the_Umayyad_Caliphate.svg.png",
+  "Kanem-Bornu  Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Kanem-Bornu_empire.png/120px-Kanem-Bornu_empire.png",
+  "Abbasid Caliphate": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Flag_of_the_Abbasid_Caliphate.svg/120px-Flag_of_the_Abbasid_Caliphate.svg.png",
+  "Carolingian Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Carolingian_cross.svg/80px-Carolingian_cross.svg.png",
+  "Holy Roman Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Coat_of_Arms_Holy_Roman_Empire.svg/80px-Coat_of_Arms_Holy_Roman_Empire.svg.png",
+  "Fatimid Caliphate": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Flag_of_the_Fatimid_Caliphate.svg/120px-Flag_of_the_Fatimid_Caliphate.svg.png",
+  "Song Dynasty": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Song_Dynasty_Dragon.svg/80px-Song_Dynasty_Dragon.svg.png",
+  "Seljuk Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Flag_of_the_Seljuk_Empire.svg/120px-Flag_of_the_Seljuk_Empire.svg.png",
+  "Almoravid Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Almoravid_dynasty_banner.svg/80px-Almoravid_dynasty_banner.svg.png",
+  "Khmer Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Angkor_Wat_temple.jpg/100px-Angkor_Wat_temple.jpg",
+  "Khwarazmian Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Khwarezm_Empire_1220_-_Map.png/120px-Khwarezm_Empire_1220_-_Map.png",
+  "Almohad Caliphate": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Almohad_banner.svg/80px-Almohad_banner.svg.png",
+  "Ayyubid Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Ayyubid_Dynasty_Eagle.svg/80px-Ayyubid_Dynasty_Eagle.svg.png",
+  "Benin Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Benin_bronze_head.jpg/80px-Benin_bronze_head.jpg",
+  "Delhi Sultanate": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Delhi_Sultanate_at_its_height.png/100px-Delhi_Sultanate_at_its_height.png",
+  "Mongol Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Soyombo_symbol.svg/80px-Soyombo_symbol.svg.png",
+  "Chagatai Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Chagatai_Khanate_flag.svg/120px-Chagatai_Khanate_flag.svg.png",
+  "Mali Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Mali_Empire_map.png/120px-Mali_Empire_map.png",
+  "Mamluk Sultanate": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Mamluk_flag.svg/120px-Mamluk_flag.svg.png",
+  "Ilkhanate": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Ilkhanate_1256_1353.png/120px-Ilkhanate_1256_1353.png",
+  "Ethiopian Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Coat_of_arms_of_Ethiopia_%281975%E2%80%931987%29.svg/80px-Coat_of_arms_of_Ethiopia_%281975%E2%80%931987%29.svg.png",
+  "Yuan Dynasty": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Yuan_dynasty_1294.png/100px-Yuan_dynasty_1294.png",
+  "Majapahit Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Majapahit_Empire_icon.png/80px-Majapahit_Empire_icon.png",
+  "Ottoman Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Ottoman_coat_of_arms.svg/80px-Ottoman_coat_of_arms.svg.png",
+  "Oyo Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Oyo_Empire_1700.png/100px-Oyo_Empire_1700.png",
+  "Jolof Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Jolof_Empire_map.png/100px-Jolof_Empire_map.png",
+  "Ming Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/China_Ming_Dynasty_1415.png/100px-China_Ming_Dynasty_1415.png",
+  "Timurid Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Timurid_Empire.png/120px-Timurid_Empire.png",
+  "Kongo Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Kongo_cross.svg/80px-Kongo_cross.svg.png",
+  "Portugese Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Portuguese_Empire_CoA.svg/80px-Portuguese_Empire_CoA.svg.png",
+  "Aztec Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/Aztec_Sun_Stone_cropped.jpg/100px-Aztec_Sun_Stone_cropped.jpg",
+  "Mutapa Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Great_Zimbabwe_-_The_Great_Enclosure.jpg/100px-Great_Zimbabwe_-_The_Great_Enclosure.jpg",
+  "Songhai Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/54/Songhai_Empire_1500_CE.png/120px-Songhai_Empire_1500_CE.png",
+  "Spanish Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Coat_of_Arms_of_the_Spanish_Empire.svg/80px-Coat_of_Arms_of_the_Spanish_Empire.svg.png",
+  "Safavid Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Flag_of_Iran_%28Lion_and_Sun%29.svg/120px-Flag_of_Iran_%28Lion_and_Sun%29.svg.png",
+  "Adal Sultanate": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Adal_Sultanate_map.png/100px-Adal_Sultanate_map.png",
+  "Mughal Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Royal_Coat_of_Arms_Mughal_Empire.svg/80px-Royal_Coat_of_Arms_Mughal_Empire.svg.png",
+  "French Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Grand_Coat_of_Arms_of_France.svg/80px-Grand_Coat_of_Arms_of_France.svg.png",
+  "Kaabu Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Kaabu_empire.png/100px-Kaabu_empire.png",
+  "Polish-Lithuanian Commonwealth": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Coat_of_arms_of_Polish-Lithuanian_Commonwealth.svg/80px-Coat_of_arms_of_Polish-Lithuanian_Commonwealth.svg.png",
+  "Dutch Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Flag_of_the_Dutch_East_India_Company.svg/120px-Flag_of_the_Dutch_East_India_Company.svg.png",
+  "British Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Royal_Coat_of_Arms_of_the_United_Kingdom.svg/80px-Royal_Coat_of_Arms_of_the_United_Kingdom.svg.png",
+  "Luba Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Luba_empire.png/100px-Luba_empire.png",
+  "Darfur Sultanate": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Darfur_Sultanate.png/100px-Darfur_Sultanate.png",
+  "Tokugawa Shogunate": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Tokugawa_family_crest.svg/80px-Tokugawa_family_crest.svg.png",
+  "Swedish Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Coat_of_arms_of_Sweden.svg/80px-Coat_of_arms_of_Sweden.svg.png",
+  "Wadai Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Wadai_sultanate_map.png/100px-Wadai_sultanate_map.png",
+  "Qing Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/China_Qing_Dynasty_flag_1862-1889.svg/120px-China_Qing_Dynasty_flag_1862-1889.svg.png",
+  "Lunda Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Lunda_empire_map.png/100px-Lunda_empire_map.png",
+  "Ashanti Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Ashanti_stool.svg/80px-Ashanti_stool.svg.png",
+  "Maratha Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Flag_of_the_Maratha_Empire.svg/120px-Flag_of_the_Maratha_Empire.svg.png",
+  "Rozvi Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Great_Zimbabwe_-_The_Great_Enclosure.jpg/100px-Great_Zimbabwe_-_The_Great_Enclosure.jpg",
+  "Russian Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Coat_of_Arms_of_the_Russian_Empire.svg/80px-Coat_of_Arms_of_the_Russian_Empire.svg.png",
+  "Afsharid Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Afsharid_flag.svg/120px-Afsharid_flag.svg.png",
+  "Zand Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Zand_dynasty_map.png/100px-Zand_dynasty_map.png",
+  "Sikh Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Flag_of_the_Sikh_Empire.svg/120px-Flag_of_the_Sikh_Empire.svg.png",
+  "Sokoto Caliphate": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Sokoto_Caliphate_map.png/100px-Sokoto_Caliphate_map.png",
+  "Brazilian Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Coat_of_arms_of_Empire_of_Brazil.svg/80px-Coat_of_arms_of_Empire_of_Brazil.svg.png",
+  "Italian Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Coat_of_arms_of_the_Kingdom_of_Italy_%281890%29.svg/80px-Coat_of_arms_of_the_Kingdom_of_Italy_%281890%29.svg.png",
+  "Austro-Hungarian Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Flag_of_Austria-Hungary_%281869-1918%29.svg/120px-Flag_of_Austria-Hungary_%281869-1918%29.svg.png",
+  "Empire of Japan": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Imperial_Seal_of_Japan.svg/80px-Imperial_Seal_of_Japan.svg.png",
+  "German Empire": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Coat_of_arms_of_the_German_Empire.svg/80px-Coat_of_arms_of_the_German_Empire.svg.png"
+};
+
+// Info panel (Feature C)
+function updateInfoPanel() {
+  const panel = document.getElementById("info-panel");
+  const compareSection = document.getElementById("info-compare-section");
+  const divider2 = document.getElementById("info-divider2");
+
+  if (!soloEmpire) {
+    panel.classList.remove("open");
+    document.body.classList.remove("panel-open");
+    compareSection.style.display = "none";
+    divider2.style.display = "none";
+    setTimeout(() => { resize(); buildMinimap(); }, 420);
+    return;
+  }
+
+  const emp = EMPIRES.find(e => e.name === soloEmpire);
+  if (!emp) return;
+  const pts = emp.points;
+  const peak = pts.reduce((a,b) => b[1]>a[1]?b:a);
+  const duration = Math.round(pts[pts.length-1][0] - pts[0][0]);
+  document.getElementById("info-region").textContent = emp.region;
+  const emblemEl = document.getElementById("info-emblem");
+  const emblemImg = document.getElementById("info-emblem-img");
+  const emblemUrl = EMPIRE_EMBLEMS[emp.name];
+  if (emblemUrl) {
+    emblemImg.src = emblemUrl;
+    emblemImg.alt = emp.name;
+    emblemEl.style.display = "flex";
+  } else {
+    emblemEl.style.display = "none";
+  }
+  document.getElementById("info-name").textContent = emp.name;
+  document.getElementById("info-peak").textContent = formatYear(peak[0]);
+  document.getElementById("info-duration").textContent = `${Math.abs(duration)} years`;
+  document.getElementById("info-score").textContent = peak[1].toFixed(1);
+  document.getElementById("info-summary").textContent = EMPIRE_INFO[emp.name] || "Historical data for this empire is being compiled.";
+
+  // Compare empire section
+  if (compareEmpire) {
+    const emp2 = EMPIRES.find(e => e.name === compareEmpire);
+    if (emp2) {
+      const pts2 = emp2.points;
+      const peak2 = pts2.reduce((a,b) => b[1]>a[1]?b:a);
+      const duration2 = Math.round(pts2[pts2.length-1][0] - pts2[0][0]);
+      document.getElementById("info-compare-region").textContent = emp2.region;
+      document.getElementById("info-compare-name").textContent = emp2.name;
+      document.getElementById("info-compare-peak").textContent = formatYear(peak2[0]);
+      document.getElementById("info-compare-duration").textContent = `${Math.abs(duration2)} years`;
+      document.getElementById("info-compare-score").textContent = peak2[1].toFixed(1);
+      document.getElementById("info-compare-summary").textContent = EMPIRE_INFO[emp2.name] || "Historical data for this empire is being compiled.";
+      compareSection.style.display = "flex";
+      divider2.style.display = "block";
+    }
+  } else {
+    compareSection.style.display = "none";
+    divider2.style.display = "none";
+  }
+
+  const wasOpen = panel.classList.contains("open");
+  panel.classList.add("open");
+  document.body.classList.add("panel-open");
+  if (!wasOpen) setTimeout(() => { resize(); buildMinimap(); }, 420);
+}
+
+// URL State (Feature F)
+function encodeState() {
+  const era = Object.entries(ERAS).find(([k,v]) => xRange && v[0]===xRange[0] && v[1]===xRange[1]);
+  const parts = [
+    activeRegion || "",
+    era ? era[0] : "",
+    soloEmpire || ""
+  ];
+  history.replaceState(null, "", "#" + parts.map(encodeURIComponent).join("/"));
+}
+
+function decodeState() {
+  const hash = location.hash.slice(1);
+  if (!hash) return;
+  const [region, era, empire] = hash.split("/").map(decodeURIComponent);
+  if (region) {
+    activeRegion = region;
+    document.querySelectorAll(".tab").forEach(t => {
+      t.classList.toggle("active", t.dataset.region === region);
+    });
+  }
+  if (era && ERAS[era]) {
+    xRange = ERAS[era];
+    document.getElementById("era-select").value = era;
+  }
+  if (empire) {
+    soloEmpire = empire;
+    const emp = EMPIRES.find(e => e.name === empire);
+    if (emp) {
+      const pts = emp.points;
+      const pad = (pts[pts.length-1][0] - pts[0][0]) * 0.04;
+      viewDomain = [pts[0][0] - pad, pts[pts.length-1][0] + pad];
+    }
+  }
+}
+
+function showTooltip(event, d) {
+  const [mx, my] = d3.pointer(event, document.body);
+  // Find closest point
+  const pts = getPointsInRange(d);
+  const mouseX = xScale.invert(d3.pointer(event, g.node())[0]);
+  const closest = pts.reduce((a,b) => Math.abs(b[0]-mouseX) < Math.abs(a[0]-mouseX) ? b : a);
+
+  const T = TRANSLATIONS[currentLang];
+  tooltip.innerHTML = `
+    <div class="tip-empire">${d.name}</div>
+    <div class="tip-region">${d.region}</div>
+    <div class="tip-row"><span>${T.tip_year}</span><span class="tip-val">${formatYear(closest[0])}</span></div>
+    <div class="tip-row"><span>${T.tip_power}</span><span class="tip-val">${closest[1].toFixed(1)}</span></div>
+  `;
+  tooltip.classList.add("visible");
+  const tx = Math.min(mx + 14, window.innerWidth - 240);
+  const ty = Math.min(my - 10, window.innerHeight - 120);
+  tooltip.style.left = tx + "px";
+  tooltip.style.top = ty + "px";
+}
+function hideTooltip() { tooltip.classList.remove("visible"); }
+
+function zoomTo(targetDomain, duration) {
+  viewDomain = targetDomain;
+  const fromDomain = xScale.domain().slice();
+  const tickCount = Math.max(4, Math.min(12, Math.round(innerW / 100)));
+  const fmtTick = y => { const v = Math.round(y); return v < 0 ? `${Math.abs(v)}BCE` : `${v}CE`; };
+
+  const t = d3.transition().duration(duration).ease(d3.easeCubicInOut);
+  svg.transition(t).tween("xzoom", () => {
+    const interp = d3.interpolate(fromDomain, targetDomain);
+    return ti => {
+      xScale.domain(interp(ti));
+      xAxisG.attr("transform", `translate(0,${innerH})`)
+        .call(d3.axisBottom(xScale).ticks(tickCount).tickFormat(fmtTick));
+      linesG.selectAll(".empire-line")
+        .attr("d", d => lineGen(getPointsInRange(d)));
+    };
+  });
+  t.on("end", () => { render(); updateZoomButton(); });
+}
+
+function updateZoomButton() {
+  document.getElementById("zoom-reset-btn")
+    .classList.toggle("visible", soloEmpire !== null);
+}
+
+function zoomToCompare() {
+  const e1 = EMPIRES.find(e => e.name === soloEmpire);
+  const e2 = EMPIRES.find(e => e.name === compareEmpire);
+  if (!e1 || !e2) return;
+  const allPts = [...e1.points, ...e2.points];
+  const minX = Math.min(...allPts.map(p => p[0]));
+  const maxX = Math.max(...allPts.map(p => p[0]));
+  const pad = (maxX - minX) * 0.04;
+  zoomTo([minX - pad, maxX + pad], 650);
+}
+
+function toggleSolo(name) {
+  const deselecting = soloEmpire === name;
+  soloEmpire = deselecting ? null : name;
+  if (deselecting) compareEmpire = null;
+
+  if (soloEmpire) {
+    const empire = EMPIRES.find(e => e.name === soloEmpire);
+    const pts = empire.points;
+    const minX = pts[0][0];
+    const maxX = pts[pts.length - 1][0];
+    const pad = (maxX - minX) * 0.04;
+    zoomTo([minX - pad, maxX + pad], 750);
+  } else {
+    viewDomain = null;
+    zoomTo(xRange || ERAS.all, 600);
+  }
+
+  updateLegendActive();
+  updateZoomButton();
+  updateInfoPanel();
+  encodeState();
+}
+
+function updateLegendActive() {
+  document.querySelectorAll(".legend-item").forEach(el => {
+    el.classList.remove("solo-active");
+    if (soloEmpire && el.dataset.name === soloEmpire) el.classList.add("solo-active");
+  });
+}
+
+function updateLegend(visible) {
+  const legend = document.getElementById("legend");
+  legend.innerHTML = "";
+
+  const grouped = {};
+  visible.forEach(e => {
+    if (!grouped[e.region]) grouped[e.region] = [];
+    grouped[e.region].push(e);
+  });
+
+  Object.entries(grouped).forEach(([region, empires]) => {
+    const div = document.createElement("div");
+    div.className = "legend-region";
+    div.innerHTML = `<div class="legend-region-title">${region}</div>`;
+    empires.forEach(empire => {
+      const item = document.createElement("div");
+      item.className = "legend-item" + (soloEmpire === empire.name ? " solo-active" : "");
+      item.dataset.name = empire.name;
+      item.title = "Click to isolate · Shift+click to compare";
+      item.innerHTML = `<div class="legend-swatch" style="background:${empire.color}"></div>${empire.name}`;
+      item.addEventListener("click", (event) => {
+        if (event.shiftKey && soloEmpire && soloEmpire !== empire.name) {
+          compareEmpire = compareEmpire === empire.name ? null : empire.name;
+          if (compareEmpire) zoomToCompare();
+          render();
+          updateLegendActive();
+          updateInfoPanel();
+        } else {
+          compareEmpire = null;
+          toggleSolo(empire.name);
+        }
+      });
+      div.appendChild(item);
+    });
+    legend.appendChild(div);
+  });
+}
+
+// Tab controls
+document.getElementById("region-tabs").addEventListener("click", e => {
+  if (!e.target.classList.contains("tab")) return;
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  e.target.classList.add("active");
+  activeRegion = e.target.dataset.region;
+  soloEmpire = null;
+  compareEmpire = null;
+  viewDomain = null;
+  stopPlay();
+  playYear = null;
+  updateZoomButton();
+  render();
+  buildMinimap();
+  encodeState();
+});
+
+// Era select
+document.getElementById("era-select").addEventListener("change", e => {
+  xRange = e.target.value ? (ERAS[e.target.value] || null) : null;
+  soloEmpire = null;
+  compareEmpire = null;
+  viewDomain = null;
+  stopPlay();
+  playYear = null;
+  updateZoomButton();
+  render();
+  encodeState();
+});
+
+// Labels toggle
+document.getElementById("toggle-labels").addEventListener("change", e => {
+  showLabels = e.target.checked;
+  render();
+});
+
+// Search
+const searchInput = document.getElementById("empire-search");
+const clearBtn = document.getElementById("clear-search");
+searchInput.addEventListener("input", e => {
+  searchTerm = e.target.value.toLowerCase().trim();
+  clearBtn.classList.toggle("visible", searchTerm.length > 0);
+  soloEmpire = null;
+  render();
+});
+clearBtn.addEventListener("click", () => {
+  searchInput.value = "";
+  searchTerm = "";
+  clearBtn.classList.remove("visible");
+  render();
+});
+
+document.getElementById("zoom-reset-btn").addEventListener("click", () => {
+  if (soloEmpire) toggleSolo(soloEmpire);
+});
+
+window.addEventListener("resize", () => { resize(); buildMinimap(); });
+
+// LocalStorage preferences (Feature M)
+const savedTheme = localStorage.getItem("epoch-theme");
+if (savedTheme) document.documentElement.setAttribute("data-theme", savedTheme);
+const savedLang = localStorage.getItem("epoch-lang");
+if (savedLang && savedLang !== "en") applyLang(savedLang);
+
+// URL state decode (Feature F)
+decodeState();
+
+resize();
+buildMinimap();
+
+// Language
+function applyLang(lang) {
+  currentLang = lang;
+  const T = TRANSLATIONS[lang];
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    const key = el.dataset.i18n;
+    if (T[key] === undefined) return;
+    if (el.tagName === "INPUT") el.placeholder = T[key];
+    else el.textContent = T[key];
+  });
+  document.getElementById("empire-search").placeholder = T.search_placeholder;
+  document.getElementById("lang-toggle").textContent = lang === "en" ? "বাং" : "EN";
+  document.body.classList.toggle("bangla-mode", lang === "bn");
+  localStorage.setItem("epoch-lang", lang);
+  render();
+}
+document.getElementById("lang-toggle").addEventListener("click", () => {
+  applyLang(currentLang === "en" ? "bn" : "en");
+});
+
+// Theme
+document.getElementById("theme-toggle").addEventListener("click", () => {
+  const html = document.documentElement;
+  const isDark = html.getAttribute("data-theme") === "dark";
+  html.setAttribute("data-theme", isDark ? "light" : "dark");
+  document.getElementById("theme-toggle").textContent = isDark ? "🌙" : "☀";
+  localStorage.setItem("epoch-theme", isDark ? "light" : "dark");
+});
+
+// Nav transparency on scroll
+window.addEventListener("scroll", () => {
+  document.getElementById("site-nav")
+    .classList.toggle("scrolled", window.scrollY > 80);
+});
+
+// Playback controls (Feature A)
+document.getElementById("play-btn").addEventListener("click", () => {
+  if (isPlaying) stopPlay(); else startPlay();
+});
+document.getElementById("play-reset").addEventListener("click", () => {
+  stopPlay();
+  playYear = null;
+  document.getElementById("play-year").textContent = "—";
+  document.getElementById("play-scrubber").value = 0;
+  render();
+});
+document.getElementById("play-scrubber").addEventListener("input", e => {
+  stopPlay();
+  const [start, end] = getPlayRange();
+  playYear = start + (parseFloat(e.target.value) / 100) * (end - start);
+  document.getElementById("play-year").textContent = formatYear(playYear);
+  render();
+});
+
+// Events toggle (Feature J)
+document.getElementById("toggle-events").addEventListener("change", e => {
+  showEvents = e.target.checked; render();
+});
+
+// Dismiss event tooltip on outside click
+document.addEventListener("click", () => {
+  const evTip = document.getElementById("event-tooltip");
+  if (evTip) evTip.classList.remove("visible");
+  g.selectAll(".event-marker").classed("ev-active", false);
+});
+
+// Info panel close (Feature C)
+document.getElementById("info-close").addEventListener("click", () => {
+  if (soloEmpire) toggleSolo(soloEmpire);
+});
+
+// Export PNG (Feature I)
+document.getElementById("export-btn").addEventListener("click", () => {
+  const svgEl = document.querySelector("#chart svg");
+  if (!svgEl) return;
+  const serializer = new XMLSerializer();
+  let svgStr = serializer.serializeToString(svgEl);
+  svgStr = svgStr.replace('<svg', `<svg style="background:${getComputedStyle(document.documentElement).getPropertyValue('--bg').trim()}"`);
+  const blob = new Blob([svgStr], {type:"image/svg+xml"});
+  const url = URL.createObjectURL(blob);
+  const img = new Image();
+  img.onload = () => {
+    const canvas = document.createElement("canvas");
+    canvas.width = svgEl.clientWidth * 2;
+    canvas.height = svgEl.clientHeight * 2;
+    const ctx = canvas.getContext("2d");
+    ctx.scale(2,2);
+    ctx.drawImage(img, 0, 0);
+    URL.revokeObjectURL(url);
+    const a = document.createElement("a");
+    a.download = "epoch-institute-chart.png";
+    a.href = canvas.toDataURL("image/png");
+    a.click();
+  };
+  img.src = url;
+});
+
+// Keyboard navigation (Feature E)
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") {
+    if (soloEmpire) toggleSolo(soloEmpire);
+    return;
+  }
+  if (e.key === " " && activeRegion && xRange) {
+    e.preventDefault();
+    if (isPlaying) stopPlay(); else startPlay();
+    return;
+  }
+  if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+    const vis = EMPIRES.filter(isVisible);
+    if (!vis.length) return;
+    const idx = soloEmpire ? vis.findIndex(e => e.name === soloEmpire) : -1;
+    const next = e.key === "ArrowRight"
+      ? (idx + 1) % vis.length
+      : (idx - 1 + vis.length) % vis.length;
+    if (soloEmpire) { soloEmpire = null; viewDomain = null; }
+    compareEmpire = null;
+    toggleSolo(vis[next].name);
+  }
+});
+</script>
+</body>
+</html>
