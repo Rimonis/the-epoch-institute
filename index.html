@@ -1813,15 +1813,22 @@ async function fetchEmblem(empName) {
   const article = ARTICLE_MAP[empName] || empName;
   let url = null;
 
-  // Step 1: pageimages on main article — accept only if filename looks like a flag/emblem
+  // Step 1: scan ALL images in the article for a flag/emblem filename
   try {
     const r = await fetch(
-      `https://en.wikipedia.org/w/api.php?action=query&prop=pageimages&titles=${encodeURIComponent(article)}&pithumbsize=300&format=json&origin=*`
+      `https://en.wikipedia.org/w/api.php?action=query&prop=images&titles=${encodeURIComponent(article)}&imlimit=50&format=json&origin=*`
     );
     const d = await r.json();
     const pg = Object.values(d.query.pages)[0];
-    if (pg && pg.thumbnail && pg.pageimage && FLAG_KW.test(pg.pageimage) && !REJECT_KW.test(pg.pageimage)) {
-      url = pg.thumbnail.source;
+    if (pg && pg.images) {
+      const match = pg.images.find(img => {
+        const fn = img.title.replace(/^File:/i, '');
+        return FLAG_KW.test(fn) && !REJECT_KW.test(fn);
+      });
+      if (match) {
+        const fn = match.title.replace(/^File:/i, '');
+        url = `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(fn)}`;
+      }
     }
   } catch(e) {}
 
