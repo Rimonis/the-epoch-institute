@@ -1757,9 +1757,8 @@ function updateMinimapBrush() {
   mmBrushG.call(mmBrush.move, [mmX(x0), mmX(x1)]);
 }
 
-// Emblems: Wikipedia Summary API — fetches the article's lead image dynamically
-// Maps empire names to their Wikipedia article titles (only needed where they differ)
-const EMPIRE_WIKI_ARTICLES = {
+// Emblems: two-step Wikipedia fetch targeting flags/coats of arms specifically
+const ARTICLE_MAP = {
   "Elamite Confideration": "Elam",
   "Neo-Sumerian  Empire": "Third Dynasty of Ur",
   "Assyrian Empire": "Neo-Assyrian Empire",
@@ -1806,6 +1805,44 @@ const EMPIRE_WIKI_ARTICLES = {
 };
 
 const emblemCache = {};
+const FLAG_KW = /flag|coat|emblem|seal|crest|arms|banner|standard|heraldry|tughra|sigil|insignia/i;
+const REJECT_KW = /map|location|portrait|photo|ruins|mosque|temple|obelisk|painting|battle/i;
+
+async function fetchEmblem(empName) {
+  if (empName in emblemCache) return emblemCache[empName];
+  const article = ARTICLE_MAP[empName] || empName;
+  let url = null;
+
+  // Step 1: pageimages on main article — accept only if filename looks like a flag/emblem
+  try {
+    const r = await fetch(
+      `https://en.wikipedia.org/w/api.php?action=query&prop=pageimages&titles=${encodeURIComponent(article)}&pithumbsize=300&format=json&origin=*`
+    );
+    const d = await r.json();
+    const pg = Object.values(d.query.pages)[0];
+    if (pg && pg.thumbnail && pg.pageimage && FLAG_KW.test(pg.pageimage) && !REJECT_KW.test(pg.pageimage)) {
+      url = pg.thumbnail.source;
+    }
+  } catch(e) {}
+
+  // Step 2: try dedicated flag / coat-of-arms Wikipedia articles
+  if (!url) {
+    const candidates = [
+      `Flag of the ${article}`, `Flag of ${article}`,
+      `Coat of arms of the ${article}`, `Coat of arms of ${article}`
+    ];
+    for (const title of candidates) {
+      try {
+        const r = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`);
+        const d = await r.json();
+        if (d.thumbnail && d.thumbnail.source) { url = d.thumbnail.source; break; }
+      } catch(e) {}
+    }
+  }
+
+  emblemCache[empName] = url || false;
+  return url || false;
+}
 
 // Info panel (Feature C)
 function updateInfoPanel() {
@@ -1830,28 +1867,17 @@ function updateInfoPanel() {
   document.getElementById("info-region").textContent = emp.region;
   document.getElementById("info-name").textContent = emp.name;
 
-  // Fetch emblem from Wikipedia Summary API
+  // Fetch flag/emblem via two-step Wikipedia API
   const emblemEl = document.getElementById("info-emblem");
   const emblemImg = document.getElementById("info-emblem-img");
   emblemEl.style.display = "none";
-  function setEmblem(url) {
-    emblemImg.src = url;
-    emblemImg.alt = emp.name;
-    emblemEl.style.display = "flex";
-  }
-  if (emblemCache[emp.name] !== undefined) {
-    if (emblemCache[emp.name]) setEmblem(emblemCache[emp.name]);
-  } else {
-    const articleTitle = EMPIRE_WIKI_ARTICLES[emp.name] || emp.name;
-    fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(articleTitle)}`)
-      .then(r => r.json())
-      .then(data => {
-        const url = data.thumbnail ? data.thumbnail.source : null;
-        emblemCache[emp.name] = url || false;
-        if (url && document.getElementById("info-name").textContent === emp.name) setEmblem(url);
-      })
-      .catch(() => { emblemCache[emp.name] = false; });
-  }
+  fetchEmblem(emp.name).then(url => {
+    if (url && document.getElementById("info-name").textContent === emp.name) {
+      emblemImg.src = url;
+      emblemImg.alt = emp.name;
+      emblemEl.style.display = "flex";
+    }
+  });
   document.getElementById("info-peak").textContent = formatYear(peak[0]);
   document.getElementById("info-duration").textContent = `${Math.abs(duration)} years`;
   document.getElementById("info-score").textContent = peak[1].toFixed(1);
