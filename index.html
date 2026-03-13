@@ -1758,54 +1758,7 @@ function updateMinimapBrush() {
   mmBrushG.call(mmBrush.move, [mmX(x0), mmX(x1)]);
 }
 
-// Emblems: two-step Wikipedia fetch targeting flags/coats of arms specifically
-const ARTICLE_MAP = {
-  "Elamite Confideration": "Elam",
-  "Neo-Sumerian  Empire": "Third Dynasty of Ur",
-  "Assyrian Empire": "Neo-Assyrian Empire",
-  "Babylonian Empire": "Babylonia",
-  "Hittite Empire": "Hittites",
-  "Egyptian Empire New Kingdom": "New Kingdom of Egypt",
-  "Mitanni Empire": "Mitanni",
-  "Kushite Empire": "Kingdom of Kush",
-  "Punic Empire": "Carthage",
-  "Median Empire": "Medes",
-  "Chaldean Empire": "Neo-Babylonian Empire",
-  "Garamantian Empire": "Garamantes",
-  "Ptolemaic Empire": "Ptolemaic Kingdom",
-  "Aksumite Empire": "Kingdom of Aksum",
-  "Gokturk Empire": "Göktürks",
-  "Tang Dynasty": "Tang dynasty",
-  "Khazar Khaganate": "Khazars",
-  "Srivijaya Empire": "Srivijaya",
-  "Kanem-Bornu  Empire": "Kanem–Bornu Empire",
-  "Song Dynasty": "Song dynasty",
-  "Almoravid Empire": "Almoravid dynasty",
-  "Ayyubid Empire": "Ayyubid dynasty",
-  "Benin Empire": "Kingdom of Benin",
-  "Chagatai Empire": "Chagatai Khanate",
-  "Yuan Dynasty": "Yuan dynasty",
-  "Majapahit Empire": "Majapahit",
-  "Ming Empire": "Ming dynasty",
-  "Timurid Empire": "Timurid dynasty",
-  "Kongo Empire": "Kingdom of Kongo",
-  "Portugese Empire": "Portuguese Empire",
-  "Mutapa Empire": "Mutapa",
-  "Safavid Empire": "Safavid dynasty",
-  "Kaabu Empire": "Kaabu",
-  "Polish-Lithuanian Commonwealth": "Polish–Lithuanian Commonwealth",
-  "Darfur Sultanate": "Sultanate of Darfur",
-  "Tokugawa Shogunate": "Tokugawa shogunate",
-  "Wadai Empire": "Sultanate of Wadai",
-  "Qing Empire": "Qing dynasty",
-  "Afsharid Empire": "Afsharid dynasty",
-  "Zand Empire": "Zand dynasty",
-  "Brazilian Empire": "Empire of Brazil",
-  "Austro-Hungarian Empire": "Austria-Hungary",
-  "French Empire": "First French Empire"
-};
-
-// Google Drive config — paste your folder ID and API key here
+// Google Drive config
 const GDRIVE_FOLDER_ID = "1ZCKyZSlOkpv5BYHiDZVsOShv1B5aG5Xg";
 const GDRIVE_API_KEY   = "AIzaSyBR5wx7et8NPsxA51vuR4zxlQlSlU9-a2A";
 
@@ -1843,15 +1796,10 @@ function loadDriveFolder() {
 }
 
 const emblemCache = {};
-const FLAG_KW = /flag|coat|emblem|seal|crest|arms|banner|standard|heraldry|tughra|sigil|insignia/i;
-const REJECT_KW = /map|location|portrait|photo|ruins|mosque|temple|obelisk|painting|battle/i;
 
 async function fetchEmblem(empName) {
   if (empName in emblemCache) return emblemCache[empName];
-  const article = ARTICLE_MAP[empName] || empName;
   let url = null;
-
-  // Step 0: Google Drive primary lookup
   try {
     const driveMap = await loadDriveFolder();
     const key = empName.trim().toLowerCase();
@@ -1859,43 +1807,6 @@ async function fetchEmblem(empName) {
       url = `https://drive.google.com/thumbnail?id=${driveMap[key]}&sz=w200`;
     }
   } catch(e) {}
-
-  // Step 1: scan ALL images in the article for a flag/emblem filename
-  if (!url) {
-    try {
-      const r = await fetch(
-        `https://en.wikipedia.org/w/api.php?action=query&prop=images&titles=${encodeURIComponent(article)}&imlimit=50&format=json&origin=*`
-      );
-      const d = await r.json();
-      const pg = Object.values(d.query.pages)[0];
-      if (pg && pg.images) {
-        const match = pg.images.find(img => {
-          const fn = img.title.replace(/^File:/i, '');
-          return FLAG_KW.test(fn) && !REJECT_KW.test(fn);
-        });
-        if (match) {
-          const fn = match.title.replace(/^File:/i, '');
-          url = `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(fn)}`;
-        }
-      }
-    } catch(e) {}
-  }
-
-  // Step 2: try dedicated flag / coat-of-arms Wikipedia articles
-  if (!url) {
-    const candidates = [
-      `Flag of the ${article}`, `Flag of ${article}`,
-      `Coat of arms of the ${article}`, `Coat of arms of ${article}`
-    ];
-    for (const title of candidates) {
-      try {
-        const r = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`);
-        const d = await r.json();
-        if (d.thumbnail && d.thumbnail.source) { url = d.thumbnail.source; break; }
-      } catch(e) {}
-    }
-  }
-
   emblemCache[empName] = url || false;
   return url || false;
 }
