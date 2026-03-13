@@ -1773,7 +1773,7 @@ function loadDriveFolder() {
     do {
       const params = new URLSearchParams({
         q: `'${GDRIVE_FOLDER_ID}' in parents`,
-        fields: "nextPageToken,files(id,name)",
+        fields: "nextPageToken,files(id,name,thumbnailLink)",
         pageSize: "1000",
         key: GDRIVE_API_KEY
       });
@@ -1784,7 +1784,7 @@ function loadDriveFolder() {
         if (d.files) {
           for (const f of d.files) {
             const key = f.name.replace(/\.[^/.]+$/, "").trim().toLowerCase();
-            map[key] = f.id;
+            map[key] = { id: f.id, thumb: f.thumbnailLink || null };
           }
         }
         pageToken = d.nextPageToken || "";
@@ -1804,7 +1804,8 @@ async function fetchEmblem(empName) {
     const driveMap = await loadDriveFolder();
     const key = empName.trim().toLowerCase();
     if (driveMap[key]) {
-      url = `https://drive.google.com/thumbnail?id=${driveMap[key]}&sz=w200`;
+      url = driveMap[key].thumb
+        || `https://drive.google.com/uc?export=view&id=${driveMap[key].id}`;
     }
   } catch(e) {}
   emblemCache[empName] = url || false;
