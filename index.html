@@ -1804,6 +1804,43 @@ const ARTICLE_MAP = {
   "French Empire": "First French Empire"
 };
 
+// Google Drive config — paste your folder ID and API key here
+const GDRIVE_FOLDER_ID = "PASTE_FOLDER_ID_HERE";
+const GDRIVE_API_KEY   = "PASTE_API_KEY_HERE";
+
+// Fetches the Drive folder listing once per page load; builds normalized name→fileId map
+let _driveFolderPromise = null;
+function loadDriveFolder() {
+  if (_driveFolderPromise) return _driveFolderPromise;
+  _driveFolderPromise = (async () => {
+    const map = {};
+    if (!GDRIVE_FOLDER_ID || GDRIVE_FOLDER_ID === "PASTE_FOLDER_ID_HERE") return map;
+    let pageToken = "";
+    do {
+      const params = new URLSearchParams({
+        q: `'${GDRIVE_FOLDER_ID}' in parents`,
+        fields: "nextPageToken,files(id,name)",
+        pageSize: "1000",
+        key: GDRIVE_API_KEY
+      });
+      if (pageToken) params.set("pageToken", pageToken);
+      try {
+        const r = await fetch(`https://www.googleapis.com/drive/v3/files?${params}`);
+        const d = await r.json();
+        if (d.files) {
+          for (const f of d.files) {
+            const key = f.name.replace(/\.[^/.]+$/, "").trim().toLowerCase();
+            map[key] = f.id;
+          }
+        }
+        pageToken = d.nextPageToken || "";
+      } catch(e) { pageToken = ""; }
+    } while (pageToken);
+    return map;
+  })();
+  return _driveFolderPromise;
+}
+
 const emblemCache = {};
 const FLAG_KW = /flag|coat|emblem|seal|crest|arms|banner|standard|heraldry|tughra|sigil|insignia/i;
 const REJECT_KW = /map|location|portrait|photo|ruins|mosque|temple|obelisk|painting|battle/i;
@@ -1813,24 +1850,35 @@ async function fetchEmblem(empName) {
   const article = ARTICLE_MAP[empName] || empName;
   let url = null;
 
-  // Step 1: scan ALL images in the article for a flag/emblem filename
+  // Step 0: Google Drive primary lookup
   try {
-    const r = await fetch(
-      `https://en.wikipedia.org/w/api.php?action=query&prop=images&titles=${encodeURIComponent(article)}&imlimit=50&format=json&origin=*`
-    );
-    const d = await r.json();
-    const pg = Object.values(d.query.pages)[0];
-    if (pg && pg.images) {
-      const match = pg.images.find(img => {
-        const fn = img.title.replace(/^File:/i, '');
-        return FLAG_KW.test(fn) && !REJECT_KW.test(fn);
-      });
-      if (match) {
-        const fn = match.title.replace(/^File:/i, '');
-        url = `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(fn)}`;
-      }
+    const driveMap = await loadDriveFolder();
+    const key = empName.trim().toLowerCase();
+    if (driveMap[key]) {
+      url = `https://drive.google.com/thumbnail?id=${driveMap[key]}&sz=w200`;
     }
   } catch(e) {}
+
+  // Step 1: scan ALL images in the article for a flag/emblem filename
+  if (!url) {
+    try {
+      const r = await fetch(
+        `https://en.wikipedia.org/w/api.php?action=query&prop=images&titles=${encodeURIComponent(article)}&imlimit=50&format=json&origin=*`
+      );
+      const d = await r.json();
+      const pg = Object.values(d.query.pages)[0];
+      if (pg && pg.images) {
+        const match = pg.images.find(img => {
+          const fn = img.title.replace(/^File:/i, '');
+          return FLAG_KW.test(fn) && !REJECT_KW.test(fn);
+        });
+        if (match) {
+          const fn = match.title.replace(/^File:/i, '');
+          url = `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(fn)}`;
+        }
+      }
+    } catch(e) {}
+  }
 
   // Step 2: try dedicated flag / coat-of-arms Wikipedia articles
   if (!url) {
