@@ -794,11 +794,11 @@
   /* ── Event markers — highlighted & clickable ── */
   .event-marker { cursor: pointer; }
   .event-marker line { stroke: var(--gold) !important; opacity: 0.55 !important; stroke-width: 1.5 !important; transition: opacity 0.15s; }
-  .event-marker text { fill: var(--gold-light) !important; opacity: 0.85 !important; cursor: pointer; transition: opacity 0.15s; font-weight: 600 !important; }
+  .event-tick { fill: var(--gold); opacity: 0.65; transition: opacity 0.15s, fill 0.15s; }
   .event-marker:hover line { opacity: 0.95 !important; }
-  .event-marker:hover text { opacity: 1 !important; }
+  .event-marker:hover .event-tick { opacity: 1; fill: var(--gold-light); }
   .event-marker.ev-active line { opacity: 0.95 !important; stroke-width: 2 !important; }
-  .event-marker.ev-active text { opacity: 1 !important; }
+  .event-marker.ev-active .event-tick { fill: var(--gold-light); opacity: 1; }
 
   /* ── Event description tooltip ── */
   #event-tooltip {
@@ -1455,12 +1455,24 @@ function render() {
   eventsG_sel.exit().remove();
   const evEnter = eventsG_sel.enter().append("g").attr("class","event-marker");
   evEnter.append("line").attr("y1",0).attr("stroke-dasharray","2,6");
-  evEnter.append("text").attr("y",-4).attr("text-anchor","middle").attr("font-family","'Cinzel',serif").attr("font-size","8px");
+  evEnter.append("polygon").attr("class","event-tick").attr("points","-5,-14 5,-14 0,-5");
   const evMerge = eventsG_sel.merge(evEnter);
   evMerge.attr("transform", d => `translate(${xScale(d.year)},0)`);
   evMerge.select("line").attr("y1",0).attr("y2",innerH);
-  evMerge.select("text").text(d => d.label);
-  evMerge.on("click", function(event, d) {
+  evMerge.on("mouseover", function(event, d) {
+    const evTip = document.getElementById("event-tooltip");
+    if (!this.classList.contains("ev-active")) {
+      evTip.innerHTML = `<div class="event-tip-label">${d.label}</div><div class="event-tip-year">${formatYear(d.year)}</div>`;
+      const [mx, my] = d3.pointer(event, document.body);
+      evTip.style.left = Math.min(mx + 14, window.innerWidth - 300) + "px";
+      evTip.style.top = Math.min(my - 10, window.innerHeight - 100) + "px";
+      evTip.classList.add("visible");
+    }
+  }).on("mouseleave", function() {
+    if (!this.classList.contains("ev-active")) {
+      document.getElementById("event-tooltip").classList.remove("visible");
+    }
+  }).on("click", function(event, d) {
     event.stopPropagation();
     const evTip = document.getElementById("event-tooltip");
     const isActive = this.classList.contains("ev-active");
