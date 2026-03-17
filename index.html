@@ -579,14 +579,11 @@
     border-bottom: 1px solid var(--border);
   }
   .nav-logo {
-    font-family: 'Cinzel', serif;
-    font-size: 11px;
-    letter-spacing: 0.16em;
-    color: var(--gold);
     text-decoration: none;
-    transition: color 0.2s;
+    display: flex;
+    align-items: center;
   }
-  .nav-logo:hover { color: var(--gold-light); }
+  .nav-logo-img { height: 36px; width: auto; display: block; }
   .nav-links { display: flex; gap: 32px; }
   .nav-link {
     font-family: 'Cinzel', serif;
@@ -679,6 +676,25 @@
     0%, 100% { opacity: 0; }
     50% { opacity: 1; }
   }
+  .hero-pillars-img { width: clamp(80px, 12vw, 140px); height: auto; margin-bottom: 24px; opacity: 0.9; }
+  .hero-projects { margin: 40px auto 0; max-width: 480px; width: 100%; text-align: left; border: 1px solid var(--border); padding: 20px 24px; }
+  .hero-projects-label { font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 0.15em; color: var(--gold); margin: 0 0 14px; text-transform: uppercase; }
+  .hero-project-card { display: flex; gap: 14px; align-items: flex-start; }
+  .hero-project-icon { font-size: 20px; color: var(--gold); flex-shrink: 0; line-height: 1.2; }
+  .hero-project-name { font-family: 'Cinzel', serif; font-size: 12px; color: var(--gold-light); margin: 0 0 4px; }
+  .hero-project-blurb { font-family: 'Crimson Pro', Georgia, serif; font-size: 14px; color: var(--muted); margin: 0; }
+
+  /* ── Research hub section ── */
+  #research { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px 24px; text-align: center; scroll-margin-top: 60px; }
+  .research-title { font-family: 'Cinzel', serif; font-size: clamp(22px, 4vw, 40px); color: var(--gold-light); margin: 16px 0 8px; letter-spacing: 0.12em; }
+  .research-subtitle { font-family: 'Crimson Pro', Georgia, serif; font-size: 16px; font-style: italic; color: var(--muted); margin: 0 0 48px; }
+  .research-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; max-width: 900px; width: 100%; }
+  .research-card { display: flex; flex-direction: column; align-items: flex-start; padding: 32px; border: 1px solid var(--border); text-decoration: none; transition: border-color 0.2s, background 0.2s; }
+  .research-card:hover { border-color: var(--gold); background: rgba(180,140,60,0.05); }
+  .research-card-icon { font-size: 28px; color: var(--gold); margin-bottom: 16px; line-height: 1; }
+  .research-card-title { font-family: 'Cinzel', serif; font-size: 14px; color: var(--gold-light); margin: 0 0 10px; }
+  .research-card-desc { font-family: 'Crimson Pro', Georgia, serif; font-size: 15px; color: var(--muted); margin: 0 0 20px; text-align: left; line-height: 1.65; }
+  .research-card-cta { font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.1em; color: var(--gold); text-transform: uppercase; }
 
   /* ── Explorer section header ── */
   .explorer-header {
@@ -883,9 +899,11 @@
 
 <!-- Fixed Navigation -->
 <nav class="site-nav" id="site-nav">
-  <a href="#hero" class="nav-logo">THE EPOCH INSTITUTE</a>
+  <a href="#hero" class="nav-logo">
+    <img src="logo-wordmark.png" alt="The Epoch Institute" class="nav-logo-img">
+  </a>
   <div class="nav-links">
-    <a href="#explorer" class="nav-link" data-i18n="nav_research">Research</a>
+    <a href="#research" class="nav-link" data-i18n="nav_research">Research</a>
     <a href="#community" class="nav-link" data-i18n="nav_community">Community</a>
     <a href="#explorer" class="nav-link" data-i18n="nav_explorer">Explorer</a>
   </div>
@@ -898,13 +916,40 @@
 
 <!-- Hero Section -->
 <section class="hero" id="hero">
-  <span class="hero-ornament"></span>
+  <img src="logo-pillars.png" alt="" class="hero-pillars-img">
   <h1 class="hero-title">THE EPOCH INSTITUTE</h1>
   <span class="hero-ornament"></span>
   <p class="hero-tagline" data-i18n="hero_tagline">Understanding civilizational patterns to illuminate the present.</p>
-  <p class="hero-mission" data-i18n="hero_mission">We map the rise and decline of civilizations across five millennia — not as history lessons, but as living data for understanding societal momentum, resilience, and collapse.</p>
-  <a href="#explorer" class="hero-cta" data-i18n="hero_cta">Explore the Chart</a>
+  <p class="hero-mission" data-i18n="hero_mission">The Epoch Institute researches human civilization with objectivity and curiosity — studying the rise and fall of empires, examining the real-time implications of historical events, and tracing how the past shapes modern society. We make the story of humanity not just informative, but compelling. History is not a closed book; it is the foundation of everything around us.</p>
+  <div class="hero-projects">
+    <p class="hero-projects-label">Our Projects</p>
+    <div class="hero-project-card">
+      <span class="hero-project-icon">◈</span>
+      <div>
+        <p class="hero-project-name">Interactive Empire Explorer</p>
+        <p class="hero-project-blurb">Compare the rise and fall of every major empire across five millennia of recorded history.</p>
+      </div>
+    </div>
+  </div>
+  <a href="#research" class="hero-cta" data-i18n="hero_cta">Browse Projects →</a>
   <span class="scroll-indicator"></span>
+</section>
+
+<!-- Research Projects Hub -->
+<section id="research">
+  <div>
+    <span class="hero-ornament"></span>
+    <h2 class="research-title">Research Projects</h2>
+    <p class="research-subtitle">Explore our ongoing investigations into human civilization.</p>
+  </div>
+  <div class="research-grid">
+    <a href="#explorer" class="research-card">
+      <div class="research-card-icon">◈</div>
+      <h3 class="research-card-title">Interactive Empire Explorer</h3>
+      <p class="research-card-desc">An interactive chart comparing the power trajectories of 90+ civilizations across five millennia of human history — filter by region, era, or empire.</p>
+      <span class="research-card-cta">Open Explorer →</span>
+    </a>
+  </div>
 </section>
 
 <!-- Explorer Section -->
@@ -1198,8 +1243,8 @@ const TRANSLATIONS = {
   en: {
     nav_research:"Research", nav_community:"Community", nav_explorer:"Explorer",
     hero_tagline:"Understanding civilizational patterns to illuminate the present.",
-    hero_mission:"We map the rise and decline of civilizations across five millennia — not as history lessons, but as living data for understanding societal momentum, resilience, and collapse.",
-    hero_cta:"Explore the Chart",
+    hero_mission:"The Epoch Institute researches human civilization with objectivity and curiosity — studying the rise and fall of empires, examining the real-time implications of historical events, and tracing how the past shapes modern society. We make the story of humanity not just informative, but compelling. History is not a closed book; it is the foundation of everything around us.",
+    hero_cta:"Browse Projects →",
     exp_label:"Interactive Explorer", exp_title:"The Rise & Fall of Empires",
     exp_desc:"Ninety civilizations. Five millennia. Each trajectory scaled to its own peak — so you can compare not absolute size, but the shape of a civilization's story. Use the controls below to filter by region, era, or search for a specific empire.",
     tab_all:"All Regions", tab_ane:"Ancient Near East", tab_ena:"Egypt & N. Africa",
@@ -1227,8 +1272,8 @@ const TRANSLATIONS = {
   bn: {
     nav_research:"গবেষণা", nav_community:"সম্প্রদায়", nav_explorer:"অন্বেষণ",
     hero_tagline:"সভ্যতার নিদর্শন বিশ্লেষণ করে বর্তমানকে আলোকিত করা।",
-    hero_mission:"আমরা পাঁচ সহস্রাব্দ জুড়ে সভ্যতার উত্থান ও পতন ম্যাপ করি — ইতিহাসের পাঠ হিসেবে নয়, বরং সামাজিক গতিশীলতা, স্থিতিস্থাপকতা ও পতন বোঝার জীবন্ত ডেটা হিসেবে।",
-    hero_cta:"চার্ট দেখুন",
+    hero_mission:"দ্য এপক ইনস্টিটিউট নিরপেক্ষতা ও কৌতূহলের সাথে মানব সভ্যতা গবেষণা করে — সাম্রাজ্যের উত্থান ও পতন অধ্যয়ন করে, ঐতিহাসিক ঘটনার বাস্তব প্রভাব পরীক্ষা করে এবং অতীত কীভাবে আধুনিক সমাজকে রূপ দেয় তা অনুসন্ধান করে। ইতিহাস একটি বন্ধ বই নয়; এটি আমাদের চারপাশের সবকিছুর ভিত্তি।",
+    hero_cta:"প্রকল্পগুলো দেখুন →",
     exp_label:"ইন্টারেক্টিভ অন্বেষণকারী", exp_title:"সাম্রাজ্যের উত্থান ও পতন",
     exp_desc:"নব্বইটি সভ্যতা। পাঁচ সহস্রাব্দ। প্রতিটি পথ তার নিজস্ব শীর্ষ অনুযায়ী স্কেল করা — যাতে আপনি পরম আকার নয়, একটি সভ্যতার গল্পের আকৃতি তুলনা করতে পারেন।",
     tab_all:"সব অঞ্চল", tab_ane:"প্রাচীন মধ্যপ্রাচ্য", tab_ena:"মিশর ও উ. আফ্রিকা",
