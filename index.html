@@ -2284,7 +2284,7 @@ document.getElementById("export-btn").addEventListener("click", () => {
     });
     const r = await fetch(`https://www.googleapis.com/drive/v3/files?${params}`);
     const d = await r.json();
-    const file = (d.files || []).find(f => f.name.toLowerCase().includes("wordmark"));
+    const file = (d.files || []).find(f => f.name.toLowerCase().includes("pillars"));
     if (file) {
       const src = file.thumbnailLink
         ? file.thumbnailLink.replace(/=s\d+$/, "=s400")
