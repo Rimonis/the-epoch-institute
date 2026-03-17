@@ -696,6 +696,10 @@
   .research-card-desc { font-family: 'Crimson Pro', Georgia, serif; font-size: 15px; color: var(--muted); margin: 0 0 20px; text-align: left; line-height: 1.65; }
   .research-card-cta { font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.1em; color: var(--gold); text-transform: uppercase; }
 
+  #explorer { display: none; }
+  .explorer-back-btn { display: inline-flex; align-items: center; gap: 8px; font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); background: none; border: none; cursor: pointer; padding: 0; margin: 40px 40px 0; transition: color 0.2s; }
+  .explorer-back-btn:hover { color: var(--gold); }
+
   /* ── Explorer section header ── */
   .explorer-header {
     padding: 72px 40px 32px;
@@ -905,7 +909,7 @@
   <div class="nav-links">
     <a href="#research" class="nav-link" data-i18n="nav_research">Research</a>
     <a href="#community" class="nav-link" data-i18n="nav_community">Community</a>
-    <a href="#explorer" class="nav-link" data-i18n="nav_explorer">Explorer</a>
+    <a href="#" id="nav-explorer-link" class="nav-link" data-i18n="nav_explorer">Explorer</a>
   </div>
   <div class="nav-toggles">
     <button class="nav-toggle-btn" id="export-btn" title="Export PNG" data-i18n="export_btn">↓ PNG</button>
@@ -916,7 +920,7 @@
 
 <!-- Hero Section -->
 <section class="hero" id="hero">
-  <img src="logo-pillars.png" alt="" class="hero-pillars-img">
+  <span class="hero-ornament"></span>
   <h1 class="hero-title">THE EPOCH INSTITUTE</h1>
   <span class="hero-ornament"></span>
   <p class="hero-tagline" data-i18n="hero_tagline">Understanding civilizational patterns to illuminate the present.</p>
@@ -943,7 +947,7 @@
     <p class="research-subtitle">Explore our ongoing investigations into human civilization.</p>
   </div>
   <div class="research-grid">
-    <a href="#explorer" class="research-card">
+    <a href="#" id="open-explorer-btn" class="research-card">
       <div class="research-card-icon">◈</div>
       <h3 class="research-card-title">Interactive Empire Explorer</h3>
       <p class="research-card-desc">An interactive chart comparing the power trajectories of 90+ civilizations across five millennia of human history — filter by region, era, or empire.</p>
@@ -954,6 +958,7 @@
 
 <!-- Explorer Section -->
 <section id="explorer">
+  <button class="explorer-back-btn" id="explorer-back-btn">← Back to Projects</button>
   <div class="explorer-header">
     <p class="explorer-label" data-i18n="exp_label">Interactive Explorer</p>
     <h2 class="explorer-title" data-i18n="exp_title">The Rise &amp; Fall of Empires</h2>
@@ -2263,6 +2268,27 @@ document.getElementById("export-btn").addEventListener("click", () => {
     a.click();
   };
   img.src = url;
+});
+
+// Explorer view switching
+function openExplorer() {
+  document.getElementById("explorer").style.display = "";
+  document.getElementById("explorer").scrollIntoView({ behavior: "smooth" });
+}
+function closeExplorer() {
+  document.getElementById("explorer").style.display = "none";
+  document.getElementById("research").scrollIntoView({ behavior: "smooth" });
+}
+document.getElementById("open-explorer-btn").addEventListener("click", e => {
+  e.preventDefault();
+  openExplorer();
+});
+document.getElementById("nav-explorer-link").addEventListener("click", e => {
+  e.preventDefault();
+  openExplorer();
+});
+document.getElementById("explorer-back-btn").addEventListener("click", () => {
+  closeExplorer();
 });
 
 // Keyboard navigation (Feature E)
