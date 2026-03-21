@@ -2302,6 +2302,8 @@ document.getElementById("export-btn").addEventListener("click", () => {
 // Explorer view switching
 function openExplorer() {
   document.getElementById("explorer").style.display = "block";
+  resize();
+  buildMinimap();
   document.getElementById("explorer").scrollIntoView({ behavior: "smooth" });
 }
 function closeExplorer() {
