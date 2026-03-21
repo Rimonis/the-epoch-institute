@@ -906,8 +906,7 @@
 <!-- Fixed Navigation -->
 <nav class="site-nav" id="site-nav">
   <a href="#hero" class="nav-logo">
-    <img id="nav-logo-img" src="" alt="" class="nav-logo-img" style="display:none">
-    <span id="nav-logo-text" class="nav-logo-text">THE EPOCH INSTITUTE</span>
+    <span class="nav-logo-text">THE EPOCH INSTITUTE</span>
   </a>
   <div class="nav-links">
     <a href="#research" class="nav-link" data-i18n="nav_research">Research</a>
@@ -2273,31 +2272,6 @@ document.getElementById("export-btn").addEventListener("click", () => {
   img.src = url;
 });
 
-// Load nav logo from Drive
-(async () => {
-  const LOGO_FOLDER = "1cjT2TfGtnfzSnq1v8cCeKOJvcs2ccKr2";
-  try {
-    const params = new URLSearchParams({
-      q: `'${LOGO_FOLDER}' in parents`,
-      fields: "files(id,name,thumbnailLink)",
-      key: GDRIVE_API_KEY
-    });
-    const r = await fetch(`https://www.googleapis.com/drive/v3/files?${params}`);
-    const d = await r.json();
-    const file = (d.files || []).find(f => f.name.toLowerCase().includes("pillars"));
-    if (file) {
-      const src = file.thumbnailLink
-        ? file.thumbnailLink.replace(/=s\d+$/, "=s400")
-        : `https://drive.google.com/uc?export=view&id=${file.id}`;
-      const img = document.getElementById("nav-logo-img");
-      img.onload = () => {
-        img.style.display = "block";
-        document.getElementById("nav-logo-text").style.display = "none";
-      };
-      img.src = src;
-    }
-  } catch(e) {}
-})();
 
 // Explorer view switching
 function openExplorer() {
