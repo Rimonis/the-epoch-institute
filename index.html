@@ -1044,7 +1044,6 @@
   <div class="info-stats">
     <div class="info-stat"><span class="info-stat-label">Peak</span><span class="info-stat-val" id="info-peak"></span></div>
     <div class="info-stat"><span class="info-stat-label">Duration</span><span class="info-stat-val" id="info-duration"></span></div>
-    <div class="info-stat"><span class="info-stat-label">Score</span><span class="info-stat-val" id="info-score">10.0</span></div>
   </div>
   <div class="info-ornament"></div>
   <p class="info-summary" id="info-summary"></p>
@@ -2849,6 +2848,15 @@ function getEffectiveDomain() {
   return viewDomain || xRange || ERAS.all;
 }
 
+function positionTooltip(evTip, mx, my) {
+  const panelOpen = document.getElementById("info-panel").classList.contains("open");
+  const rightBound = panelOpen ? window.innerWidth - 310 : window.innerWidth - 10;
+  const tipW = 280;
+  const tx = (mx + 14 + tipW > rightBound) ? Math.max(0, mx - 14 - tipW) : mx + 14;
+  evTip.style.left = tx + "px";
+  evTip.style.top = Math.max(10, Math.min(my - 10, window.innerHeight - 300)) + "px";
+}
+
 function formatYear(y) {
   if (y < 0) return `${Math.abs(Math.round(y))} BCE`;
   return `${Math.round(y)} CE`;
@@ -2992,8 +3000,7 @@ function render() {
     if (!this.classList.contains("ev-active")) {
       evTip.innerHTML = `<div class="event-tip-label">${d.label}</div><div class="event-tip-year">${formatYear(d.year)}</div>`;
       const [mx, my] = d3.pointer(event, document.body);
-      evTip.style.left = Math.min(mx + 14, window.innerWidth - 300) + "px";
-      evTip.style.top = Math.min(my - 10, window.innerHeight - 100) + "px";
+      positionTooltip(evTip, mx, my);
       evTip.classList.add("visible");
     }
   }).on("mouseleave", function() {
@@ -3009,8 +3016,7 @@ function render() {
       this.classList.add("ev-active");
       evTip.innerHTML = `<div class="event-tip-label">${d.label}</div><div class="event-tip-year">${formatYear(d.year)}</div><div class="event-tip-desc">${d.desc}</div>`;
       const [mx, my] = d3.pointer(event, document.body);
-      evTip.style.left = Math.min(mx + 14, window.innerWidth - 300) + "px";
-      evTip.style.top = Math.min(my - 10, window.innerHeight - 160) + "px";
+      positionTooltip(evTip, mx, my);
       evTip.classList.add("visible");
     } else {
       evTip.classList.remove("visible");
@@ -3068,8 +3074,7 @@ function render() {
             if (evTip.classList.contains("dot-pinned")) return;
             evTip.innerHTML = `<div class="event-tip-label">${d.empire.name}</div><div class="event-tip-year">${formatYear(d.p[0])}</div><div class="event-tip-desc">${d.desc}</div>`;
             const [mx, my] = d3.pointer(event, document.body);
-            evTip.style.left = Math.min(mx + 14, window.innerWidth - 300) + "px";
-            evTip.style.top = Math.max(10, Math.min(my - 10, window.innerHeight - 300)) + "px";
+            positionTooltip(evTip, mx, my);
             evTip.classList.add("visible");
           })
           .on("mouseleave", function() {
@@ -3086,8 +3091,7 @@ function render() {
             if (!isPinned) {
               evTip.innerHTML = `<div class="event-tip-label">${d.empire.name}</div><div class="event-tip-year">${formatYear(d.p[0])}</div><div class="event-tip-desc">${d.desc}</div>`;
               const [mx, my] = d3.pointer(event, document.body);
-              evTip.style.left = Math.min(mx + 14, window.innerWidth - 300) + "px";
-              evTip.style.top = Math.max(10, Math.min(my - 10, window.innerHeight - 300)) + "px";
+              positionTooltip(evTip, mx, my);
               evTip.classList.add("visible", "dot-pinned");
               evTip._pinnedDot = this;
             }
@@ -3421,7 +3425,6 @@ function updateInfoPanel() {
   });
   document.getElementById("info-peak").textContent = formatYear(peak[0]);
   document.getElementById("info-duration").textContent = `${Math.abs(duration)} years`;
-  document.getElementById("info-score").textContent = peak[1].toFixed(1);
   document.getElementById("info-summary").textContent = EMPIRE_INFO[emp.name] || "Historical data for this empire is being compiled.";
 
   // Compare empire section
@@ -3435,7 +3438,6 @@ function updateInfoPanel() {
       document.getElementById("info-compare-name").textContent = emp2.name;
       document.getElementById("info-compare-peak").textContent = formatYear(peak2[0]);
       document.getElementById("info-compare-duration").textContent = `${Math.abs(duration2)} years`;
-      document.getElementById("info-compare-score").textContent = peak2[1].toFixed(1);
       document.getElementById("info-compare-summary").textContent = EMPIRE_INFO[emp2.name] || "Historical data for this empire is being compiled.";
       compareSection.style.display = "flex";
       divider2.style.display = "block";
