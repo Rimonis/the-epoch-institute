@@ -2793,6 +2793,10 @@ EMPIRES.forEach(e => {
 });
 
 // State
+let _lastEventWasTouch = false;
+document.addEventListener("touchstart", () => { _lastEventWasTouch = true; }, { passive: true });
+document.addEventListener("mousedown",  () => { _lastEventWasTouch = false; }, { passive: true });
+
 let activeRegion = null;
 let soloEmpire = null;
 let compareEmpire = null;
@@ -3047,6 +3051,7 @@ function render() {
         updateInfoPanel();
       } else {
         compareEmpire = null;
+        if (_lastEventWasTouch && soloEmpire === d.name) return;
         toggleSolo(d.name);
       }
     });
