@@ -524,7 +524,11 @@
     transition: border-color 0.2s, background 0.2s;
     text-align: center;
   }
-  .empire-thumb:hover { border-color: var(--gold); background: rgba(180,140,60,0.05); }
+  @media (hover: hover) {
+    .empire-thumb:hover { border-color: var(--gold); background: rgba(180,140,60,0.05); }
+  }
+  .empire-thumb:active { border-color: var(--gold); background: rgba(180,140,60,0.05); }
+  .empire-thumb { touch-action: manipulation; }
   .thumb-logo {
     width: 64px; height: 64px;
     object-fit: contain;
@@ -546,13 +550,13 @@
     display: inline-flex; align-items: center; gap: 8px;
     font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 0.12em;
     text-transform: uppercase; color: var(--muted); background: none;
-    border: none; cursor: pointer; padding: 0; margin: 32px 40px 0;
-    transition: color 0.2s;
+    border: none; cursor: pointer; padding: 8px 0; margin: 24px 40px 0;
+    min-height: 44px; touch-action: manipulation; transition: color 0.2s;
   }
   .profile-back-gallery-btn:hover { color: var(--gold); }
-  .profile-back-gallery-btn.bottom { display: block; margin: 40px 40px 48px; }
+  .profile-back-gallery-btn.bottom { display: flex; margin: 32px 40px 56px; }
 
-  .profile-detail-inner { max-width: 860px; margin: 0 auto; padding: 40px 40px 0; }
+  .profile-detail-inner { max-width: 860px; margin: 0 auto; padding: 40px 40px 56px; }
   .profile-detail-header {
     display: flex; align-items: center; gap: 28px;
     padding-bottom: 28px; border-bottom: 1px solid var(--border); margin-bottom: 36px;
@@ -591,8 +595,12 @@
   @media (max-width: 600px) {
     .profile-era-group { padding: 24px 16px 0; }
     .profile-thumb-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; }
-    .profile-detail-inner { padding: 24px 16px 0; }
+    .profile-detail-inner { padding: 20px 16px 48px; }
     .profile-detail-header { flex-direction: column; align-items: flex-start; gap: 16px; }
+    .profile-back-gallery-btn { margin: 16px 16px 0; }
+    .profile-back-gallery-btn.bottom { margin: 24px 16px 40px; }
+    .profile-section-body { font-size: 15px; }
+    .profile-summary { font-size: 15px; }
   }
 
   /* ── Chart guideline ── */
@@ -947,6 +955,12 @@
     .legend-region { min-width: 120px; }
     .right-controls { gap: 8px; }
     #empire-search { width: 130px; }
+    /* Profiles — tablet */
+    .profile-era-group { padding: 28px 24px 0; }
+    .profile-thumb-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; }
+    .profile-back-gallery-btn { margin: 24px 24px 0; }
+    .profile-back-gallery-btn.bottom { margin: 32px 24px 48px; }
+    .profile-detail-inner { padding: 32px 24px 48px; }
   }
 
   /* ── Mobile: phone (≤480px) ── */
@@ -994,6 +1008,18 @@
     .axis text { font-size: 9px; }
     .guide-steps { gap: 6px; }
     .guide-step { font-size: 8px; padding: 5px 10px; }
+    /* Profiles — phone */
+    .profile-era-group { padding: 20px 14px 0; }
+    .profile-thumb-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; }
+    .empire-thumb { padding: 16px 8px 12px; gap: 8px; }
+    .thumb-logo { width: 52px; height: 52px; }
+    .thumb-logo-fallback { width: 52px; height: 52px; font-size: 22px; }
+    .profile-back-gallery-btn { margin: 14px 14px 0; font-size: 8px; }
+    .profile-back-gallery-btn.bottom { margin: 20px 14px 36px; }
+    .profile-detail-inner { padding: 16px 14px 40px; }
+    .profile-detail-logo { width: 72px; height: 72px; }
+    .profile-section-body { font-size: 14px; line-height: 1.75; }
+    .profile-summary { font-size: 14px; padding-top: 20px; margin-top: 28px; }
   }
 </style>
 </head>
