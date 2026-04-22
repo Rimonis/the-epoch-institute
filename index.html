@@ -1036,6 +1036,141 @@
     .profile-summary { font-size: 14px; padding-top: 20px; margin-top: 28px; }
     .profile-references-list li { font-size: 11px; }
   }
+
+  /* ── Community Page ── */
+  #community-page { background: var(--bg); min-height: 100vh; position: relative; z-index: 1; }
+
+  .community-section {
+    max-width: 1000px; margin: 0 auto;
+    padding: 56px 40px;
+    border-bottom: 1px solid var(--border);
+  }
+  .community-section:last-child { border-bottom: none; }
+  .community-section-hd { margin-bottom: 36px; }
+  .community-section-title {
+    font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--gold); margin: 0 0 10px;
+  }
+  .community-section-sub {
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 16px; color: var(--muted); line-height: 1.7; margin: 0;
+  }
+
+  /* Share band */
+  .community-share-band {
+    display: flex; align-items: center; justify-content: space-between; gap: 40px;
+    background: rgba(201,168,76,0.04); border: 1px solid var(--border);
+    border-radius: 2px; max-width: 1000px;
+  }
+  .community-share-band .community-section-title { margin-bottom: 10px; }
+  .share-band-text { flex: 1; }
+
+  /* Blog grid */
+  .blog-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  .blog-card {
+    border: 1px solid var(--border);
+    padding: 28px 24px;
+    display: flex; flex-direction: column; gap: 12px;
+    transition: border-color 0.2s, background 0.2s;
+    cursor: pointer;
+  }
+  .blog-card:hover { border-color: var(--gold); background: rgba(201,168,76,0.03); }
+  .blog-card-tag {
+    font-family: 'Cinzel', serif; font-size: 8px; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--gold); opacity: 0.8;
+  }
+  .blog-card-title {
+    font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 0.04em;
+    color: var(--text); line-height: 1.5; margin: 0;
+  }
+  .blog-card-excerpt {
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 14px; color: var(--muted); line-height: 1.65; margin: 0; flex: 1;
+  }
+  .blog-card-meta {
+    font-family: 'Cinzel', serif; font-size: 8px; letter-spacing: 0.1em;
+    color: var(--muted); opacity: 0.7; margin-top: 4px;
+  }
+  .blog-card-placeholder .blog-card-title,
+  .blog-card-placeholder .blog-card-excerpt {
+    background: var(--border); border-radius: 2px; color: transparent;
+    user-select: none;
+  }
+
+  /* Forms */
+  .opinion-form { max-width: 560px; display: flex; flex-direction: column; gap: 20px; }
+  .form-row { display: flex; flex-direction: column; gap: 6px; }
+  .form-label {
+    font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .form-required { color: var(--gold); }
+  .form-input {
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--text); font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 15px; padding: 10px 14px;
+    outline: none; transition: border-color 0.2s; width: 100%; box-sizing: border-box;
+  }
+  .form-input:focus { border-color: var(--gold); }
+  .form-input-error { border-color: #c0392b !important; }
+  .form-select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M0 0l6 8 6-8z' fill='%23c9a84c'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+  .form-textarea { resize: vertical; min-height: 120px; line-height: 1.65; }
+  .form-hint { font-family: 'Crimson Pro', Georgia, serif; font-size: 12px; color: var(--muted); margin: 2px 0 0; }
+  .form-submit {
+    align-self: flex-start;
+    font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--gold);
+    background: transparent; border: 1px solid var(--gold);
+    padding: 10px 28px; cursor: pointer; transition: background 0.2s, color 0.2s;
+    margin-top: 4px;
+  }
+  .form-submit:hover { background: var(--gold); color: var(--bg); }
+  .form-success {
+    font-family: 'Crimson Pro', Georgia, serif; font-size: 15px;
+    color: #7dba84; margin: 0;
+  }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.72);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 500; padding: 20px;
+  }
+  .modal-box {
+    background: var(--surface); border: 1px solid var(--border);
+    width: 100%; max-width: 540px; max-height: 90vh;
+    overflow-y: auto; padding: 40px; position: relative;
+  }
+  .modal-close {
+    position: absolute; top: 16px; right: 20px;
+    background: none; border: none; color: var(--muted);
+    font-size: 16px; cursor: pointer; padding: 4px 8px;
+    transition: color 0.2s; line-height: 1;
+  }
+  .modal-close:hover { color: var(--gold); }
+  .modal-title {
+    font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--gold-light);
+    margin: 0 0 32px; padding-bottom: 16px; border-bottom: 1px solid var(--border);
+  }
+  .modal-form { display: flex; flex-direction: column; gap: 20px; }
+
+  /* Community responsive */
+  @media (max-width: 768px) {
+    .community-section { padding: 40px 24px; }
+    .blog-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .community-share-band { flex-direction: column; align-items: flex-start; gap: 24px; }
+  }
+  @media (max-width: 480px) {
+    .community-section { padding: 28px 16px; }
+    .blog-grid { grid-template-columns: 1fr; gap: 12px; }
+    .modal-box { padding: 28px 18px; }
+    .opinion-form { max-width: 100%; }
+  }
 </style>
 </head>
 <body>
@@ -1047,7 +1182,7 @@
   </a>
   <div class="nav-links">
     <a href="#research" class="nav-link" data-i18n="nav_research">Research</a>
-    <a href="#community" class="nav-link" data-i18n="nav_community">Community</a>
+    <a href="#" id="nav-community-link" class="nav-link" data-i18n="nav_community">Community</a>
     <a href="#" id="nav-explorer-link" class="nav-link" data-i18n="nav_explorer">Explorer</a>
   </div>
   <div class="nav-toggles">
@@ -1229,7 +1364,74 @@
 </div>
 
 <!-- Footer -->
-<footer id="community">
+<div id="community-page" style="display:none;">
+  <button class="explorer-back-btn" id="community-back-btn">← Home</button>
+
+  <div class="explorer-header">
+    <p class="explorer-label">COMMUNITY</p>
+    <h2 class="explorer-title">The Epoch Community</h2>
+    <p class="explorer-description">A space for readers, researchers, and thinkers to read, write, and reflect on history and its implications.</p>
+  </div>
+
+  <!-- Blogs -->
+  <div class="community-section" id="community-blogs">
+    <div class="community-section-hd">
+      <h3 class="community-section-title">Blogs</h3>
+      <p class="community-section-sub">Articles and essays submitted by our community of historians, researchers, and curious minds.</p>
+    </div>
+    <div class="blog-grid">
+      <div class="blog-card">
+        <span class="blog-card-tag">History · Empire</span>
+        <h4 class="blog-card-title">The Fall of Rome and the Lessons It Left Behind</h4>
+        <p class="blog-card-excerpt">An exploration of the structural pressures — economic, military, and political — that eroded one of history's greatest civilisations over three centuries.</p>
+        <p class="blog-card-meta">Dr. A. Rahman &nbsp;·&nbsp; March 2025</p>
+      </div>
+      <div class="blog-card">
+        <span class="blog-card-tag">Society · Governance</span>
+        <h4 class="blog-card-title">How the Mongol Empire Rewired the Silk Road</h4>
+        <p class="blog-card-excerpt">The Pax Mongolica opened trade corridors that connected Europe to East Asia for the first time in history — and reshaped the global economy in the process.</p>
+        <p class="blog-card-meta">S. Chowdhury &nbsp;·&nbsp; February 2025</p>
+      </div>
+      <div class="blog-card">
+        <span class="blog-card-tag">Civilisation · Culture</span>
+        <h4 class="blog-card-title">What the Abbasid Golden Age Tells Us About Knowledge and Power</h4>
+        <p class="blog-card-excerpt">Baghdad's House of Wisdom was not merely a library — it was a geopolitical instrument, a declaration that intellectual supremacy and imperial power are inseparable.</p>
+        <p class="blog-card-meta">Prof. N. Islam &nbsp;·&nbsp; January 2025</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Share Your Thoughts -->
+  <div class="community-section community-share-band">
+    <div class="share-band-text">
+      <h3 class="community-section-title">Share Your Thoughts</h3>
+      <p class="community-section-sub">Have a perspective on history, society, or civilisation? We'd love to feature your writing on The Epoch Institute.</p>
+    </div>
+    <button class="hero-cta" id="open-share-btn" style="white-space:nowrap;">Submit Your Article →</button>
+  </div>
+
+  <!-- Your Opinion -->
+  <div class="community-section" id="community-opinion">
+    <div class="community-section-hd">
+      <h3 class="community-section-title">Your Opinion</h3>
+      <p class="community-section-sub">Share a quick thought — no article needed. We read every submission.</p>
+    </div>
+    <form class="opinion-form" id="opinion-form" novalidate>
+      <div class="form-row">
+        <label class="form-label" for="op-name">Name <span class="form-required">*</span></label>
+        <input class="form-input" id="op-name" type="text" placeholder="Your name" autocomplete="name">
+      </div>
+      <div class="form-row">
+        <label class="form-label" for="op-text">Your Opinion <span class="form-required">*</span></label>
+        <textarea class="form-input form-textarea" id="op-text" placeholder="Write your thoughts here…"></textarea>
+      </div>
+      <button type="submit" class="form-submit">Submit Opinion</button>
+      <p class="form-success" id="op-success" style="display:none;">Thank you — your opinion has been received.</p>
+    </form>
+  </div>
+</div>
+
+<footer id="site-footer">
   <div class="footer-inner">
     <div class="footer-brand">
       <span class="footer-logo">THE EPOCH INSTITUTE</span>
@@ -5586,6 +5788,7 @@ document.getElementById("export-btn").addEventListener("click", () => {
 // Explorer view switching
 function openExplorer() {
   document.getElementById('profiles').style.display = 'none';
+  document.getElementById('community-page').style.display = 'none';
   document.getElementById("explorer").style.display = "block";
   resize();
   buildMinimap();
@@ -5653,6 +5856,7 @@ const ERA_ORDER = ['ancient','classical','medieval','early-modern','modern'];
 
 function openProfiles() {
   document.getElementById("explorer").style.display = "none";
+  document.getElementById('community-page').style.display = 'none';
   document.getElementById('profiles').style.display = 'block';
   buildProfileGallery();
   document.getElementById('profiles').scrollIntoView({ behavior: 'smooth' });
@@ -5761,6 +5965,125 @@ document.getElementById('open-profiles-btn').addEventListener('click', e => {
 document.getElementById('profiles-back-btn').addEventListener('click', closeProfiles);
 document.getElementById('profile-back-gallery').addEventListener('click', backToGallery);
 document.getElementById('profile-back-gallery-bottom').addEventListener('click', backToGallery);
+
+// ── Community Page ───────────────────────────────────────────
+function openCommunity() {
+  document.getElementById('explorer').style.display = 'none';
+  document.getElementById('profiles').style.display = 'none';
+  document.getElementById('community-page').style.display = 'block';
+  document.getElementById('community-page').scrollIntoView({ behavior: 'smooth' });
+}
+function closeCommunity() {
+  document.getElementById('community-page').style.display = 'none';
+  document.getElementById('hero').scrollIntoView({ behavior: 'smooth' });
+}
+
+// Profession → show/hide affiliation field
+document.getElementById('sf-profession').addEventListener('change', function() {
+  const needsRequired = ['student', 'teacher'].includes(this.value);
+  const showOptional  = ['healthcare','engineering','public-service','private-service','other'].includes(this.value);
+  const row  = document.getElementById('sf-affil-row');
+  const star = document.getElementById('sf-affil-star');
+  const inp  = document.getElementById('sf-affil');
+  row.style.display  = (needsRequired || showOptional) ? 'flex' : 'none';
+  inp.required       = needsRequired;
+  star.style.display = needsRequired ? '' : 'none';
+});
+
+function isValidEmail(v) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim());
+}
+
+// Share modal
+document.getElementById('open-share-btn').addEventListener('click', () => {
+  document.getElementById('share-modal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+});
+function closeShareModal() {
+  document.getElementById('share-modal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+document.getElementById('share-modal-close').addEventListener('click', closeShareModal);
+document.getElementById('share-modal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeShareModal();
+});
+
+// Share form validation
+document.getElementById('share-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const name  = document.getElementById('sf-name').value.trim();
+  const prof  = document.getElementById('sf-profession').value;
+  const affil = document.getElementById('sf-affil').value.trim();
+  const email = document.getElementById('sf-email').value.trim();
+  const affilReq = ['student','teacher'].includes(prof);
+  let ok = true;
+  [['sf-name', !name], ['sf-profession', !prof],
+   ['sf-affil', affilReq && !affil], ['sf-email', !isValidEmail(email)]]
+    .forEach(([id, bad]) => {
+      document.getElementById(id).classList.toggle('form-input-error', bad);
+      if (bad) ok = false;
+    });
+  if (ok) { document.getElementById('sf-success').style.display = 'block'; }
+});
+
+// Opinion form validation
+document.getElementById('opinion-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const name = document.getElementById('op-name').value.trim();
+  const text = document.getElementById('op-text').value.trim();
+  let ok = true;
+  [['op-name', !name], ['op-text', !text]].forEach(([id, bad]) => {
+    document.getElementById(id).classList.toggle('form-input-error', bad);
+    if (bad) ok = false;
+  });
+  if (ok) { document.getElementById('op-success').style.display = 'block'; }
+});
+
+// Clear error state on input
+['sf-name','sf-profession','sf-affil','sf-email','op-name','op-text'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('input', () => el.classList.remove('form-input-error'));
+});
+
+document.getElementById('nav-community-link').addEventListener('click', e => { e.preventDefault(); openCommunity(); });
+document.getElementById('community-back-btn').addEventListener('click', closeCommunity);
 </script>
+
+<div id="share-modal" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="modal-title-text">
+  <div class="modal-box">
+    <button class="modal-close" id="share-modal-close" aria-label="Close">✕</button>
+    <h3 class="modal-title" id="modal-title-text">Submit Your Article</h3>
+    <form class="modal-form" id="share-form" novalidate>
+      <div class="form-row">
+        <label class="form-label" for="sf-name">Name <span class="form-required">*</span></label>
+        <input class="form-input" id="sf-name" type="text" placeholder="Your full name" autocomplete="name">
+      </div>
+      <div class="form-row">
+        <label class="form-label" for="sf-profession">Profession <span class="form-required">*</span></label>
+        <select class="form-input form-select" id="sf-profession">
+          <option value="">Select your profession…</option>
+          <option value="healthcare">Healthcare Professional</option>
+          <option value="engineering">Engineering Professional</option>
+          <option value="public-service">Public Service</option>
+          <option value="private-service">Private Service</option>
+          <option value="teacher">Teacher</option>
+          <option value="student">Student</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="form-row" id="sf-affil-row" style="display:none;">
+        <label class="form-label" for="sf-affil">Affiliated Institute / Organisation <span class="form-required" id="sf-affil-star">*</span></label>
+        <input class="form-input" id="sf-affil" type="text" placeholder="e.g. University of Dhaka" autocomplete="organization">
+      </div>
+      <div class="form-row">
+        <label class="form-label" for="sf-email">Email <span class="form-required">*</span></label>
+        <input class="form-input" id="sf-email" type="email" placeholder="your@email.com" autocomplete="email">
+        <p class="form-hint">Accepts all major providers and institutional / .edu addresses.</p>
+      </div>
+      <button type="submit" class="form-submit">Submit →</button>
+      <p class="form-success" id="sf-success" style="display:none;">Thank you! We'll review your submission and be in touch.</p>
+    </form>
+  </div>
+</div>
 </body>
 </html>
