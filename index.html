@@ -1117,6 +1117,24 @@
   }
   .form-input:focus { border-color: var(--gold); }
   .form-input-error { border-color: #c0392b !important; }
+  .file-dropzone {
+    position: relative; border: 1.5px dashed var(--border);
+    padding: 28px 20px; text-align: center; cursor: pointer;
+    transition: border-color 0.2s, background 0.2s; width: 100%; box-sizing: border-box;
+  }
+  .file-dropzone:hover, .file-dropzone.drag-over {
+    border-color: var(--gold); background: rgba(180,140,60,0.05);
+  }
+  .file-dropzone.has-file { border-color: #7dba84; }
+  .file-dropzone.error { border-color: #c0392b; }
+  .file-dropzone-inner { display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none; }
+  .file-dropzone-icon { font-size: 28px; opacity: 0.4; }
+  .file-dropzone-text {
+    font-family: 'Crimson Pro', Georgia, serif; font-size: 14px;
+    color: var(--muted); opacity: 0.6; line-height: 1.5;
+  }
+  .file-dropzone.has-file .file-dropzone-text { opacity: 1; color: #7dba84; }
+  .file-dropzone.error .file-dropzone-text { opacity: 1; color: #c0392b; }
   .form-select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M0 0l6 8 6-8z' fill='%23c9a84c'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
   .form-textarea { resize: vertical; min-height: 120px; line-height: 1.65; }
   .form-hint { font-family: 'Crimson Pro', Georgia, serif; font-size: 12px; color: var(--muted); margin: 2px 0 0; }
@@ -1461,6 +1479,17 @@
         <label class="form-label" for="sf-email">Email <span class="form-required">*</span></label>
         <input class="form-input" id="sf-email" type="email" placeholder="your@email.com" autocomplete="email">
         <p class="form-hint">Accepts all major providers and institutional / .edu addresses.</p>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Article File <span class="form-required">*</span></label>
+        <div class="file-dropzone" id="sf-dropzone">
+          <input type="file" id="sf-file" accept=".docx" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;">
+          <div class="file-dropzone-inner" id="sf-dropzone-inner">
+            <span class="file-dropzone-icon">📄</span>
+            <span class="file-dropzone-text">Drop your article here in DOCX format, or click to browse</span>
+          </div>
+        </div>
+        <p class="form-hint" id="sf-file-hint" style="display:none;"></p>
       </div>
       <button type="submit" class="form-submit">Submit →</button>
       <p class="form-success" id="sf-success" style="display:none;">Thank you! We'll review your submission and be in touch.</p>
@@ -6045,6 +6074,42 @@ document.getElementById('share-modal').addEventListener('click', e => {
   if (e.target === e.currentTarget) closeShareModal();
 });
 
+// Dropzone
+(function() {
+  const zone = document.getElementById('sf-dropzone');
+  const fileInput = document.getElementById('sf-file');
+  const inner = document.getElementById('sf-dropzone-inner');
+  const hint = document.getElementById('sf-file-hint');
+
+  function setFile(file) {
+    if (!file) return;
+    if (!file.name.toLowerCase().endsWith('.docx')) {
+      zone.classList.remove('has-file');
+      zone.classList.add('error');
+      inner.querySelector('.file-dropzone-text').textContent = 'Only .docx files are accepted. Please try again.';
+      hint.style.display = 'none';
+      zone._file = null;
+      return;
+    }
+    zone.classList.remove('error');
+    zone.classList.add('has-file');
+    inner.querySelector('.file-dropzone-icon').textContent = '✓';
+    inner.querySelector('.file-dropzone-text').textContent = file.name;
+    hint.textContent = (file.size / 1024).toFixed(1) + ' KB';
+    hint.style.display = 'block';
+    zone._file = file;
+  }
+
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('drag-over');
+    setFile(e.dataTransfer.files[0]);
+  });
+  fileInput.addEventListener('change', () => setFile(fileInput.files[0]));
+})();
+
 // Share form validation
 document.getElementById('share-form').addEventListener('submit', e => {
   e.preventDefault();
@@ -6053,6 +6118,8 @@ document.getElementById('share-form').addEventListener('submit', e => {
   const affil = document.getElementById('sf-affil').value.trim();
   const email = document.getElementById('sf-email').value.trim();
   const affilReq = ['student','teacher'].includes(prof);
+  const zone = document.getElementById('sf-dropzone');
+  const hasFile = !!(zone._file);
   let ok = true;
   [['sf-name', !name], ['sf-profession', !prof],
    ['sf-affil', affilReq && !affil], ['sf-email', !isValidEmail(email)]]
@@ -6060,6 +6127,11 @@ document.getElementById('share-form').addEventListener('submit', e => {
       document.getElementById(id).classList.toggle('form-input-error', bad);
       if (bad) ok = false;
     });
+  if (!hasFile) {
+    zone.classList.add('error');
+    zone.querySelector('.file-dropzone-text').textContent = 'Please attach your article in DOCX format.';
+    ok = false;
+  }
   if (ok) { document.getElementById('sf-success').style.display = 'block'; }
 });
 
