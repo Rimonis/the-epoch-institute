@@ -1157,20 +1157,33 @@
   }
 
   /* Modal */
-  @keyframes overlayFadeIn  { from { opacity: 0; }                                             to { opacity: 1; } }
-  @keyframes overlayFadeOut { from { opacity: 1; }                                             to { opacity: 0; } }
-  @keyframes modalBoxIn     { from { opacity: 0; transform: scale(0.93) translateY(16px); }    to { opacity: 1; transform: scale(1) translateY(0); } }
-  @keyframes modalBoxOut    { from { opacity: 1; transform: scale(1) translateY(0); }          to { opacity: 0; transform: scale(0.93) translateY(16px); } }
+  @keyframes overlayFadeIn {
+    from { opacity: 0; backdrop-filter: blur(0px); }
+    to   { opacity: 1; backdrop-filter: blur(4px); }
+  }
+  @keyframes overlayFadeOut {
+    from { opacity: 1; backdrop-filter: blur(4px); }
+    to   { opacity: 0; backdrop-filter: blur(0px); }
+  }
+  @keyframes modalBoxIn {
+    0%   { opacity: 0; transform: scale(0.88) translateY(24px); box-shadow: 0 0 0 rgba(0,0,0,0); }
+    60%  { opacity: 1; transform: scale(1.02) translateY(-3px); }
+    100% { opacity: 1; transform: scale(1)    translateY(0);    box-shadow: 0 24px 64px rgba(0,0,0,0.5); }
+  }
+  @keyframes modalBoxOut {
+    from { opacity: 1; transform: scale(1)    translateY(0);    }
+    to   { opacity: 0; transform: scale(0.92) translateY(12px); }
+  }
 
   .modal-overlay {
     position: fixed; inset: 0; background: rgba(0,0,0,0.72);
     display: flex; align-items: center; justify-content: center;
     z-index: 500; padding: 20px;
   }
-  .modal-overlay.is-open  { animation: overlayFadeIn  0.25s ease forwards; }
-  .modal-overlay.is-open  .modal-box { animation: modalBoxIn  0.32s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
-  .modal-overlay.closing  { animation: overlayFadeOut 0.2s  ease forwards; }
-  .modal-overlay.closing  .modal-box { animation: modalBoxOut 0.2s  ease forwards; }
+  .modal-overlay.is-open         { animation: overlayFadeIn  0.3s  ease forwards; }
+  .modal-overlay.is-open .modal-box { animation: modalBoxIn  0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+  .modal-overlay.closing         { animation: overlayFadeOut 0.22s ease forwards; }
+  .modal-overlay.closing .modal-box { animation: modalBoxOut 0.22s ease          forwards; }
   .modal-box {
     background: var(--surface); border: 1px solid var(--border);
     width: 100%; max-width: 540px; max-height: 90vh;
@@ -6090,7 +6103,7 @@ function closeShareModal() {
     overlay.style.display = 'none';
     overlay.classList.remove('closing');
     document.body.style.overflow = '';
-  }, 200);
+  }, 220);
 }
 document.getElementById('share-modal-close').addEventListener('click', closeShareModal);
 document.getElementById('share-modal').addEventListener('click', e => {
