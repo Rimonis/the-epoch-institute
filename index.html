@@ -1431,6 +1431,43 @@
   </div>
 </div>
 
+<div id="share-modal" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="modal-title-text">
+  <div class="modal-box">
+    <button class="modal-close" id="share-modal-close" aria-label="Close">✕</button>
+    <h3 class="modal-title" id="modal-title-text">Submit Your Article</h3>
+    <form class="modal-form" id="share-form" novalidate>
+      <div class="form-row">
+        <label class="form-label" for="sf-name">Name <span class="form-required">*</span></label>
+        <input class="form-input" id="sf-name" type="text" placeholder="Your full name" autocomplete="name">
+      </div>
+      <div class="form-row">
+        <label class="form-label" for="sf-profession">Profession <span class="form-required">*</span></label>
+        <select class="form-input form-select" id="sf-profession">
+          <option value="">Select your profession…</option>
+          <option value="healthcare">Healthcare Professional</option>
+          <option value="engineering">Engineering Professional</option>
+          <option value="public-service">Public Service</option>
+          <option value="private-service">Private Service</option>
+          <option value="teacher">Teacher</option>
+          <option value="student">Student</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="form-row" id="sf-affil-row" style="display:none;">
+        <label class="form-label" for="sf-affil">Affiliated Institute / Organisation <span class="form-required" id="sf-affil-star">*</span></label>
+        <input class="form-input" id="sf-affil" type="text" placeholder="e.g. University of Dhaka" autocomplete="organization">
+      </div>
+      <div class="form-row">
+        <label class="form-label" for="sf-email">Email <span class="form-required">*</span></label>
+        <input class="form-input" id="sf-email" type="email" placeholder="your@email.com" autocomplete="email">
+        <p class="form-hint">Accepts all major providers and institutional / .edu addresses.</p>
+      </div>
+      <button type="submit" class="form-submit">Submit →</button>
+      <p class="form-success" id="sf-success" style="display:none;">Thank you! We'll review your submission and be in touch.</p>
+    </form>
+  </div>
+</div>
+
 <footer id="site-footer">
   <div class="footer-inner">
     <div class="footer-brand">
@@ -6049,41 +6086,5 @@ document.getElementById('nav-community-link').addEventListener('click', e => { e
 document.getElementById('community-back-btn').addEventListener('click', closeCommunity);
 </script>
 
-<div id="share-modal" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="modal-title-text">
-  <div class="modal-box">
-    <button class="modal-close" id="share-modal-close" aria-label="Close">✕</button>
-    <h3 class="modal-title" id="modal-title-text">Submit Your Article</h3>
-    <form class="modal-form" id="share-form" novalidate>
-      <div class="form-row">
-        <label class="form-label" for="sf-name">Name <span class="form-required">*</span></label>
-        <input class="form-input" id="sf-name" type="text" placeholder="Your full name" autocomplete="name">
-      </div>
-      <div class="form-row">
-        <label class="form-label" for="sf-profession">Profession <span class="form-required">*</span></label>
-        <select class="form-input form-select" id="sf-profession">
-          <option value="">Select your profession…</option>
-          <option value="healthcare">Healthcare Professional</option>
-          <option value="engineering">Engineering Professional</option>
-          <option value="public-service">Public Service</option>
-          <option value="private-service">Private Service</option>
-          <option value="teacher">Teacher</option>
-          <option value="student">Student</option>
-          <option value="other">Other</option>
-        </select>
-      </div>
-      <div class="form-row" id="sf-affil-row" style="display:none;">
-        <label class="form-label" for="sf-affil">Affiliated Institute / Organisation <span class="form-required" id="sf-affil-star">*</span></label>
-        <input class="form-input" id="sf-affil" type="text" placeholder="e.g. University of Dhaka" autocomplete="organization">
-      </div>
-      <div class="form-row">
-        <label class="form-label" for="sf-email">Email <span class="form-required">*</span></label>
-        <input class="form-input" id="sf-email" type="email" placeholder="your@email.com" autocomplete="email">
-        <p class="form-hint">Accepts all major providers and institutional / .edu addresses.</p>
-      </div>
-      <button type="submit" class="form-submit">Submit →</button>
-      <p class="form-success" id="sf-success" style="display:none;">Thank you! We'll review your submission and be in touch.</p>
-    </form>
-  </div>
-</div>
 </body>
 </html>
