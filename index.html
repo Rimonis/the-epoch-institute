@@ -5594,6 +5594,7 @@ document.getElementById("export-btn").addEventListener("click", () => {
 
 // Explorer view switching
 function openExplorer() {
+  document.getElementById('profiles').style.display = 'none';
   document.getElementById("explorer").style.display = "block";
   resize();
   buildMinimap();
@@ -5660,6 +5661,7 @@ const ERA_LABELS = {
 const ERA_ORDER = ['ancient','classical','medieval','early-modern','modern'];
 
 function openProfiles() {
+  document.getElementById("explorer").style.display = "none";
   document.getElementById('profiles').style.display = 'block';
   buildProfileGallery();
   document.getElementById('profiles').scrollIntoView({ behavior: 'smooth' });
