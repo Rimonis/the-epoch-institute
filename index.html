@@ -1180,10 +1180,29 @@
     display: flex; align-items: center; justify-content: center;
     z-index: 500; padding: 20px;
   }
-  .modal-overlay.is-open         { animation: overlayFadeIn  0.3s  ease forwards; }
-  .modal-overlay.is-open .modal-box { animation: modalBoxIn  0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
-  .modal-overlay.closing         { animation: overlayFadeOut 0.22s ease forwards; }
-  .modal-overlay.closing .modal-box { animation: modalBoxOut 0.22s ease          forwards; }
+  .modal-overlay.is-open,
+  .thankyou-overlay.is-open       { animation: overlayFadeIn  0.3s  ease forwards; }
+  .modal-overlay.is-open .modal-box,
+  .thankyou-overlay.is-open .thankyou-box { animation: modalBoxIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+  .modal-overlay.closing,
+  .thankyou-overlay.closing       { animation: overlayFadeOut 0.22s ease forwards; }
+  .modal-overlay.closing .modal-box,
+  .thankyou-overlay.closing .thankyou-box { animation: modalBoxOut 0.22s ease forwards; }
+
+  @keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes shakeIn {
+    0%   { opacity: 0; transform: translateX(0); }
+    15%  { opacity: 1; transform: translateX(-7px); }
+    35%  { transform: translateX(7px); }
+    55%  { transform: translateX(-4px); }
+    75%  { transform: translateX(4px); }
+    100% { opacity: 1; transform: translateX(0); }
+  }
+  .animate-slide-up { animation: fadeSlideUp 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+  .animate-shake    { animation: shakeIn 0.5s ease forwards; }
   .modal-box {
     background: var(--surface); border: 1px solid var(--border);
     width: 100%; max-width: 540px; max-height: 90vh;
@@ -6424,6 +6443,9 @@ document.getElementById('opinion-form').addEventListener('submit', e => {
       ? `You have already shared an opinion. You may post again in ${hrs}h ${mins}m.`
       : `You have already shared an opinion. You may post again in ${mins} minute${mins !== 1 ? 's' : ''}.`;
     cooldownEl.style.display = 'block';
+    cooldownEl.classList.remove('animate-shake');
+    cooldownEl.offsetHeight;
+    cooldownEl.classList.add('animate-shake');
     return;
   }
   cooldownEl.style.display = 'none';
@@ -6443,7 +6465,11 @@ document.getElementById('opinion-form').addEventListener('submit', e => {
     }).catch(() => {});
     document.getElementById('op-name').value = '';
     document.getElementById('op-text').value = '';
-    document.getElementById('op-success').style.display = 'block';
+    const successEl = document.getElementById('op-success');
+    successEl.style.display = 'block';
+    successEl.classList.remove('animate-slide-up');
+    successEl.offsetHeight;
+    successEl.classList.add('animate-slide-up');
     localStorage.setItem('epoch_opinion_ts', Date.now().toString());
   }
 });
