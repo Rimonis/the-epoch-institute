@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
@@ -1384,6 +1384,60 @@
     font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.08em;
     color: var(--gold); opacity: 0.8; margin: 8px 0 0; line-height: 1.6;
   }
+
+  /* ── Blog card excerpt ── */
+  .blog-card-excerpt {
+    font-family: 'Crimson Pro', Georgia, serif; font-size: 14px;
+    color: var(--muted); opacity: 0.75; line-height: 1.6; margin: 6px 0 0;
+    display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* ── Pagination ── */
+  .opinions-pagination {
+    display: flex; justify-content: center; gap: 8px;
+    padding: 24px 0 40px; flex-wrap: wrap;
+  }
+  .pagination-btn {
+    font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 0.1em;
+    padding: 8px 16px; border: 1px solid var(--border);
+    background: none; color: var(--muted); cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .pagination-btn:hover { border-color: var(--gold); color: var(--gold); }
+  .pagination-btn.active { border-color: var(--gold); color: var(--gold); }
+
+  /* ── Opinions full page ── */
+  .opinions-page-inner { max-width: 860px; margin: 0 auto; padding: 0 40px 48px; }
+
+  /* ── Section enter animation ── */
+  @keyframes sectionSlideIn {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .section-enter { animation: sectionSlideIn 0.4s cubic-bezier(0.22,1,0.36,1) forwards; }
+
+  /* ── Card / item stagger ── */
+  @keyframes cardFadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .opinion-item { animation: cardFadeIn 0.35s cubic-bezier(0.22,1,0.36,1) both; }
+  .blog-card    { animation: cardFadeIn 0.35s cubic-bezier(0.22,1,0.36,1) both; }
+
+  /* ── Mobile ── */
+  @media (max-width: 768px) {
+    .opinions-page-inner { padding: 0 16px 32px; }
+    #articles-page .community-section { padding: 16px; }
+    #article-detail .profile-detail-inner { padding: 20px 16px 0; }
+    .opinions-pagination { padding: 16px 0 28px; }
+    .pagination-btn { font-size: 8px; padding: 7px 12px; }
+  }
+  @media (max-width: 600px) {
+    #opinions-page .explorer-header,
+    #articles-page .explorer-header,
+    #article-detail .profile-detail-inner { padding-left: 16px; padding-right: 16px; }
+  }
 </style>
 </head>
 <body>
@@ -1621,6 +1675,7 @@
     <div id="opinions-list"></div>
     <div class="opinions-loading" id="opinions-loading">Loading opinions…</div>
     <p class="opinions-empty" id="opinions-empty" style="display:none;">No opinions yet — share yours below.</p>
+    <button class="blog-see-more" id="opinions-view-more" style="display:none;">View More Opinions →</button>
   </div>
 
   <!-- Share Your Thoughts -->
@@ -1710,21 +1765,21 @@
     </div>
     <div class="footer-links">
       <div class="footer-col">
-        <span class="footer-col-title" data-i18n="footer_research">Research</span>
-        <a class="footer-link" href="#explorer" data-i18n="footer_explorer_link">Empire Explorer</a>
-        <a class="footer-link" href="#" data-i18n="footer_methodology">Methodology</a>
-        <a class="footer-link" href="#" data-i18n="footer_sources">Data Sources</a>
+        <span class="footer-col-title">Research</span>
+        <a class="footer-link" href="#" id="fl-explorer">Empire Explorer</a>
+        <a class="footer-link" href="#" id="fl-profiles">Empire Profiles</a>
+        <a class="footer-link" href="#" id="fl-research">Research Hub</a>
       </div>
       <div class="footer-col">
-        <span class="footer-col-title" data-i18n="footer_community">Community</span>
-        <a class="footer-link" href="#" data-i18n="footer_join">Join the Institute</a>
-        <a class="footer-link" href="#" data-i18n="footer_newsletter">Newsletter</a>
-        <a class="footer-link" href="#" data-i18n="footer_discussion">Discussion</a>
+        <span class="footer-col-title">Community</span>
+        <a class="footer-link" href="#" id="fl-blogs">Blogs</a>
+        <a class="footer-link" href="#" id="fl-opinions">Opinions</a>
+        <a class="footer-link" href="#" id="fl-submit">Submit Article</a>
       </div>
       <div class="footer-col">
-        <span class="footer-col-title" data-i18n="footer_about">About</span>
-        <a class="footer-link" href="#" data-i18n="footer_mission">Our Mission</a>
-        <a class="footer-link" href="#" data-i18n="footer_contact">Contact</a>
+        <span class="footer-col-title">About</span>
+        <a class="footer-link" href="#" id="fl-institute">The Institute</a>
+        <a class="footer-link" href="#" id="fl-contact">Contact</a>
       </div>
     </div>
   </div>
@@ -1751,6 +1806,50 @@
       <h3 class="modal-title" id="article-modal-title" style="margin:0;padding:0;border:none;"></h3>
     </div>
     <iframe id="article-modal-frame" class="article-modal-frame" src="" allowfullscreen></iframe>
+  </div>
+</div>
+
+<!-- Opinions full page -->
+<div id="opinions-page" style="display:none;">
+  <button class="explorer-back-btn" id="opinions-page-back">← Community</button>
+  <div class="explorer-header">
+    <p class="explorer-label">COMMUNITY</p>
+    <h2 class="explorer-title">Community Opinions</h2>
+    <p class="explorer-description">Unfiltered perspectives from our readers on history, society, and civilisation.</p>
+  </div>
+  <div class="opinions-page-inner">
+    <div id="opinions-page-list"></div>
+    <div class="opinions-pagination" id="opinions-pagination"></div>
+  </div>
+</div>
+
+<!-- Articles full page -->
+<div id="articles-page" style="display:none;">
+  <button class="explorer-back-btn" id="articles-page-back">← Community</button>
+  <div class="explorer-header">
+    <p class="explorer-label">COMMUNITY</p>
+    <h2 class="explorer-title">Community Articles</h2>
+    <p class="explorer-description">Essays and research from historians, students, and curious minds.</p>
+  </div>
+  <div class="community-section">
+    <div class="blog-grid" id="articles-page-grid"></div>
+    <p class="blog-empty" id="articles-page-empty" style="display:none;">No articles yet.</p>
+    <div class="opinions-pagination" id="articles-pagination"></div>
+  </div>
+</div>
+
+<!-- Article detail page -->
+<div id="article-detail" style="display:none;">
+  <button class="explorer-back-btn" id="article-detail-back">← Articles</button>
+  <div class="profile-detail-inner">
+    <div class="profile-detail-header" style="border-bottom:1px solid var(--border);margin-bottom:36px;padding-bottom:28px;">
+      <div>
+        <p class="profile-detail-region" id="article-detail-meta"></p>
+        <h2 class="profile-detail-name" id="article-detail-title"></h2>
+      </div>
+    </div>
+    <div id="article-detail-body" class="profile-section-body"></div>
+    <button class="profile-back-gallery-btn bottom" id="article-detail-back-bottom">← Articles</button>
   </div>
 </div>
 
@@ -6079,11 +6178,24 @@ document.getElementById("export-btn").addEventListener("click", () => {
 });
 
 
+// ── Section manager ──────────────────────────────────────────────────────────
+const ALL_SECTIONS = ['explorer','profiles','community-page','opinions-page','articles-page','article-detail'];
+function showSection(id) {
+  ALL_SECTIONS.forEach(s => {
+    const el = document.getElementById(s);
+    if (el) el.style.display = (s === id) ? 'block' : 'none';
+  });
+  const target = document.getElementById(id);
+  if (target) {
+    target.classList.remove('section-enter');
+    target.offsetHeight;
+    target.classList.add('section-enter');
+  }
+}
+
 // Explorer view switching
 function openExplorer() {
-  document.getElementById('profiles').style.display = 'none';
-  document.getElementById('community-page').style.display = 'none';
-  document.getElementById("explorer").style.display = "block";
+  showSection('explorer');
   resize();
   buildMinimap();
   document.getElementById("explorer").scrollIntoView({ behavior: "smooth" });
@@ -6149,9 +6261,7 @@ const ERA_LABELS = {
 const ERA_ORDER = ['ancient','classical','medieval','early-modern','modern'];
 
 function openProfiles() {
-  document.getElementById("explorer").style.display = "none";
-  document.getElementById('community-page').style.display = 'none';
-  document.getElementById('profiles').style.display = 'block';
+  showSection('profiles');
   buildProfileGallery();
   document.getElementById('profiles').scrollIntoView({ behavior: 'smooth' });
 }
@@ -6262,13 +6372,14 @@ document.getElementById('profile-back-gallery-bottom').addEventListener('click',
 
 // ── Community Page ───────────────────────────────────────────
 function openCommunity() {
-  document.getElementById('explorer').style.display = 'none';
-  document.getElementById('profiles').style.display = 'none';
-  document.getElementById('community-page').style.display = 'block';
+  showSection('community-page');
   document.getElementById('community-page').scrollIntoView({ behavior: 'smooth' });
 }
 function closeCommunity() {
-  document.getElementById('community-page').style.display = 'none';
+  ALL_SECTIONS.forEach(s => {
+    const el = document.getElementById(s);
+    if (el) el.style.display = 'none';
+  });
   document.getElementById('hero').scrollIntoView({ behavior: 'smooth' });
 }
 
@@ -6471,6 +6582,9 @@ document.getElementById('opinion-form').addEventListener('submit', e => {
     successEl.offsetHeight;
     successEl.classList.add('animate-slide-up');
     localStorage.setItem('epoch_opinion_ts', Date.now().toString());
+    // Instantly prepend to local list and re-render preview
+    _allOpinions.unshift({ name, text, ts: Date.now() });
+    renderOpinionsPreview();
   }
 });
 
@@ -6497,66 +6611,109 @@ function escHtml(str) {
   return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// ── Load articles from Drive ──────────────────────────────────────────────────
-let _allArticles = [];
+// ── Confirmed articles from Drive ─────────────────────────────────────────────
+let _confirmedArticles = [];
+let _articlesPage = 1;
+const ARTICLES_PER_PAGE = 20;
+const CONFIRMED_PREVIEW = 6;
 
-function loadArticles() {
+function loadConfirmedArticles() {
   if (!EPOCH_API_URL || EPOCH_API_URL.includes('PASTE')) {
     document.getElementById('blog-loading').style.display = 'none';
     document.getElementById('blog-empty').style.display = 'block';
     return;
   }
-  jsonp(EPOCH_API_URL + '?action=articles', function(data) {
-    _allArticles = Array.isArray(data) ? data : [];
-    renderArticles();
+  jsonp(EPOCH_API_URL + '?action=confirmed_articles', function(data) {
+    _confirmedArticles = Array.isArray(data) ? data : [];
+    renderArticlesPreview();
   });
 }
 
-function renderArticles() {
+function renderArticleCard(a, globalIdx, delay) {
+  const date    = a.ts ? new Date(a.ts).toLocaleDateString('en-GB', {month:'long', year:'numeric'}) : '';
+  const excerpt = a.content && a.content.length
+    ? a.content[0].slice(0, 180) + (a.content[0].length > 180 ? '…' : '') : '';
+  return `<div class="blog-card" style="animation-delay:${delay * 0.07}s" onclick="openArticleDetailPage(${globalIdx})">
+    <h4 class="blog-card-title">${escHtml(a.title || 'Untitled')}</h4>
+    ${excerpt ? `<p class="blog-card-excerpt">${escHtml(excerpt)}</p>` : ''}
+    <p class="blog-card-meta">${date}</p>
+  </div>`;
+}
+
+function renderArticlesPreview() {
   const grid    = document.getElementById('blog-grid');
   const loading = document.getElementById('blog-loading');
   const empty   = document.getElementById('blog-empty');
   const seeMore = document.getElementById('blog-see-more');
   loading.style.display = 'none';
-  if (!_allArticles.length) { empty.style.display = 'block'; return; }
-
-  grid.innerHTML = _allArticles.map((a, i) => {
-    const date   = a.ts ? new Date(a.ts).toLocaleDateString('en-GB', {month:'long', year:'numeric'}) : '';
-    const hidden = i >= ARTICLES_INITIAL_COUNT ? ' blog-card-hidden' : '';
-    return `<div class="blog-card${hidden}" onclick="openArticleModal(${i})">
-      <span class="blog-card-tag">${escHtml(a.profession || 'Community')}</span>
-      <h4 class="blog-card-title">${escHtml(a.title || a.filename || 'Untitled')}</h4>
-      <p class="blog-card-meta">${escHtml(a.author || '')}${date ? ' &nbsp;·&nbsp; ' + date : ''}</p>
-    </div>`;
-  }).join('');
-
-  if (_allArticles.length > ARTICLES_INITIAL_COUNT) {
+  if (!_confirmedArticles.length) { empty.style.display = 'block'; return; }
+  grid.innerHTML = _confirmedArticles.slice(0, CONFIRMED_PREVIEW)
+    .map((a, i) => renderArticleCard(a, i, i)).join('');
+  if (_confirmedArticles.length > CONFIRMED_PREVIEW) {
+    seeMore.textContent = 'See All Articles →';
     seeMore.style.display = 'block';
-    seeMore.onclick = function() {
-      grid.querySelectorAll('.blog-card-hidden').forEach(c => c.classList.remove('blog-card-hidden'));
-      seeMore.style.display = 'none';
-    };
+    seeMore.onclick = openArticlesPage;
   }
 }
 
-// ── Article preview modal ─────────────────────────────────────────────────────
-function openArticleModal(idx) {
-  const a = _allArticles[idx];
-  if (!a) return;
-  const date = a.ts ? new Date(a.ts).toLocaleDateString('en-GB', {month:'long', year:'numeric'}) : '';
-  document.getElementById('article-modal-title').textContent = a.title || a.filename || 'Article';
-  document.getElementById('article-modal-meta').textContent =
-    [a.author, a.profession, a.affil, date].filter(Boolean).join('  ·  ');
-  document.getElementById('article-modal-frame').src =
-    'https://drive.google.com/file/d/' + a.fileId + '/preview';
-  const overlay = document.getElementById('article-modal');
-  overlay.classList.remove('closing');
-  overlay.style.display = 'flex';
-  overlay.offsetHeight;
-  overlay.classList.add('is-open');
-  document.body.style.overflow = 'hidden';
+// ── Articles page ─────────────────────────────────────────────────────────────
+function openArticlesPage() {
+  _articlesPage = 1;
+  showSection('articles-page');
+  renderArticlesPage();
+  document.getElementById('articles-page').scrollIntoView({ behavior: 'smooth' });
 }
 
+function renderArticlesPage() {
+  const grid  = document.getElementById('articles-page-grid');
+  const pager = document.getElementById('articles-pagination');
+  const empty = document.getElementById('articles-page-empty');
+  const start = (_articlesPage - 1) * ARTICLES_PER_PAGE;
+  const slice = _confirmedArticles.slice(start, start + ARTICLES_PER_PAGE);
+  const total = Math.ceil(_confirmedArticles.length / ARTICLES_PER_PAGE);
+  if (!slice.length) {
+    empty.style.display = 'block';
+    grid.innerHTML = '';
+    pager.innerHTML = '';
+    return;
+  }
+  grid.innerHTML = slice.map((a, i) => renderArticleCard(a, start + i, i)).join('');
+  pager.innerHTML = buildPagination(total, _articlesPage, 'goArticlesPage');
+}
+
+function goArticlesPage(p) {
+  _articlesPage = p;
+  renderArticlesPage();
+  document.getElementById('articles-page').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ── Article detail page ───────────────────────────────────────────────────────
+function openArticleDetailPage(idx) {
+  const a = _confirmedArticles[idx];
+  if (!a) return;
+  document.getElementById('article-detail-title').textContent = a.title || 'Untitled';
+  document.getElementById('article-detail-meta').textContent =
+    a.ts ? new Date(a.ts).toLocaleDateString('en-GB', {day:'numeric', month:'long', year:'numeric'}) : '';
+  document.getElementById('article-detail-body').innerHTML =
+    (a.content || []).map(p => `<p>${escHtml(p)}</p>`).join('');
+  const fromArticles = document.getElementById('articles-page').style.display !== 'none';
+  ['article-detail-back','article-detail-back-bottom'].forEach(id =>
+    document.getElementById(id).dataset.from = fromArticles ? 'articles' : 'community');
+  showSection('article-detail');
+  document.getElementById('article-detail').scrollIntoView({ behavior: 'smooth' });
+}
+
+function closeArticleDetail() {
+  const from = document.getElementById('article-detail-back').dataset.from;
+  if (from === 'articles') {
+    showSection('articles-page');
+    document.getElementById('articles-page').scrollIntoView({ behavior: 'smooth' });
+  } else {
+    openCommunity();
+  }
+}
+
+// ── Announcement modal (kept for announcements section) ───────────────────────
 function closeArticleModal() {
   const overlay = document.getElementById('article-modal');
   overlay.classList.remove('is-open');
@@ -6575,27 +6732,84 @@ document.getElementById('article-modal').addEventListener('click', e => {
 });
 
 // ── Load opinions from Drive ──────────────────────────────────────────────────
+let _allOpinions = [];
+const OPINIONS_PER_PAGE     = 20;
+const OPINIONS_PREVIEW_COUNT = 3;
+
 function loadOpinions() {
   if (!EPOCH_API_URL || EPOCH_API_URL.includes('PASTE')) {
     document.getElementById('opinions-loading').style.display = 'none';
     return;
   }
   jsonp(EPOCH_API_URL + '?action=opinions', function(data) {
-    const list      = Array.isArray(data) ? data : [];
-    const container = document.getElementById('opinions-list');
-    const loading   = document.getElementById('opinions-loading');
-    const empty     = document.getElementById('opinions-empty');
-    loading.style.display = 'none';
-    if (!list.length) { empty.style.display = 'block'; return; }
-    container.innerHTML = list.map(op => {
-      const date = op.ts ? new Date(op.ts).toLocaleDateString('en-GB', {month:'long', year:'numeric'}) : '';
-      return `<div class="opinion-item">
-        <span class="opinion-item-name">${escHtml(op.name)}</span>
-        <p class="opinion-item-text">${escHtml(op.text)}</p>
-        ${date ? `<span class="opinion-item-date">${date}</span>` : ''}
-      </div>`;
-    }).join('');
+    _allOpinions = Array.isArray(data) ? data : [];
+    renderOpinionsPreview();
   });
+}
+
+function renderOpinionItem(op, idx) {
+  const date = op.ts ? new Date(op.ts).toLocaleDateString('en-GB', {month:'long', year:'numeric'}) : '';
+  return `<div class="opinion-item" style="animation-delay:${idx * 0.06}s">
+    <span class="opinion-item-name">${escHtml(op.name)}</span>
+    <p class="opinion-item-text">${escHtml(op.text)}</p>
+    ${date ? `<span class="opinion-item-date">${date}</span>` : ''}
+  </div>`;
+}
+
+function renderOpinionsPreview() {
+  const container = document.getElementById('opinions-list');
+  const loading   = document.getElementById('opinions-loading');
+  const empty     = document.getElementById('opinions-empty');
+  const viewMore  = document.getElementById('opinions-view-more');
+  loading.style.display = 'none';
+  if (!_allOpinions.length) {
+    empty.style.display = 'block';
+    viewMore.style.display = 'none';
+    return;
+  }
+  empty.style.display = 'none';
+  container.innerHTML = _allOpinions.slice(0, OPINIONS_PREVIEW_COUNT)
+    .map((op, i) => renderOpinionItem(op, i)).join('');
+  viewMore.style.display = _allOpinions.length > OPINIONS_PREVIEW_COUNT ? 'block' : 'none';
+}
+
+// ── Opinions page ─────────────────────────────────────────────────────────────
+let _opinionsPage = 1;
+
+function openOpinionsPage() {
+  _opinionsPage = 1;
+  showSection('opinions-page');
+  renderOpinionsPage();
+  document.getElementById('opinions-page').scrollIntoView({ behavior: 'smooth' });
+}
+
+function renderOpinionsPage() {
+  const list  = document.getElementById('opinions-page-list');
+  const pager = document.getElementById('opinions-pagination');
+  const start = (_opinionsPage - 1) * OPINIONS_PER_PAGE;
+  const slice = _allOpinions.slice(start, start + OPINIONS_PER_PAGE);
+  const total = Math.ceil(_allOpinions.length / OPINIONS_PER_PAGE);
+  list.innerHTML = slice.map((op, i) => renderOpinionItem(op, i)).join('');
+  pager.innerHTML = buildPagination(total, _opinionsPage, 'goOpinionsPage');
+}
+
+function goOpinionsPage(p) {
+  _opinionsPage = p;
+  renderOpinionsPage();
+  document.getElementById('opinions-page').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ── Pagination helper ─────────────────────────────────────────────────────────
+function buildPagination(totalPages, currentPage, fnName) {
+  if (totalPages <= 1) return '';
+  let html = '';
+  if (currentPage > 1)
+    html += `<button class="pagination-btn" onclick="${fnName}(${currentPage - 1})">← Prev</button>`;
+  for (let p = 1; p <= totalPages; p++)
+    html += `<button class="pagination-btn${p === currentPage ? ' active' : ''}" onclick="${fnName}(${p})">${p}</button>`;
+  if (currentPage < totalPages)
+    html += `<button class="pagination-btn" onclick="${fnName}(${currentPage + 1})">Next →</button>`;
+  return html;
 }
 
 // ── Announcements ────────────────────────────────────────────────────────────
@@ -6673,10 +6887,31 @@ openCommunity = function() {
   const grid = document.getElementById('blog-grid');
   if (!grid.dataset.loaded) {
     grid.dataset.loaded = '1';
-    loadArticles();
+    loadConfirmedArticles();
     loadOpinions();
   }
 };
+
+// ── New page button listeners ─────────────────────────────────────────────────
+document.getElementById('opinions-view-more').addEventListener('click', openOpinionsPage);
+document.getElementById('opinions-page-back').addEventListener('click', openCommunity);
+document.getElementById('articles-page-back').addEventListener('click', openCommunity);
+document.getElementById('article-detail-back').addEventListener('click', closeArticleDetail);
+document.getElementById('article-detail-back-bottom').addEventListener('click', closeArticleDetail);
+
+// ── Footer links ─────────────────────────────────────────────────────────────
+document.getElementById('fl-explorer').addEventListener('click', e => { e.preventDefault(); openExplorer(); });
+document.getElementById('fl-profiles').addEventListener('click', e => { e.preventDefault(); openProfiles(); });
+document.getElementById('fl-research').addEventListener('click', e => { e.preventDefault(); document.getElementById('research').scrollIntoView({ behavior: 'smooth' }); });
+document.getElementById('fl-blogs').addEventListener('click', e => { e.preventDefault(); openCommunity(); });
+document.getElementById('fl-opinions').addEventListener('click', e => { e.preventDefault(); openOpinionsPage(); });
+document.getElementById('fl-submit').addEventListener('click', e => {
+  e.preventDefault();
+  openCommunity();
+  setTimeout(() => document.getElementById('open-share-btn').click(), 350);
+});
+document.getElementById('fl-institute').addEventListener('click', e => { e.preventDefault(); document.getElementById('hero').scrollIntoView({ behavior: 'smooth' }); });
+document.getElementById('fl-contact').setAttribute('href', 'mailto:zama.bangladesh@gmail.com');
 
 </script>
 
