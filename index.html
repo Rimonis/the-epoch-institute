@@ -1333,6 +1333,38 @@
   .article-modal-frame {
     flex: 1; border: none; width: 100%; background: var(--surface);
   }
+  /* ── Thank You modal ── */
+  .thankyou-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.72);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 600; padding: 20px; cursor: pointer;
+  }
+  .thankyou-box {
+    background: var(--surface); border: 1px solid var(--gold);
+    padding: 52px 44px; text-align: center;
+    max-width: 400px; width: 100%; cursor: default; pointer-events: none;
+  }
+  .thankyou-ornament {
+    display: block; width: 32px; height: 1px;
+    background: var(--gold); opacity: 0.5; margin: 0 auto 28px;
+  }
+  .thankyou-title {
+    font-family: 'Cinzel', serif; font-size: 15px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--gold-light); margin: 0 0 18px;
+  }
+  .thankyou-text {
+    font-family: 'Crimson Pro', Georgia, serif; font-size: 16px;
+    color: var(--text); line-height: 1.75; margin: 0 0 32px;
+  }
+  .thankyou-hint {
+    font-family: 'Cinzel', serif; font-size: 8px; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--muted); opacity: 0.4; margin: 0;
+  }
+  /* ── Opinion cooldown ── */
+  .op-cooldown {
+    font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.08em;
+    color: var(--gold); opacity: 0.8; margin: 8px 0 0; line-height: 1.6;
+  }
 </style>
 </head>
 <body>
@@ -1598,6 +1630,7 @@
       </div>
       <button type="submit" class="form-submit">Submit Opinion</button>
       <p class="form-success" id="op-success" style="display:none;">Thank you — your opinion has been received.</p>
+      <p class="op-cooldown" id="op-cooldown-msg" style="display:none;"></p>
     </form>
   </div>
 </div>
@@ -6277,6 +6310,21 @@ document.getElementById('share-modal').addEventListener('click', e => {
 })();
 
 // Share form validation
+// ── Share form ───────────────────────────────────────────────────────────────
+function resetShareForm() {
+  document.getElementById('share-form').reset();
+  const zone = document.getElementById('sf-dropzone');
+  zone._file = null;
+  zone.classList.remove('has-file', 'error');
+  zone.querySelector('.file-dropzone-icon').textContent = '📄';
+  zone.querySelector('.file-dropzone-text').textContent = 'Drop your article here in DOCX format, or click to browse';
+  document.getElementById('sf-file-hint').style.display = 'none';
+  document.getElementById('sf-affil-row').style.display = 'none';
+  document.getElementById('sf-success').style.display = 'none';
+  ['sf-name','sf-profession','sf-affil','sf-email'].forEach(id =>
+    document.getElementById(id).classList.remove('form-input-error'));
+}
+
 document.getElementById('share-form').addEventListener('submit', e => {
   e.preventDefault();
   const name  = document.getElementById('sf-name').value.trim();
@@ -6314,13 +6362,52 @@ document.getElementById('share-form').addEventListener('submit', e => {
       }).catch(() => {});
     };
     reader.readAsDataURL(file);
-    document.getElementById('sf-success').style.display = 'block';
+    closeShareModal();
+    resetShareForm();
+    setTimeout(openThankyouModal, 260);
   }
 });
 
-// Opinion form validation
+// ── Thank You modal ───────────────────────────────────────────────────────────
+function openThankyouModal() {
+  const overlay = document.getElementById('thankyou-modal');
+  overlay.classList.remove('closing');
+  overlay.style.display = 'flex';
+  overlay.offsetHeight;
+  overlay.classList.add('is-open');
+}
+function closeThankyouModal() {
+  const overlay = document.getElementById('thankyou-modal');
+  overlay.classList.remove('is-open');
+  overlay.classList.add('closing');
+  setTimeout(() => {
+    overlay.style.display = 'none';
+    overlay.classList.remove('closing');
+  }, 220);
+}
+document.getElementById('thankyou-modal').addEventListener('click', closeThankyouModal);
+
+// ── Opinion form ──────────────────────────────────────────────────────────────
+const OPINION_COOLDOWN_MS = 6 * 60 * 60 * 1000;
+
 document.getElementById('opinion-form').addEventListener('submit', e => {
   e.preventDefault();
+
+  // Cooldown check
+  const lastTs = parseInt(localStorage.getItem('epoch_opinion_ts') || '0', 10);
+  const remaining = OPINION_COOLDOWN_MS - (Date.now() - lastTs);
+  const cooldownEl = document.getElementById('op-cooldown-msg');
+  if (remaining > 0) {
+    const hrs  = Math.floor(remaining / 3600000);
+    const mins = Math.ceil((remaining % 3600000) / 60000);
+    cooldownEl.textContent = hrs > 0
+      ? `You have already shared an opinion. You may post again in ${hrs}h ${mins}m.`
+      : `You have already shared an opinion. You may post again in ${mins} minute${mins !== 1 ? 's' : ''}.`;
+    cooldownEl.style.display = 'block';
+    return;
+  }
+  cooldownEl.style.display = 'none';
+
   const name = document.getElementById('op-name').value.trim();
   const text = document.getElementById('op-text').value.trim();
   let ok = true;
@@ -6334,7 +6421,10 @@ document.getElementById('opinion-form').addEventListener('submit', e => {
       headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify({ type: 'opinion', name, text })
     }).catch(() => {});
+    document.getElementById('op-name').value = '';
+    document.getElementById('op-text').value = '';
     document.getElementById('op-success').style.display = 'block';
+    localStorage.setItem('epoch_opinion_ts', Date.now().toString());
   }
 });
 
@@ -6543,6 +6633,15 @@ openCommunity = function() {
 };
 
 </script>
+
+<div id="thankyou-modal" class="thankyou-overlay" style="display:none;" role="alertdialog" aria-modal="true">
+  <div class="thankyou-box">
+    <span class="thankyou-ornament"></span>
+    <h3 class="thankyou-title">Thank You</h3>
+    <p class="thankyou-text">Your article has been received. We will review it carefully and be in touch with you shortly at your email address.</p>
+    <p class="thankyou-hint">Tap anywhere to close</p>
+  </div>
+</div>
 
 <div id="article-modal" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="article-modal-title">
   <div class="modal-box article-modal-box">
