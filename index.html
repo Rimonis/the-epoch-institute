@@ -1216,6 +1216,67 @@
     .opinion-form { max-width: 100%; }
     .article-modal-box { height: 95vh; }
     .article-modal-header { padding: 20px 18px 14px; }
+    .announcements-inner { padding: 80px 16px 32px; }
+    .announcements-grid { grid-template-columns: 1fr; }
+  }
+  /* ── Announcements ── */
+  #announcements {
+    padding-top: 60px; /* clear fixed nav */
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+  }
+  .announcements-inner {
+    max-width: 1200px; margin: 0 auto; padding: 32px 40px 36px;
+  }
+  .announcements-hd {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 24px;
+  }
+  .announcements-label {
+    font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--gold); opacity: 0.85;
+  }
+  .announcements-live-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--gold); opacity: 0.75;
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+  @keyframes pulse-dot {
+    0%, 100% { transform: scale(1);   opacity: 0.75; }
+    50%       { transform: scale(1.5); opacity: 0.4; }
+  }
+  .announcements-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+    gap: 20px;
+  }
+  .announcement-card {
+    border: 1px solid var(--border); cursor: pointer; overflow: hidden;
+    transition: border-color 0.2s, background 0.2s;
+    display: flex; flex-direction: column;
+  }
+  .announcement-card:hover { border-color: var(--gold); background: rgba(180,140,60,0.04); }
+  .announcement-card-img {
+    width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block;
+    background: var(--surface);
+  }
+  .announcement-card-body {
+    padding: 16px 18px; display: flex; flex-direction: column; gap: 6px; flex: 1;
+  }
+  .announcement-card-type {
+    font-family: 'Cinzel', serif; font-size: 8px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--gold); opacity: 0.7;
+  }
+  .announcement-card-name {
+    font-family: 'Cinzel', serif; font-size: 12px; letter-spacing: 0.04em;
+    color: var(--text); line-height: 1.4;
+  }
+  .announcement-card-cta {
+    font-family: 'Cinzel', serif; font-size: 8px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--gold); margin-top: 6px;
+  }
+  .announcements-empty {
+    font-family: 'Crimson Pro', Georgia, serif; font-size: 15px;
+    color: var(--muted); opacity: 0.5; padding: 8px 0; margin: 0;
   }
   /* ── Blog dynamic loading ── */
   .blog-loading, .opinions-loading {
@@ -1288,6 +1349,18 @@
     <button class="nav-toggle-btn" id="theme-toggle" title="Toggle theme">☀</button>
   </div>
 </nav>
+
+<!-- Announcements -->
+<section id="announcements" style="display:none;">
+  <div class="announcements-inner">
+    <div class="announcements-hd">
+      <span class="announcements-label">Announcements</span>
+      <span class="announcements-live-dot"></span>
+    </div>
+    <div class="announcements-grid" id="announcements-grid"></div>
+    <p class="announcements-empty" id="announcements-empty" style="display:none;">No announcements at this time.</p>
+  </div>
+</section>
 
 <!-- Hero Section -->
 <section class="hero" id="hero">
@@ -6382,6 +6455,65 @@ function loadOpinions() {
     }).join('');
   });
 }
+
+// ── Announcements ────────────────────────────────────────────────────────────
+const ANNOUNCEMENTS_FOLDER_ID = '1ITtbxIgyTityi7C1NKKf8Feh-hZGFqHz';
+
+function loadAnnouncements() {
+  if (!EPOCH_API_URL || EPOCH_API_URL.includes('PASTE')) return;
+  jsonp(EPOCH_API_URL + '?action=announcements', function(data) {
+    const items = Array.isArray(data) ? data : [];
+    const section = document.getElementById('announcements');
+    const grid    = document.getElementById('announcements-grid');
+    const empty   = document.getElementById('announcements-empty');
+
+    if (!items.length) {
+      section.style.display = 'none';
+      return;
+    }
+
+    section.style.display = 'block';
+    empty.style.display = 'none';
+
+    grid.innerHTML = items.map((item, i) => {
+      const isPng  = /\.png$/i.test(item.name) || item.mimeType === 'image/png' || item.mimeType === 'image/jpeg' || item.mimeType === 'image/gif' || /\.(jpe?g|gif|webp)$/i.test(item.name);
+      const typeLabel = isPng ? 'Image Notice' : 'Document Notice';
+      const imgHtml = isPng
+        ? `<img class="announcement-card-img" src="https://lh3.googleusercontent.com/d/${item.id}" alt="${escHtml(item.name)}" loading="lazy">`
+        : `<div class="announcement-card-img" style="display:flex;align-items:center;justify-content:center;font-size:40px;color:var(--gold);opacity:0.35;">📄</div>`;
+      return `<div class="announcement-card" onclick="openAnnouncementModal('${item.id}','${escHtml(item.name).replace(/'/g,"\\'")}')">
+        ${imgHtml}
+        <div class="announcement-card-body">
+          <span class="announcement-card-type">${typeLabel}</span>
+          <span class="announcement-card-name">${escHtml(item.name.replace(/\.[^.]+$/, ''))}</span>
+          <span class="announcement-card-cta">View →</span>
+        </div>
+      </div>`;
+    }).join('');
+  });
+}
+
+function openAnnouncementModal(fileId, name) {
+  document.getElementById('article-modal-title').textContent = name;
+  document.getElementById('article-modal-meta').textContent = 'Announcement';
+  document.getElementById('article-modal-frame').src =
+    'https://drive.google.com/file/d/' + fileId + '/preview';
+  const overlay = document.getElementById('article-modal');
+  overlay.classList.remove('closing');
+  overlay.style.display = 'flex';
+  overlay.offsetHeight;
+  overlay.classList.add('is-open');
+  document.body.style.overflow = 'hidden';
+}
+
+// Initial load + auto-refresh every 5 minutes
+loadAnnouncements();
+setInterval(loadAnnouncements, 5 * 60 * 1000);
+
+// Refresh on tab focus (catches changes made while tab was backgrounded)
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) loadAnnouncements();
+});
 
 // ── Trigger loads when community page opens ───────────────────────────────────
 const _origOpenCommunity = openCommunity;
