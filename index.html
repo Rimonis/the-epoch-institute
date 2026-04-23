@@ -1278,6 +1278,10 @@
     font-family: 'Crimson Pro', Georgia, serif; font-size: 15px;
     color: var(--muted); opacity: 0.5; padding: 8px 0; margin: 0;
   }
+  .announcements-loading {
+    font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.12em;
+    color: var(--muted); opacity: 0.5; padding: 12px 0; margin: 0;
+  }
   /* ── Blog dynamic loading ── */
   .blog-loading, .opinions-loading {
     font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.12em;
@@ -1351,13 +1355,15 @@
 </nav>
 
 <!-- Announcements -->
-<section id="announcements" style="display:none;">
+<section id="announcements">
   <div class="announcements-inner">
     <div class="announcements-hd">
       <span class="announcements-label">Announcements</span>
       <span class="announcements-live-dot"></span>
     </div>
-    <div class="announcements-grid" id="announcements-grid"></div>
+    <div class="announcements-grid" id="announcements-grid">
+      <p class="announcements-loading" id="announcements-loading">Loading…</p>
+    </div>
     <p class="announcements-empty" id="announcements-empty" style="display:none;">No announcements at this time.</p>
   </div>
 </section>
@@ -6460,37 +6466,46 @@ function loadOpinions() {
 const ANNOUNCEMENTS_FOLDER_ID = '1ITtbxIgyTityi7C1NKKf8Feh-hZGFqHz';
 
 function loadAnnouncements() {
-  if (!EPOCH_API_URL || EPOCH_API_URL.includes('PASTE')) return;
-  jsonp(EPOCH_API_URL + '?action=announcements', function(data) {
-    const items = Array.isArray(data) ? data : [];
-    const section = document.getElementById('announcements');
-    const grid    = document.getElementById('announcements-grid');
-    const empty   = document.getElementById('announcements-empty');
+  if (!EPOCH_API_URL || EPOCH_API_URL.includes('PASTE')) {
+    document.getElementById('announcements').style.display = 'none';
+    return;
+  }
+  fetch(EPOCH_API_URL + '?action=announcements&callback=_')
+    .then(r => r.text())
+    .then(text => {
+      const items = JSON.parse(text.replace(/^_\(/, '').replace(/\)[\s]*$/, ''));
+      renderAnnouncements(Array.isArray(items) ? items : []);
+    })
+    .catch(() => renderAnnouncements([]));
+}
 
-    if (!items.length) {
-      section.style.display = 'none';
-      return;
-    }
+function renderAnnouncements(items) {
+  const section = document.getElementById('announcements');
+  const grid    = document.getElementById('announcements-grid');
+  const empty   = document.getElementById('announcements-empty');
 
-    section.style.display = 'block';
-    empty.style.display = 'none';
+  if (!items.length) {
+    section.style.display = 'none';
+    return;
+  }
 
-    grid.innerHTML = items.map((item, i) => {
-      const isPng  = /\.png$/i.test(item.name) || item.mimeType === 'image/png' || item.mimeType === 'image/jpeg' || item.mimeType === 'image/gif' || /\.(jpe?g|gif|webp)$/i.test(item.name);
-      const typeLabel = isPng ? 'Image Notice' : 'Document Notice';
-      const imgHtml = isPng
-        ? `<img class="announcement-card-img" src="https://lh3.googleusercontent.com/d/${item.id}" alt="${escHtml(item.name)}" loading="lazy">`
-        : `<div class="announcement-card-img" style="display:flex;align-items:center;justify-content:center;font-size:40px;color:var(--gold);opacity:0.35;">📄</div>`;
-      return `<div class="announcement-card" onclick="openAnnouncementModal('${item.id}','${escHtml(item.name).replace(/'/g,"\\'")}')">
-        ${imgHtml}
-        <div class="announcement-card-body">
-          <span class="announcement-card-type">${typeLabel}</span>
-          <span class="announcement-card-name">${escHtml(item.name.replace(/\.[^.]+$/, ''))}</span>
-          <span class="announcement-card-cta">View →</span>
-        </div>
-      </div>`;
-    }).join('');
-  });
+  section.style.display = '';
+  empty.style.display = 'none';
+  grid.innerHTML = items.map(item => {
+    const isImg = /\.(png|jpe?g|gif|webp)$/i.test(item.name) || /^image\//.test(item.mimeType);
+    const typeLabel = isImg ? 'Image Notice' : 'Document Notice';
+    const imgHtml = isImg
+      ? `<img class="announcement-card-img" src="https://lh3.googleusercontent.com/d/${item.id}" alt="${escHtml(item.name)}" loading="lazy">`
+      : `<div class="announcement-card-img" style="display:flex;align-items:center;justify-content:center;font-size:40px;color:var(--gold);opacity:0.35;">📄</div>`;
+    return `<div class="announcement-card" onclick="openAnnouncementModal('${item.id}','${escHtml(item.name).replace(/'/g,"\\'")}')">
+      ${imgHtml}
+      <div class="announcement-card-body">
+        <span class="announcement-card-type">${typeLabel}</span>
+        <span class="announcement-card-name">${escHtml(item.name.replace(/\.[^.]+$/, ''))}</span>
+        <span class="announcement-card-cta">View →</span>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function openAnnouncementModal(fileId, name) {
