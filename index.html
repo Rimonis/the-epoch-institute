@@ -4,6 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Epoch Institute</title>
+<meta name="description" content="The Epoch Institute researches human civilisation — studying the rise and fall of empires across five millennia through interactive data and scholarly profiles.">
+<meta property="og:title" content="The Epoch Institute">
+<meta property="og:description" content="The Epoch Institute researches human civilisation — studying the rise and fall of empires across five millennia through interactive data and scholarly profiles.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://the-epoch-institute.org">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The Epoch Institute">
+<meta name="twitter:description" content="The Epoch Institute researches human civilisation — studying the rise and fall of empires across five millennia through interactive data and scholarly profiles.">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Hind+Siliguri:wght@400;600&display=swap" rel="stylesheet">
 <style>
@@ -1379,6 +1387,55 @@
     font-family: 'Cinzel', serif; font-size: 8px; letter-spacing: 0.16em;
     text-transform: uppercase; color: var(--muted); opacity: 0.4; margin: 0;
   }
+  /* ── Explorer methodology note ── */
+  .explorer-method-note {
+    font-family: 'Crimson Pro', Georgia, serif; font-size: 13px; color: var(--muted);
+    line-height: 1.65; margin-top: 12px; border-left: 2px solid var(--gold);
+    padding-left: 12px; opacity: 0.7; text-align: left;
+  }
+
+  /* ── Hero secondary CTA ── */
+  .hero-secondary-cta {
+    display: block; margin-top: 12px;
+    font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 0.08em;
+    color: var(--muted); text-decoration: none; transition: color 0.2s;
+  }
+  .hero-secondary-cta:hover { color: var(--gold); }
+
+  /* ── Newsletter form ── */
+  .newsletter-form { display: flex; gap: 8px; align-items: flex-start; flex-wrap: wrap; }
+  .newsletter-form .form-input { flex: 1; min-width: 180px; }
+  @media (max-width: 480px) {
+    .newsletter-form { flex-direction: column; }
+    .newsletter-form .form-input { width: 100%; }
+  }
+
+  /* ── About section ── */
+  #about { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px 24px; text-align: center; scroll-margin-top: 60px; }
+
+  /* ── Hamburger menu ── */
+  .nav-hamburger { display: none; }
+  @media (max-width: 480px) {
+    .nav-hamburger {
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; line-height: 1; color: var(--gold);
+      background: none; border: none; cursor: pointer; padding: 4px 6px;
+    }
+  }
+  .nav-dropdown {
+    display: none; position: absolute; top: 54px; left: 0; right: 0;
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    flex-direction: column; z-index: 999;
+  }
+  .nav-dropdown.open { display: flex; }
+  .nav-dropdown-link {
+    font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--text); text-decoration: none;
+    padding: 16px 24px; border-bottom: 1px solid var(--border);
+    transition: color 0.2s, background 0.2s;
+  }
+  .nav-dropdown-link:hover { color: var(--gold); background: rgba(201,168,76,0.05); }
+
   /* ── Opinion cooldown ── */
   .op-cooldown {
     font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.08em;
@@ -1449,6 +1506,7 @@
   </a>
   <div class="nav-links">
     <a href="#research" class="nav-link" data-i18n="nav_research">Research</a>
+    <a href="#about" class="nav-link" id="nav-about-link">About</a>
     <a href="#" id="nav-community-link" class="nav-link" data-i18n="nav_community">Community</a>
     <a href="#" id="nav-explorer-link" class="nav-link" data-i18n="nav_explorer">Explorer</a>
   </div>
@@ -1456,6 +1514,13 @@
     <button class="nav-toggle-btn" id="export-btn" title="Export PNG" data-i18n="export_btn">↓ PNG</button>
     <button class="nav-toggle-btn" id="lang-toggle" title="Language">বাং</button>
     <button class="nav-toggle-btn" id="theme-toggle" title="Toggle theme">☀</button>
+    <button class="nav-hamburger" id="nav-hamburger" aria-label="Menu" aria-expanded="false">☰</button>
+  </div>
+  <div id="nav-dropdown" class="nav-dropdown" role="menu">
+    <a href="#research" class="nav-dropdown-link" id="mob-research">Research</a>
+    <a href="#" class="nav-dropdown-link" id="mob-about">About</a>
+    <a href="#" class="nav-dropdown-link" id="mob-community">Community</a>
+    <a href="#" class="nav-dropdown-link" id="mob-explorer">Explorer</a>
   </div>
 </nav>
 
@@ -1481,7 +1546,8 @@
   <p class="hero-tagline" data-i18n="hero_tagline">Understanding civilizational patterns to illuminate the present.</p>
   <p class="hero-mission" data-i18n="hero_mission">The Epoch Institute researches human civilization with objectivity and curiosity — studying the rise and fall of empires, examining the real-time implications of historical events, and tracing how the past shapes modern society. We make the story of humanity not just informative, but compelling. History is not a closed book; it is the foundation of everything around us.</p>
 
-  <a href="#research" class="hero-cta" data-i18n="hero_cta">Browse Projects →</a>
+  <a href="#" class="hero-cta" id="hero-primary-cta">Explore the Data →</a>
+  <a href="#research" class="hero-secondary-cta">Browse Research Projects ↓</a>
   <span class="scroll-indicator"></span>
 </section>
 
@@ -1508,6 +1574,31 @@
   </div>
 </section>
 
+<!-- About Section -->
+<section id="about">
+  <span class="hero-ornament"></span>
+  <h2 class="research-title">About the Institute</h2>
+  <p class="research-subtitle">Who we are, how we work, and how to reach us.</p>
+  <div class="research-grid">
+    <div class="research-card">
+      <div class="research-card-icon">◎</div>
+      <h3 class="research-card-title">Our Mission</h3>
+      <p class="research-card-desc">The Epoch Institute studies civilisational patterns through data-driven research — examining how empires rise, sustain themselves, and collapse, and what those trajectories reveal about the forces that shape human societies. We make history intellectually rigorous and genuinely accessible.</p>
+    </div>
+    <div class="research-card">
+      <div class="research-card-icon">⊞</div>
+      <h3 class="research-card-title">Methodology</h3>
+      <p class="research-card-desc">Empire power scores are researcher-assigned normalised indices (0–10) across six dimensions: territory, military capacity, economic output, administrative coherence, cultural influence, and geopolitical reach. All scores are drawn from peer-reviewed historiography and cited using Harvard-style references.</p>
+    </div>
+    <div class="research-card" style="align-items:center;text-align:center;">
+      <div class="research-card-icon">✉</div>
+      <h3 class="research-card-title">Contact</h3>
+      <p class="research-card-desc">Questions, collaborations, or submissions? We welcome correspondence from researchers, students, and interested readers alike.</p>
+      <a class="hero-cta" href="mailto:the.epoch.institute.bd@gmail.com" style="margin-top:auto;">Write to Us →</a>
+    </div>
+  </div>
+</section>
+
 <!-- Explorer Section -->
 <section id="explorer">
   <button class="explorer-back-btn" id="explorer-back-btn">← Back to Projects</button>
@@ -1515,6 +1606,7 @@
     <p class="explorer-label" data-i18n="exp_label">Interactive Explorer</p>
     <h2 class="explorer-title" data-i18n="exp_title">The Rise &amp; Fall of Empires</h2>
     <p class="explorer-description" data-i18n="exp_desc">Ninety civilizations. Five millennia. Each trajectory scaled to its own peak — so you can compare not absolute size, but the shape of a civilization's story. Use the controls below to filter by region, era, or search for a specific empire.</p>
+    <p class="explorer-method-note">Power scores are normalized indices (0–10) across six dimensions: territory, military capacity, economic output, administrative coherence, cultural influence, and geopolitical reach. Each trajectory is drawn from peer-reviewed sources cited in the Empire Profiles.</p>
   </div>
 
   <div class="controls">
@@ -1654,6 +1746,21 @@
     <p class="explorer-description">A space for readers, researchers, and thinkers to read, write, and reflect on history and its implications.</p>
   </div>
 
+  <!-- Newsletter -->
+  <div class="community-section community-share-band" id="newsletter-band">
+    <div class="share-band-text">
+      <h3 class="community-section-title">Stay Informed</h3>
+      <p class="community-section-sub">Receive our monthly digest — new empire profiles, research updates, and historical analysis.</p>
+    </div>
+    <div id="newsletter-form-wrap">
+      <form class="newsletter-form" id="newsletter-form" novalidate>
+        <input class="form-input" id="nl-email" type="email" placeholder="your@email.com" autocomplete="email">
+        <button type="submit" class="form-submit" style="white-space:nowrap;">Subscribe →</button>
+      </form>
+      <p class="form-success" id="nl-success" style="display:none;">Thank you — we'll be in touch.</p>
+    </div>
+  </div>
+
   <!-- Blogs -->
   <div class="community-section" id="community-blogs">
     <div class="community-section-hd">
@@ -1775,11 +1882,17 @@
         <a class="footer-link" href="#" id="fl-blogs">Blogs</a>
         <a class="footer-link" href="#" id="fl-opinions">Opinions</a>
         <a class="footer-link" href="#" id="fl-submit">Submit Article</a>
+        <a class="footer-link" href="#" id="fl-newsletter">Newsletter</a>
       </div>
       <div class="footer-col">
         <span class="footer-col-title">About</span>
         <a class="footer-link" href="#" id="fl-institute">The Institute</a>
         <a class="footer-link" href="#" id="fl-contact">Contact</a>
+      </div>
+      <div class="footer-col">
+        <span class="footer-col-title">Institute</span>
+        <a class="footer-link" href="#" id="fl-about">About</a>
+        <a class="footer-link" href="#" id="fl-mission">Our Mission</a>
       </div>
     </div>
   </div>
@@ -6892,6 +7005,34 @@ openCommunity = function() {
   }
 };
 
+// ── Mobile hamburger ──────────────────────────────────────────────────────────
+(function() {
+  const btn  = document.getElementById('nav-hamburger');
+  const drop = document.getElementById('nav-dropdown');
+  function closeMenu() {
+    drop.classList.remove('open');
+    btn.textContent = '☰';
+    btn.setAttribute('aria-expanded', 'false');
+  }
+  btn.addEventListener('click', () => {
+    const open = drop.classList.toggle('open');
+    btn.textContent = open ? '✕' : '☰';
+    btn.setAttribute('aria-expanded', String(open));
+  });
+  // Plain href links close the menu automatically on navigation
+  document.getElementById('mob-research').addEventListener('click', closeMenu);
+  document.getElementById('mob-about').addEventListener('click', e => {
+    e.preventDefault(); closeMenu();
+    document.getElementById('about').scrollIntoView({ behavior: 'smooth' });
+  });
+  document.getElementById('mob-community').addEventListener('click', e => {
+    e.preventDefault(); closeMenu(); openCommunity();
+  });
+  document.getElementById('mob-explorer').addEventListener('click', e => {
+    e.preventDefault(); closeMenu(); openExplorer();
+  });
+})();
+
 // ── New page button listeners ─────────────────────────────────────────────────
 document.getElementById('opinions-view-more').addEventListener('click', openOpinionsPage);
 document.getElementById('opinions-page-back').addEventListener('click', openCommunity);
@@ -6911,7 +7052,28 @@ document.getElementById('fl-submit').addEventListener('click', e => {
   setTimeout(() => document.getElementById('open-share-btn').click(), 350);
 });
 document.getElementById('fl-institute').addEventListener('click', e => { e.preventDefault(); document.getElementById('hero').scrollIntoView({ behavior: 'smooth' }); });
-document.getElementById('fl-contact').setAttribute('href', 'mailto:zama.bangladesh@gmail.com');
+document.getElementById('fl-contact').setAttribute('href', 'mailto:the.epoch.institute.bd@gmail.com');
+document.getElementById('nav-about-link').addEventListener('click', e => { e.preventDefault(); document.getElementById('about').scrollIntoView({ behavior: 'smooth' }); });
+document.getElementById('fl-about').addEventListener('click', e => { e.preventDefault(); document.getElementById('about').scrollIntoView({ behavior: 'smooth' }); });
+document.getElementById('fl-mission').addEventListener('click', e => { e.preventDefault(); document.getElementById('about').scrollIntoView({ behavior: 'smooth' }); });
+document.getElementById('newsletter-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const input = document.getElementById('nl-email');
+  const email = input.value.trim();
+  if (!isValidEmail(email)) { input.classList.add('form-input-error'); return; }
+  input.classList.remove('form-input-error');
+  window.location.href = 'mailto:the.epoch.institute.bd@gmail.com?subject=Newsletter+Signup&body=Subscribe+me';
+  document.getElementById('newsletter-form').style.display = 'none';
+  document.getElementById('nl-success').style.display = 'block';
+});
+document.getElementById('nl-email').addEventListener('input', () =>
+  document.getElementById('nl-email').classList.remove('form-input-error'));
+document.getElementById('hero-primary-cta').addEventListener('click', e => { e.preventDefault(); openExplorer(); });
+document.getElementById('fl-newsletter').addEventListener('click', e => {
+  e.preventDefault();
+  openCommunity();
+  setTimeout(() => document.getElementById('newsletter-band').scrollIntoView({ behavior: 'smooth' }), 350);
+});
 
 </script>
 
