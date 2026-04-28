@@ -733,6 +733,28 @@
     transition: color 0.2s;
   }
   .nav-link:hover { color: var(--gold); }
+  .nav-discord-btn {
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    color: var(--gold);
+    text-decoration: none;
+    border: 0.5px solid rgba(201,168,76,0.5);
+    padding: 5px 12px;
+    border-radius: 4px;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+  .nav-discord-btn:hover { background: rgba(201,168,76,0.10); }
+  /* In dropdown, override padding/border so it looks consistent */
+  .nav-dropdown-link.nav-discord-btn {
+    color: var(--gold);
+    border-left: none;
+    border-right: none;
+    border-top: none;
+    border-radius: 0;
+    padding: 16px 24px;
+  }
 
   /* ── Hero section ── */
   .hero {
@@ -1411,6 +1433,73 @@
   }
   .hero-secondary-cta:hover { color: var(--gold); }
 
+  /* ── Today in History card ── */
+  .tih-card {
+    border: 1px solid var(--border);
+    border-left: 2px solid var(--gold);
+    padding: 20px 24px;
+    max-width: 540px;
+    width: 100%;
+    margin-top: 32px;
+    text-align: left;
+    background: rgba(180,140,60,0.03);
+  }
+  .tih-date-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .tih-date {
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .tih-region {
+    font-family: 'Cinzel', serif;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    opacity: 0.55;
+    border: 1px solid var(--border);
+    padding: 1px 6px;
+  }
+  .tih-title {
+    font-family: 'Cinzel', serif;
+    font-size: 15px;
+    color: var(--gold-light);
+    line-height: 1.55;
+    margin: 0 0 6px;
+    letter-spacing: 0.02em;
+  }
+  .tih-year {
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 13px;
+    color: var(--muted);
+    margin: 0 0 14px;
+    opacity: 0.8;
+  }
+  .tih-actions {
+    display: flex;
+    gap: 20px;
+  }
+  .tih-link {
+    font-family: 'Cinzel', serif;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold);
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+  .tih-link:hover { opacity: 0.7; }
+  @media (max-width: 600px) {
+    .tih-card { padding: 16px 18px; }
+    .tih-title { font-size: 13px; }
+  }
+
   /* ── Newsletter form ── */
   .newsletter-form { display: flex; gap: 8px; align-items: flex-start; flex-wrap: wrap; }
   .newsletter-form .form-input { flex: 1; min-width: 180px; }
@@ -1542,6 +1631,165 @@
   .profile-search-wrap { padding: 8px 16px 16px; }
   .profile-search-empty { padding: 16px; }
 }
+.detail-cite-row {
+  margin-top: 28px; padding-top: 16px;
+  border-top: 0.5px solid var(--border);
+}
+.detail-cite-btn {
+  display: flex; align-items: center; gap: 6px;
+  background: none; border: none; cursor: pointer; padding: 0;
+  font-family: 'Cinzel', serif; font-size: 11px;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted); transition: color 0.2s;
+}
+.detail-cite-btn:hover { color: var(--gold); }
+.detail-cite-icon { font-size: 18px; color: var(--gold); line-height: 1; }
+.cite-dropdown {
+  max-height: 0; overflow: hidden;
+  transition: max-height 0.3s ease;
+  background: var(--surface);
+  border: 0.5px solid var(--border);
+  border-radius: 6px;
+  margin-top: 10px;
+}
+.cite-dropdown.open { max-height: 500px; }
+.cite-block {
+  padding: 12px 14px;
+  border-bottom: 0.5px solid var(--border);
+}
+.cite-block:last-child { border-bottom: none; }
+.cite-block-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
+.cite-label {
+  font-family: 'Cinzel', serif; font-size: 10px;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
+}
+.cite-copy-btn {
+  background: none; border: none; cursor: pointer; padding: 0;
+  font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 0.06em;
+  color: var(--muted); transition: color 0.2s;
+}
+.cite-copy-btn:hover { color: var(--gold); }
+.cite-text {
+  font-family: 'Crimson Pro', Georgia, serif; font-size: 13px;
+  color: var(--text); line-height: 1.6; user-select: text;
+}
+#dataset {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 80px 24px;
+  text-align: center; scroll-margin-top: 60px;
+}
+.dataset-description {
+  font-family: 'Crimson Pro', Georgia, serif; font-size: 15px;
+  color: var(--text); line-height: 1.75; max-width: 720px; margin: 0 0 36px;
+}
+.dataset-btn-row {
+  display: flex; gap: 12px; flex-wrap: wrap;
+  justify-content: center; margin-bottom: 32px;
+}
+.dataset-cite-box {
+  background: var(--surface); border: 0.5px solid var(--border);
+  border-radius: 8px; padding: 16px; max-width: 640px; width: 100%;
+  text-align: left; margin-bottom: 16px;
+}
+.dataset-cite-label {
+  font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 8px;
+}
+.dataset-cite-text {
+  font-family: 'Crimson Pro', Georgia, serif; font-size: 14px;
+  color: var(--text); line-height: 1.6; margin: 0 0 12px;
+}
+.dataset-licence {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+}
+.dataset-licence-badge {
+  border: 0.5px solid var(--border); border-radius: 20px;
+  padding: 3px 10px; font-size: 11px; color: var(--muted);
+  text-decoration: none; transition: border-color 0.2s, color 0.2s;
+}
+.dataset-licence-badge:hover { border-color: var(--gold); color: var(--gold); }
+.dataset-licence-note {
+  font-family: 'Crimson Pro', Georgia, serif; font-size: 13px;
+  color: var(--muted); max-width: 480px; line-height: 1.5; margin: 0;
+}
+/* ── Research Series ── */
+#research-series {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 80px 24px;
+  text-align: center; scroll-margin-top: 60px;
+}
+.series-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 20px; max-width: 900px; width: 100%; text-align: left; margin-top: 0;
+}
+@media (max-width: 768px) { .series-grid { grid-template-columns: 1fr; } }
+.series-card {
+  display: flex; flex-direction: column; gap: 10px;
+  padding: 28px; border: 1px solid var(--border);
+  transition: border-color 0.2s, background 0.2s;
+}
+.series-card:hover { border-color: var(--gold); background: rgba(180,140,60,0.05); }
+.series-card-toprow { display: flex; justify-content: space-between; align-items: flex-start; }
+.series-number {
+  font-family: 'Cinzel', serif; font-size: 10px;
+  letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase;
+}
+.series-badge {
+  font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 0.08em;
+  text-transform: uppercase; padding: 2px 8px; border-radius: 20px; border: 0.5px solid;
+}
+.series-badge-active { background: rgba(201,168,76,0.15); color: var(--gold); border-color: var(--gold); }
+.series-badge-soon, .series-badge-planned { background: rgba(180,180,180,0.1); color: var(--muted); border-color: var(--muted); }
+.series-badge-planned { font-style: italic; }
+.series-title { font-family: 'Cinzel', serif; font-size: 20px; letter-spacing: 0.06em; color: var(--gold-light); margin: 0; line-height: 1.3; }
+.series-theme { font-family: 'Crimson Pro', Georgia, serif; font-size: 13px; color: var(--muted); font-style: italic; margin: 0; }
+.series-desc { font-family: 'Crimson Pro', Georgia, serif; font-size: 14px; color: var(--text); line-height: 1.7; margin: 0; flex: 1; }
+.series-cta {
+  font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.1em;
+  text-transform: uppercase; padding: 10px 20px; align-self: flex-start; margin-top: auto;
+  background: none; border: 1px solid var(--gold); color: var(--gold);
+  cursor: pointer; transition: background 0.2s, color 0.2s;
+}
+.series-cta:hover { background: var(--gold); color: var(--bg); }
+.series-notify-link {
+  font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.08em;
+  color: var(--muted); text-transform: uppercase; cursor: pointer;
+  transition: color 0.2s; margin-top: auto; background: none; border: none; padding: 0;
+}
+.series-notify-link:hover { color: var(--gold); }
+/* ── Series 01 Detail ── */
+#series-01-detail {
+  max-width: 900px; width: 100%; margin-top: 48px;
+  border-top: 1px solid rgba(201,168,76,0.2);
+  background: var(--surface); padding: 48px 32px 40px;
+  display: none; text-align: left;
+}
+#series-01-detail.open { display: block; }
+.series-detail-intro {
+  font-family: 'Crimson Pro', Georgia, serif; font-size: 16px;
+  color: var(--text); line-height: 1.8; max-width: 720px;
+  margin: 0 auto 40px; text-align: center;
+}
+.series-factors-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 40px; }
+@media (max-width: 768px) { .series-factors-grid { grid-template-columns: 1fr 1fr; } #series-01-detail { padding: 32px 16px; } }
+@media (max-width: 480px) { .series-factors-grid { grid-template-columns: 1fr; } }
+.series-factor-card { padding: 18px 16px; border: 0.5px solid var(--border); display: flex; flex-direction: column; gap: 6px; }
+.series-factor-name { font-family: 'Cinzel', serif; font-size: 14px; color: var(--gold-light); letter-spacing: 0.04em; }
+.series-factor-count { font-family: 'Cinzel', serif; font-size: 11px; color: var(--muted); letter-spacing: 0.06em; }
+.series-factor-desc { font-family: 'Crimson Pro', Georgia, serif; font-size: 13px; color: var(--text); line-height: 1.6; margin: 0; }
+.series-empires-strip { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 32px; }
+.series-empire-pill {
+  font-family: 'Cinzel', serif; font-size: 12px; letter-spacing: 0.04em;
+  padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border);
+  background: var(--surface); color: var(--text); cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+.series-empire-pill:hover { border-color: var(--gold); color: var(--gold); }
+.series-detail-teaser { font-family: 'Crimson Pro', Georgia, serif; font-size: 14px; color: var(--muted); font-style: italic; text-align: center; margin: 0; }
+.series-detail-section-label {
+  font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--gold); margin: 0 0 20px;
+}
 </style>
 <script type="application/ld+json">
 {
@@ -1580,9 +1828,12 @@
   </a>
   <div class="nav-links">
     <a href="#research" class="nav-link" data-i18n="nav_research">Research</a>
+    <a href="#research-series" class="nav-link" id="nav-series-link">Series</a>
     <a href="#about" class="nav-link" id="nav-about-link">About</a>
+    <a href="#dataset" class="nav-link" id="nav-dataset-link">Dataset</a>
     <a href="#" id="nav-community-link" class="nav-link" data-i18n="nav_community">Community</a>
     <a href="#" id="nav-explorer-link" class="nav-link" data-i18n="nav_explorer">Explorer</a>
+    <a href="https://discord.gg/DmjwDbkW" class="nav-discord-btn" target="_blank" rel="noopener">Community →</a>
   </div>
   <div class="nav-toggles">
     <button class="nav-toggle-btn" id="export-btn" title="Export PNG" data-i18n="export_btn">↓ PNG</button>
@@ -1592,9 +1843,12 @@
   </div>
   <div id="nav-dropdown" class="nav-dropdown" role="menu">
     <a href="#research" class="nav-dropdown-link" id="mob-research">Research</a>
+    <a href="#research-series" class="nav-dropdown-link" id="mob-series">Series</a>
     <a href="#" class="nav-dropdown-link" id="mob-about">About</a>
+    <a href="#dataset" class="nav-dropdown-link" id="mob-dataset">Dataset</a>
     <a href="#" class="nav-dropdown-link" id="mob-community">Community</a>
     <a href="#" class="nav-dropdown-link" id="mob-explorer">Explorer</a>
+    <a href="https://discord.gg/DmjwDbkW" class="nav-dropdown-link nav-discord-btn" target="_blank" rel="noopener">Community →</a>
   </div>
 </nav>
 
@@ -1622,6 +1876,20 @@
 
   <a href="#" class="hero-cta" id="hero-primary-cta">Explore the Data →</a>
   <a href="#research" class="hero-secondary-cta">Browse Research Projects ↓</a>
+
+  <div id="tih-card" class="tih-card" style="display:none;">
+    <div class="tih-date-row">
+      <span class="tih-date" id="tih-date"></span>
+      <span class="tih-region" id="tih-region"></span>
+    </div>
+    <p class="tih-title" id="tih-title"></p>
+    <p class="tih-year" id="tih-year"></p>
+    <div class="tih-actions">
+      <a href="#" class="tih-link" id="tih-empire-link" style="display:none;">Related empire →</a>
+      <a href="#" class="tih-link" id="tih-share-link">Share →</a>
+    </div>
+  </div>
+
   <span class="scroll-indicator"></span>
 </section>
 
@@ -1646,6 +1914,129 @@
       <span class="research-card-cta">Browse Profiles →</span>
     </a>
   </div>
+</section>
+
+<!-- Research Series Section -->
+<section id="research-series">
+  <span class="hero-ornament"></span>
+  <h2 class="research-title">Research Series</h2>
+  <p class="research-subtitle">Thematic investigations into civilisational patterns across history.</p>
+
+  <div class="series-grid">
+
+    <!-- Card 1 — Active -->
+    <div class="series-card">
+      <div class="series-card-toprow">
+        <span class="series-number">Series 01</span>
+        <span class="series-badge series-badge-active">Active</span>
+      </div>
+      <h3 class="series-title">Patterns of Collapse</h3>
+      <p class="series-theme">Economy · Governance · Military</p>
+      <p class="series-desc">Every great civilisation that has ever fallen left behind the same warning signs. Economic overextension. Administrative fragmentation. Military overreach. Social exhaustion. This series examines the structural causes of civilisational collapse across 94 empires — and asks what the patterns mean for the world today.</p>
+      <button class="series-cta" id="series-01-explore-btn">Explore Series →</button>
+    </div>
+
+    <!-- Card 2 — Coming Soon -->
+    <div class="series-card">
+      <div class="series-card-toprow">
+        <span class="series-number">Series 02</span>
+        <span class="series-badge series-badge-soon">Coming Soon</span>
+      </div>
+      <h3 class="series-title">The Silk Road Effect</h3>
+      <p class="series-theme">Trade · Culture · Connectivity</p>
+      <p class="series-desc">No force in pre-modern history did more to shape civilisations than trade. This series maps how commerce, disease, religion, and ideas moved along the great trade routes — and how the empires that controlled them rose to dominance while those that lost access declined.</p>
+      <button class="series-notify-link">Notify me →</button>
+    </div>
+
+    <!-- Card 3 — Coming Soon -->
+    <div class="series-card">
+      <div class="series-card-toprow">
+        <span class="series-number">Series 03</span>
+        <span class="series-badge series-badge-soon">Coming Soon</span>
+      </div>
+      <h3 class="series-title">Sacred Power</h3>
+      <p class="series-theme">Religion · Politics · Legitimacy</p>
+      <p class="series-desc">From the divine kingship of ancient Egypt to the Abbasid Caliphate's claim to prophetic authority, religion has been the most powerful tool of political legitimacy in human history. This series examines how civilisations used faith to consolidate power — and how that relationship eventually broke down.</p>
+      <button class="series-notify-link">Notify me →</button>
+    </div>
+
+    <!-- Card 4 — Planned -->
+    <div class="series-card">
+      <div class="series-card-toprow">
+        <span class="series-number">Series 04</span>
+        <span class="series-badge series-badge-planned">Planned</span>
+      </div>
+      <h3 class="series-title">Bengal and the World</h3>
+      <p class="series-theme">South Asia · Colonialism · Identity</p>
+      <p class="series-desc">Bengal has been at the centre of some of history's most consequential events — the wealth that funded the British Empire, the famine that killed millions, the liberation war that created a nation. This series tells Bengal's story as a chapter in global history, not a footnote to it.</p>
+      <button class="series-notify-link">Notify me →</button>
+    </div>
+
+    <!-- Card 5 — Planned -->
+    <div class="series-card">
+      <div class="series-card-toprow">
+        <span class="series-number">Series 05</span>
+        <span class="series-badge series-badge-planned">Planned</span>
+      </div>
+      <h3 class="series-title">The Demographics of Power</h3>
+      <p class="series-theme">Population · Migration · Collapse</p>
+      <p class="series-desc">Civilisations do not just fall to armies. They fall to plagues, famines, migrations, and demographic collapse. This series examines how population dynamics — often invisible in conventional historical accounts — shaped the rise and fall of the world's greatest empires.</p>
+      <button class="series-notify-link">Notify me →</button>
+    </div>
+
+  </div>
+
+  <!-- Series 01 Detail Area -->
+  <div id="series-01-detail">
+    <p class="series-detail-intro">What kills a civilisation? Military defeat is rarely the answer — it is usually the final blow to a body already weakened by deeper forces. Across the 94 empires in our dataset, the same cluster of structural failures appears again and again, separated by centuries and continents yet strikingly consistent in their sequence and character.</p>
+
+    <p class="series-detail-section-label">Key Collapse Factors</p>
+    <div class="series-factors-grid">
+      <div class="series-factor-card">
+        <span class="series-factor-name">Economic Overextension</span>
+        <span class="series-factor-count">Observed in 79 of 94 empires</span>
+        <p class="series-factor-desc">The cost of maintaining an empire consistently outgrew its revenue base. Debasement of currency, taxation beyond capacity, and trade route collapse were common precursors to terminal decline.</p>
+      </div>
+      <div class="series-factor-card">
+        <span class="series-factor-name">Administrative Fragmentation</span>
+        <span class="series-factor-count">Observed in 71 of 94 empires</span>
+        <p class="series-factor-desc">As empires expanded, the ability to govern distant territories efficiently diminished. Provincial governors, warlords, and local elites increasingly acted independently of central authority.</p>
+      </div>
+      <div class="series-factor-card">
+        <span class="series-factor-name">Military Overreach</span>
+        <span class="series-factor-count">Observed in 68 of 94 empires</span>
+        <p class="series-factor-desc">Expansion beyond defensible borders stretched military resources to breaking point. The armies that built empires became the liabilities that exhausted them.</p>
+      </div>
+      <div class="series-factor-card">
+        <span class="series-factor-name">Succession Crises</span>
+        <span class="series-factor-count">Observed in 65 of 94 empires</span>
+        <p class="series-factor-desc">The absence of stable succession mechanisms triggered civil wars, coups, and fragmentation. Many empires that survived external threats collapsed from within when leadership was contested.</p>
+      </div>
+      <div class="series-factor-card">
+        <span class="series-factor-name">Climate &amp; Ecological Stress</span>
+        <span class="series-factor-count">Observed in 44 of 94 empires</span>
+        <p class="series-factor-desc">Prolonged drought, agricultural failure, and ecological degradation destabilised food systems and triggered migrations that overwhelmed imperial borders.</p>
+      </div>
+      <div class="series-factor-card">
+        <span class="series-factor-name">External Pressure</span>
+        <span class="series-factor-count">Observed in 81 of 94 empires</span>
+        <p class="series-factor-desc">Few empires collapsed without external pressure accelerating the process — whether from nomadic incursions, rival states, or the rise of new regional powers filling the vacuum of decline.</p>
+      </div>
+    </div>
+
+    <p class="series-detail-section-label">Featured Empires in this Series</p>
+    <div class="series-empires-strip">
+      <button class="series-empire-pill" data-empire="Roman Empire">Roman Empire</button>
+      <button class="series-empire-pill" data-empire="Han Dynasty">Han Dynasty</button>
+      <button class="series-empire-pill" data-empire="Ottoman Empire">Ottoman Empire</button>
+      <button class="series-empire-pill" data-empire="Mughal Empire">Mughal Empire</button>
+      <button class="series-empire-pill" data-empire="Abbasid Caliphate">Abbasid Caliphate</button>
+      <button class="series-empire-pill" data-empire="British Empire">British Empire</button>
+    </div>
+
+    <p class="series-detail-teaser">Next: A comparative analysis of currency debasement across the Roman, Byzantine, and Ottoman empires — and what it tells us about economic collapse.</p>
+  </div>
+
 </section>
 
 <!-- About Section -->
@@ -1677,6 +2068,27 @@
       <p class="research-card-desc">Questions, collaborations, or submissions? We welcome correspondence from researchers, students, and interested readers alike.</p>
       <a href="#" class="hero-cta" id="open-contact-btn" style="margin-top:auto;">Write to Us →</a>
     </div>
+  </div>
+</section>
+
+<!-- Dataset Section -->
+<section id="dataset">
+  <span class="hero-ornament"></span>
+  <h2 class="research-title">Open Dataset</h2>
+  <p class="research-subtitle">Empire Trajectory Data — Freely Available for Research</p>
+  <p class="dataset-description">The Epoch Institute's empire trajectory dataset covers 94 civilisations across five millennia, from ancient Mesopotamia to the modern era. Each entry includes normalised power scores across six dimensions — territory, military capacity, economic output, administrative coherence, cultural influence, and geopolitical reach — plotted across each empire's full lifespan. The dataset is freely available for academic, educational, and research use under the Creative Commons Attribution 4.0 International licence (CC BY 4.0).</p>
+  <div class="dataset-btn-row">
+    <button class="hero-cta" id="dataset-csv-btn">Download CSV →</button>
+    <button class="hero-cta" id="dataset-json-btn">Download JSON →</button>
+  </div>
+  <div class="dataset-cite-box">
+    <span class="dataset-cite-label">How to cite this dataset</span>
+    <p class="dataset-cite-text">The Epoch Institute Research Team (2024). Empire Trajectory Dataset [Data set]. The Epoch Institute. https://the-epoch-institute.org/#dataset</p>
+    <button class="detail-cite-btn" id="dataset-copy-cite-btn">Copy citation →</button>
+  </div>
+  <div class="dataset-licence">
+    <a class="dataset-licence-badge" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>
+    <p class="dataset-licence-note">You are free to share and adapt this data for any purpose, provided you give appropriate credit to The Epoch Institute.</p>
   </div>
 </section>
 
@@ -1832,6 +2244,12 @@
       <div id="detail-sections"></div>
       <p class="profile-summary" id="detail-summary"></p>
           <div id="detail-references"></div>
+          <div class="detail-cite-row" id="detail-cite-row">
+            <button class="detail-cite-btn" id="detail-cite-btn">
+              <span class="detail-cite-icon">"</span>Cite this profile
+            </button>
+            <div class="cite-dropdown" id="cite-dropdown"></div>
+          </div>
     </div>
     <button class="profile-back-gallery-btn bottom" id="profile-back-gallery-bottom">← All Empires</button>
   </div>
@@ -1845,6 +2263,18 @@
     <p class="explorer-label">COMMUNITY</p>
     <h2 class="explorer-title">The Epoch Community</h2>
     <p class="explorer-description">A space for readers, researchers, and thinkers to read, write, and reflect on history and its implications.</p>
+  </div>
+
+  <!-- Discord -->
+  <div class="community-section community-share-band">
+    <div class="share-band-text">
+      <h3 class="community-section-title" style="color:var(--gold-light);">Join the Discussion</h3>
+      <p class="community-section-sub">Connect with historians, researchers, and history enthusiasts from across the world. Debate empires. Share findings. Ask questions. The Epoch community is open to everyone.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-start;gap:12px;flex-shrink:0;">
+      <a href="https://discord.gg/DmjwDbkW" class="hero-cta" target="_blank" rel="noopener">Join our Discord →</a>
+      <p style="font-family:'Crimson Pro',Georgia,serif;font-size:12px;color:var(--muted);margin:0;opacity:0.75;">Empire debates &nbsp;·&nbsp; Research help &nbsp;·&nbsp; South Asian history &nbsp;·&nbsp; Open to all</p>
+    </div>
   </div>
 
   <!-- Newsletter -->
@@ -1977,6 +2407,8 @@
         <a class="footer-link" href="#" id="fl-explorer">Empire Explorer</a>
         <a class="footer-link" href="#" id="fl-profiles">Empire Profiles</a>
         <a class="footer-link" href="#" id="fl-research">Research Hub</a>
+        <a class="footer-link" href="#" id="fl-series">Research Series</a>
+        <a class="footer-link" href="#" id="fl-dataset">Open Dataset</a>
       </div>
       <div class="footer-col">
         <span class="footer-col-title">Community</span>
@@ -2094,6 +2526,376 @@
 const EPOCH_API_URL  = 'https://script.google.com/macros/s/AKfycbzRw6c1ZiZy3PJS41zkz1QQHxaFog2ctVowALgfhL5zk_19kXkhGB0rlEUNeMMac3-xfg/exec';
 const FORMSPREE_URL  = 'https://formspree.io/f/mpqkezdj';
 const ARTICLES_INITIAL_COUNT = 6;
+
+// ── Today in History dataset ──────────────────────────────────────────────────
+const TODAY_IN_HISTORY = {
+  "01-01": { title: "Roman calendar reform — Julius Caesar introduces Julian calendar", year: "45 BCE", region: "EU", empire: "Roman Empire" },
+  "01-02": { title: "Fall of Granada — last Muslim kingdom in Spain surrenders", year: "1492", region: "EU", empire: "Umayyad Caliphate" },
+  "01-03": { title: "Cicero born — Rome's greatest orator and republican statesman", year: "106 BCE", region: "EU", empire: "Roman Empire" },
+  "01-04": { title: "Assassination of Liaquat Ali Khan's legacy cemented — Pakistan's first PM buried", year: "1951", region: "AS", empire: null },
+  "01-05": { title: "Death of Edward the Confessor — triggers the Norman conquest of England", year: "1066", region: "EU", empire: null },
+  "01-06": { title: "Joan of Arc born — French national heroine who turned the Hundred Years' War", year: "1412", region: "EU", empire: null },
+  "01-07": { title: "Temujin (Genghis Khan) begins unification of Mongol tribes", year: "1206", region: "AS", empire: "Mongol Empire" },
+  "01-08": { title: "Battle of New Orleans — last major battle of the War of 1812", year: "1815", region: "AM", empire: null },
+  "01-09": { title: "Bloody Sunday — Tsar's troops fire on peaceful protesters in St. Petersburg", year: "1905", region: "EU", empire: "Russian Empire" },
+  "01-10": { title: "League of Nations founded — first global peacekeeping organisation", year: "1920", region: "GL", empire: null },
+  "01-11": { title: "Bangladesh: Sheikh Mujibur Rahman returns from Pakistani prison", year: "1972", region: "BD", empire: null },
+  "01-12": { title: "Vasco da Gama departs on second voyage to India", year: "1502", region: "EU", empire: "Portuguese Empire" },
+  "01-13": { title: "Siege of Constantinople begins by Ottoman forces under Murad II", year: "1453", region: "ME", empire: "Ottoman Empire" },
+  "01-14": { title: "Makar Sankranti — ancient Hindu solar festival marking harvest season", year: "ancient", region: "AS", empire: null },
+  "01-15": { title: "Death of Ashoka the Great — Maurya Empire's greatest ruler", year: "232 BCE", region: "AS", empire: "Maurya Empire" },
+  "01-16": { title: "Ivan the Terrible crowned first Tsar of Russia", year: "1547", region: "EU", empire: "Russian Empire" },
+  "01-17": { title: "Benjamin Franklin born — American founding father and polymath", year: "1706", region: "AM", empire: null },
+  "01-18": { title: "German Empire proclaimed at Versailles — Bismarck unifies Germany", year: "1871", region: "EU", empire: "German Empire" },
+  "01-19": { title: "Death of James Watt — inventor of the steam engine driving the Industrial Revolution", year: "1819", region: "EU", empire: null },
+  "01-20": { title: "Bangladesh: Sheikh Hasina born — longest-serving Prime Minister of Bangladesh", year: "1947", region: "BD", empire: null },
+  "01-21": { title: "Execution of Louis XVI — French Revolution reaches its peak", year: "1793", region: "EU", empire: null },
+  "01-22": { title: "Death of Queen Victoria — end of the Victorian era and British imperial zenith", year: "1901", region: "EU", empire: "British Empire" },
+  "01-23": { title: "Subhas Chandra Bose born — Bengali revolutionary who challenged British rule", year: "1897", region: "BD", empire: "British Empire" },
+  "01-24": { title: "Caligula assassinated — Roman Senate reclaims brief power", year: "41", region: "EU", empire: "Roman Empire" },
+  "01-25": { title: "Conversion of Paul the Apostle — pivotal moment in spread of Christianity", year: "34", region: "ME", empire: null },
+  "01-26": { title: "Republic Day India — constitution comes into force", year: "1950", region: "AS", empire: null },
+  "01-27": { title: "Liberation of Auschwitz — Soviet troops end the Holocaust's largest camp", year: "1945", region: "EU", empire: null },
+  "01-28": { title: "Charlemagne dies — Carolingian Empire begins to fracture", year: "814", region: "EU", empire: "Carolingian Empire" },
+  "01-29": { title: "Kansas becomes US state — westward expansion continues", year: "1861", region: "AM", empire: null },
+  "01-30": { title: "Assassination of Mahatma Gandhi — father of Indian independence", year: "1948", region: "AS", empire: null },
+  "01-31": { title: "Bangladesh: Ziaur Rahman born — founder of Bangladesh Nationalist Party", year: "1936", region: "BD", empire: null },
+  "02-01": { title: "Mughal Emperor Humayun recaptures Delhi — restores Mughal rule in India", year: "1555", region: "AS", empire: "Mughal Empire" },
+  "02-02": { title: "Battle of Stalingrad ends — turning point of World War II on Eastern Front", year: "1943", region: "EU", empire: null },
+  "02-03": { title: "Death of Imam Bukhari — compiler of the most authoritative Hadith collection", year: "870", region: "ME", empire: "Abbasid Caliphate" },
+  "02-04": { title: "Sri Lanka independence — end of British colonial rule in Ceylon", year: "1948", region: "AS", empire: "British Empire" },
+  "02-05": { title: "Founding of São Paulo — Portuguese colonisation of Brazil begins", year: "1554", region: "AM", empire: "Portuguese Empire" },
+  "02-06": { title: "Waitangi Treaty signed — British Crown and Māori chiefs form agreement", year: "1840", region: "AS", empire: "British Empire" },
+  "02-07": { title: "Charles Dickens born — chronicler of Victorian England's inequality", year: "1812", region: "EU", empire: null },
+  "02-08": { title: "Bangladesh: Language Movement martyrs honoured — Ekushey precursor", year: "1952", region: "BD", empire: null },
+  "02-09": { title: "Battle of Plassey aftermath — Mir Jafar installed as Bengali Nawab", year: "1757", region: "BD", empire: "British Empire" },
+  "02-10": { title: "Ottoman Empire signs Treaty of Paris — begins long decline", year: "1856", region: "ME", empire: "Ottoman Empire" },
+  "02-11": { title: "Invention of the phonograph by Thomas Edison patented", year: "1878", region: "AM", empire: null },
+  "02-12": { title: "Charles Darwin born — theory of evolution transforms human understanding", year: "1809", region: "EU", empire: null },
+  "02-13": { title: "Firebombing of Dresden — Allied air campaign devastates historic German city", year: "1945", region: "EU", empire: null },
+  "02-14": { title: "Assassination of Imam Ali ibn Musa al-Ridha — Shia Islam martyr", year: "818", region: "ME", empire: "Abbasid Caliphate" },
+  "02-15": { title: "Singapore falls to Japan — largest British surrender in history", year: "1942", region: "AS", empire: "British Empire" },
+  "02-16": { title: "Lithuania declares independence from Soviet Union", year: "1990", region: "EU", empire: null },
+  "02-17": { title: "Giordano Bruno burned at the stake by the Inquisition", year: "1600", region: "EU", empire: null },
+  "02-18": { title: "Gambia achieves independence from Britain", year: "1965", region: "AF", empire: "British Empire" },
+  "02-19": { title: "Nicolaus Copernicus born — heliocentrism revolutionises human understanding", year: "1473", region: "EU", empire: null },
+  "02-20": { title: "Mughal Emperor Babur wins Battle of Khanwa — consolidates northern India", year: "1527", region: "AS", empire: "Mughal Empire" },
+  "02-21": { title: "Bangladesh: Ekushey February — Language Movement martyrs 1952, now International Mother Language Day", year: "1952", region: "BD", empire: null },
+  "02-22": { title: "George Washington born — first US President and founding father", year: "1732", region: "AM", empire: null },
+  "02-23": { title: "Brunei gains independence from Britain", year: "1984", region: "AS", empire: "British Empire" },
+  "02-24": { title: "Meiji Constitution proclaimed — Japan begins rapid modernisation", year: "1889", region: "AS", empire: null },
+  "02-25": { title: "Abdication of Ferdinand Marcos — People Power Revolution in Philippines", year: "1986", region: "AS", empire: null },
+  "02-26": { title: "Khilji dynasty founded in Bengal — Muslim rule expands into Bengal", year: "1206", region: "BD", empire: null },
+  "02-27": { title: "Dominican Republic independence from Haiti", year: "1844", region: "AM", empire: null },
+  "02-28": { title: "Fall of the Abbasid Caliphate — Mongols sack Baghdad", year: "1258", region: "ME", empire: "Abbasid Caliphate" },
+  "02-29": { title: "Battle of Adwa — Ethiopia defeats Italy, only African nation to resist colonisation", year: "1896", region: "AF", empire: null },
+  "03-01": { title: "Battle of Adwa — Ethiopia defeats Italian colonial army", year: "1896", region: "AF", empire: null },
+  "03-02": { title: "Ethiopia remains uncolonised after Treaty of Addis Ababa", year: "1896", region: "AF", empire: null },
+  "03-03": { title: "Treaty of San Stefano — Ottoman Empire loses Balkans", year: "1878", region: "ME", empire: "Ottoman Empire" },
+  "03-04": { title: "Khmer Empire founded — Angkor civilisation begins in Southeast Asia", year: "802", region: "AS", empire: "Khmer Empire" },
+  "03-05": { title: "Death of Joseph Stalin — Soviet totalitarian era ends", year: "1953", region: "EU", empire: null },
+  "03-06": { title: "Ghana independence — first sub-Saharan African nation to gain freedom", year: "1957", region: "AF", empire: "British Empire" },
+  "03-07": { title: "Bangladesh: Sheikh Mujibur Rahman's historic 7th March speech", year: "1971", region: "BD", empire: null },
+  "03-08": { title: "International Women's Day — origins in 1908 labour movement", year: "1908", region: "GL", empire: null },
+  "03-09": { title: "Amerigo Vespucci born — Americas named after him", year: "1454", region: "EU", empire: null },
+  "03-10": { title: "Telephone invented — Alexander Graham Bell makes first call", year: "1876", region: "AM", empire: null },
+  "03-11": { title: "Meiji Emperor Mutsuhito begins modernisation of Japan", year: "1868", region: "AS", empire: null },
+  "03-12": { title: "Gandhi begins Salt March — civil disobedience against British rule", year: "1930", region: "AS", empire: "British Empire" },
+  "03-13": { title: "Assassination of Tsar Alexander II — Russian imperial instability begins", year: "1881", region: "EU", empire: "Russian Empire" },
+  "03-14": { title: "Karl Marx dies — his ideas reshape the entire 20th century", year: "1883", region: "EU", empire: null },
+  "03-15": { title: "Assassination of Julius Caesar — Roman Republic ends", year: "44 BCE", region: "EU", empire: "Roman Empire" },
+  "03-16": { title: "Battle of Issus aftermath — Alexander consolidates Persian conquest", year: "333 BCE", region: "AS", empire: "Macedonian Empire" },
+  "03-17": { title: "Mongol forces cross the Indus — Genghis Khan reaches South Asia", year: "1221", region: "AS", empire: "Mongol Empire" },
+  "03-18": { title: "Paris Commune declared — radical working-class government seizes Paris", year: "1871", region: "EU", empire: null },
+  "03-19": { title: "Founding of the Safavid Empire — Persia's last great native dynasty", year: "1501", region: "ME", empire: "Safavid Empire" },
+  "03-20": { title: "First Battle of Panipat — Babur defeats Ibrahim Lodi, founds Mughal Empire", year: "1526", region: "AS", empire: "Mughal Empire" },
+  "03-21": { title: "Nowruz — Persian New Year, celebrated for over 3,000 years across Central Asia", year: "ancient", region: "ME", empire: null },
+  "03-22": { title: "Bangladesh: Independence Day eve — crackdown begins in Dhaka", year: "1971", region: "BD", empire: null },
+  "03-23": { title: "Pakistan Resolution passed — demand for a separate Muslim homeland", year: "1940", region: "AS", empire: null },
+  "03-24": { title: "Mughal Emperor Akbar issues Ibadat Khana decree — religious tolerance policy", year: "1575", region: "AS", empire: "Mughal Empire" },
+  "03-25": { title: "Greek War of Independence begins — Ottoman Empire loses Greece", year: "1821", region: "EU", empire: "Ottoman Empire" },
+  "03-26": { title: "Bangladesh: Independence Day — Sheikh Mujib declares independence", year: "1971", region: "BD", empire: null },
+  "03-27": { title: "Earthquake destroys Lisbon — reshapes European Enlightenment thought", year: "1755", region: "EU", empire: null },
+  "03-28": { title: "Death of Harun al-Rashid — peak of Abbasid Caliphate ends", year: "809", region: "ME", empire: "Abbasid Caliphate" },
+  "03-29": { title: "Hundred Years War begins — England and France in epic conflict", year: "1337", region: "EU", empire: null },
+  "03-30": { title: "Seward's Folly — US purchases Alaska from Russia", year: "1867", region: "AM", empire: "Russian Empire" },
+  "03-31": { title: "Eiffel Tower opens — symbol of French industrial ambition", year: "1889", region: "EU", empire: null },
+  "04-01": { title: "April Fools tradition traced to French calendar reform", year: "1564", region: "EU", empire: null },
+  "04-02": { title: "Charlemagne defeats the Saxons — Christianisation of northern Europe begins", year: "772", region: "EU", empire: "Carolingian Empire" },
+  "04-03": { title: "Death of Jesse James — American frontier era ends", year: "1882", region: "AM", empire: null },
+  "04-04": { title: "Assassination of Martin Luther King Jr — civil rights era turning point", year: "1968", region: "AM", empire: null },
+  "04-05": { title: "Death of Raphael — High Renaissance reaches its peak", year: "1520", region: "EU", empire: null },
+  "04-06": { title: "US enters World War I — global balance of power shifts", year: "1917", region: "AM", empire: null },
+  "04-07": { title: "Rwandan genocide begins — 800,000 killed in 100 days", year: "1994", region: "AF", empire: null },
+  "04-08": { title: "Gautama Buddha's birthday (Vesak) observed — founding of Buddhism", year: "563 BCE", region: "AS", empire: "Maurya Empire" },
+  "04-09": { title: "Fall of Baghdad to US forces — end of Saddam Hussein's regime", year: "2003", region: "ME", empire: null },
+  "04-10": { title: "Titanic sinks — hubris of industrial age on display", year: "1912", region: "EU", empire: null },
+  "04-11": { title: "Uganda achieves independence from Britain", year: "1962", region: "AF", empire: "British Empire" },
+  "04-12": { title: "Yuri Gagarin becomes first human in space", year: "1961", region: "EU", empire: null },
+  "04-13": { title: "Jallianwala Bagh massacre — British troops fire on unarmed Indians in Amritsar", year: "1919", region: "AS", empire: "British Empire" },
+  "04-14": { title: "Pohela Boishakh — Bengali New Year celebrated across Bangladesh and West Bengal", year: "ancient", region: "BD", empire: null },
+  "04-15": { title: "Death of Leonardo da Vinci — Renaissance polymath", year: "1519", region: "EU", empire: null },
+  "04-16": { title: "Battle of Culloden — final Jacobite uprising crushed, Scottish Highland culture suppressed", year: "1746", region: "EU", empire: "British Empire" },
+  "04-17": { title: "Bay of Pigs invasion fails — Cold War tensions peak in Caribbean", year: "1961", region: "AM", empire: null },
+  "04-18": { title: "Zimbabwe independence — end of white minority rule in Rhodesia", year: "1980", region: "AF", empire: null },
+  "04-19": { title: "Bangladesh: Pahela Baishakh (alternate date) — National celebration", year: "annual", region: "BD", empire: null },
+  "04-20": { title: "Founding of Rome (traditional) — one of history's most influential cities", year: "753 BCE", region: "EU", empire: "Roman Empire" },
+  "04-21": { title: "Death of Queen Elizabeth I — end of Elizabethan golden age", year: "1603", region: "EU", empire: "British Empire" },
+  "04-22": { title: "Earth Day founded — global environmental awareness begins", year: "1970", region: "GL", empire: null },
+  "04-23": { title: "Death of Shakespeare — English literature's defining figure", year: "1616", region: "EU", empire: null },
+  "04-24": { title: "Armenian Genocide begins — Ottoman Empire massacres Armenian population", year: "1915", region: "ME", empire: "Ottoman Empire" },
+  "04-25": { title: "Anzac Day — Gallipoli landing marks Ottoman Empire's defence", year: "1915", region: "ME", empire: "Ottoman Empire" },
+  "04-26": { title: "Chernobyl disaster — Soviet nuclear failure reshapes global policy", year: "1986", region: "EU", empire: null },
+  "04-27": { title: "South Africa's first democratic election — end of apartheid", year: "1994", region: "AF", empire: null },
+  "04-28": { title: "Mussolini executed — Italian fascism collapses", year: "1945", region: "EU", empire: null },
+  "04-29": { title: "Fall of Saigon — Vietnam War ends, Cold War dynamics shift in Asia", year: "1975", region: "AS", empire: null },
+  "04-30": { title: "Bangladesh: Rabindranath Tagore's birth anniversary — cultural icon of Bengal", year: "1861", region: "BD", empire: null },
+  "05-01": { title: "International Workers Day — origins in 1886 Haymarket affair in Chicago", year: "1886", region: "AM", empire: null },
+  "05-02": { title: "Death of Leonardo da Vinci at Château du Clos Lucé, France", year: "1519", region: "EU", empire: null },
+  "05-03": { title: "Constitution of Poland proclaimed — first modern constitution in Europe", year: "1791", region: "EU", empire: null },
+  "05-04": { title: "Battle of the Coral Sea — first major naval battle fought entirely by aircraft", year: "1942", region: "AS", empire: null },
+  "05-05": { title: "Napoleon Bonaparte dies in exile on Saint Helena", year: "1821", region: "EU", empire: null },
+  "05-06": { title: "Freud born — psychoanalysis reshapes understanding of the human mind", year: "1856", region: "EU", empire: null },
+  "05-07": { title: "Battle of Dien Bien Phu — France's colonial empire in Southeast Asia collapses", year: "1954", region: "AS", empire: "French Empire" },
+  "05-08": { title: "VE Day — Nazi Germany surrenders, World War II ends in Europe", year: "1945", region: "EU", empire: null },
+  "05-09": { title: "Aztec capital Tenochtitlan besieged by Hernán Cortés", year: "1521", region: "AM", empire: "Aztec Empire" },
+  "05-10": { title: "Sepoy Mutiny begins — first major Indian uprising against British rule", year: "1857", region: "AS", empire: "British Empire" },
+  "05-11": { title: "Minnesota becomes US state — westward expansion peaks", year: "1858", region: "AM", empire: null },
+  "05-12": { title: "Florence Nightingale born — modern nursing founded", year: "1820", region: "EU", empire: null },
+  "05-13": { title: "Jamestown founded — first permanent English settlement in America", year: "1607", region: "AM", empire: "British Empire" },
+  "05-14": { title: "State of Israel declared — reshapes Middle Eastern geopolitics", year: "1948", region: "ME", empire: null },
+  "05-15": { title: "Nakba Day — Palestinian displacement following Israel's founding", year: "1948", region: "ME", empire: null },
+  "05-16": { title: "Bangladesh: Sheikh Hasina returns from exile — democracy restored", year: "1981", region: "BD", empire: null },
+  "05-17": { title: "Suleiman the Magnificent takes Belgrade — Ottoman expansion into Europe", year: "1521", region: "ME", empire: "Ottoman Empire" },
+  "05-18": { title: "Napoleon crowned Emperor of France — imperial era begins", year: "1804", region: "EU", empire: null },
+  "05-19": { title: "Ataturk begins Turkish War of Independence — Ottoman Empire collapses", year: "1919", region: "ME", empire: "Ottoman Empire" },
+  "05-20": { title: "Vasco da Gama reaches Calicut — sea route to India transforms world trade", year: "1498", region: "AS", empire: "Portuguese Empire" },
+  "05-21": { title: "Battle of Chattanooga — American Civil War decisive turning point", year: "1864", region: "AM", empire: null },
+  "05-22": { title: "Yemen unification — North and South Yemen merge", year: "1990", region: "ME", empire: null },
+  "05-23": { title: "Girolamo Savonarola executed — Florence purges its radical reformer", year: "1498", region: "EU", empire: null },
+  "05-24": { title: "Victoria Day — Queen Victoria's birthday marks British imperial zenith", year: "1819", region: "EU", empire: "British Empire" },
+  "05-25": { title: "Africa Day — Organisation of African Unity founded", year: "1963", region: "AF", empire: null },
+  "05-26": { title: "Guyana independence from Britain", year: "1966", region: "AM", empire: "British Empire" },
+  "05-27": { title: "Jawaharlal Nehru dies — architect of modern India", year: "1964", region: "AS", empire: null },
+  "05-28": { title: "Bangladesh: Cyclone Sidr devastates coastal Bangladesh", year: "2007", region: "BD", empire: null },
+  "05-29": { title: "Fall of Constantinople — Byzantine Empire ends after 1,000 years", year: "1453", region: "ME", empire: "Byzantine Empire" },
+  "05-30": { title: "Joan of Arc burned at the stake — French national martyr", year: "1431", region: "EU", empire: null },
+  "05-31": { title: "South Africa Republic Day — Boer War legacy shapes modern South Africa", year: "1961", region: "AF", empire: "British Empire" },
+  "06-01": { title: "Samoa independence — Pacific island nation freed from colonial rule", year: "1962", region: "AS", empire: null },
+  "06-02": { title: "Republic of Italy proclaimed after referendum", year: "1946", region: "EU", empire: null },
+  "06-03": { title: "Jefferson Davis imprisoned — Confederate States era ends", year: "1865", region: "AM", empire: null },
+  "06-04": { title: "Tiananmen Square massacre — China suppresses pro-democracy movement", year: "1989", region: "AS", empire: null },
+  "06-05": { title: "Six-Day War begins — Israel reshapes Middle Eastern borders", year: "1967", region: "ME", empire: null },
+  "06-06": { title: "D-Day — Allied invasion of Normandy begins liberation of Western Europe", year: "1944", region: "EU", empire: null },
+  "06-07": { title: "Bangladesh: Chhoy Dafa — Six Point Movement launched by Sheikh Mujib", year: "1966", region: "BD", empire: null },
+  "06-08": { title: "Death of Muhammad — Islamic world enters era of succession conflicts", year: "632", region: "ME", empire: null },
+  "06-09": { title: "Peter the Great becomes sole ruler of Russia — westernisation begins", year: "1682", region: "EU", empire: "Russian Empire" },
+  "06-10": { title: "Death of Alexander the Great — his empire immediately fractures", year: "323 BCE", region: "AS", empire: "Macedonian Empire" },
+  "06-11": { title: "Kamehameha Day — Hawaiian Kingdom founded", year: "1810", region: "AS", empire: null },
+  "06-12": { title: "Philippines independence from US", year: "1898", region: "AS", empire: "Spanish Empire" },
+  "06-13": { title: "Suleiman the Magnificent's fleet defeats Christian powers at Preveza", year: "1538", region: "ME", empire: "Ottoman Empire" },
+  "06-14": { title: "Flag Day — US flag adopted during American Revolution", year: "1777", region: "AM", empire: null },
+  "06-15": { title: "Magna Carta signed — foundation of constitutional governance", year: "1215", region: "EU", empire: null },
+  "06-16": { title: "Soweto Uprising — South African students resist apartheid", year: "1976", region: "AF", empire: null },
+  "06-17": { title: "Watergate break-in — begins unravelling of Nixon presidency", year: "1972", region: "AM", empire: null },
+  "06-18": { title: "Battle of Waterloo — Napoleon defeated, European order restored", year: "1815", region: "EU", empire: null },
+  "06-19": { title: "Juneteenth — enslaved Americans in Texas learn of emancipation", year: "1865", region: "AM", empire: null },
+  "06-20": { title: "World Refugee Day — over 100 million displaced people globally", year: "2001", region: "GL", empire: null },
+  "06-21": { title: "Battle of Gaugamela — Alexander defeats Darius III, conquers Persia", year: "331 BCE", region: "AS", empire: "Macedonian Empire" },
+  "06-22": { title: "Operation Barbarossa — Nazi Germany invades Soviet Union", year: "1941", region: "EU", empire: null },
+  "06-23": { title: "Battle of Plassey — British East India Company defeats Bengal's Nawab", year: "1757", region: "BD", empire: "British Empire" },
+  "06-24": { title: "Battle of Bannockburn — Scotland defeats England, secures independence", year: "1314", region: "EU", empire: null },
+  "06-25": { title: "Korean War begins — Cold War turns hot in East Asia", year: "1950", region: "AS", empire: null },
+  "06-26": { title: "UN Charter signed — post-war international order established", year: "1945", region: "GL", empire: null },
+  "06-27": { title: "Bangladesh: Eid-ul-Adha observed — major Islamic festival in Bangladesh", year: "annual", region: "BD", empire: null },
+  "06-28": { title: "Assassination of Archduke Franz Ferdinand — World War I begins", year: "1914", region: "EU", empire: "Austro-Hungarian Empire" },
+  "06-29": { title: "Treaty of Versailles signed — post-WWI world order established", year: "1919", region: "EU", empire: null },
+  "06-30": { title: "Congo independence from Belgium", year: "1960", region: "AF", empire: null },
+  "07-01": { title: "Battle of the Somme — bloodiest day in British military history", year: "1916", region: "EU", empire: "British Empire" },
+  "07-02": { title: "Civil Rights Act signed — racial segregation outlawed in US", year: "1964", region: "AM", empire: null },
+  "07-03": { title: "Battle of Gettysburg ends — Confederate high-water mark passes", year: "1863", region: "AM", empire: null },
+  "07-04": { title: "US Declaration of Independence — colonial era ends in North America", year: "1776", region: "AM", empire: "British Empire" },
+  "07-05": { title: "Venezuela independence — Spanish colonial empire begins to collapse", year: "1811", region: "AM", empire: "Spanish Empire" },
+  "07-06": { title: "Malawi independence from Britain", year: "1964", region: "AF", empire: "British Empire" },
+  "07-07": { title: "Marco Polo born — opens Europe's eyes to the Silk Road and China", year: "1254", region: "EU", empire: null },
+  "07-08": { title: "Ferdinand Magellan's fleet completes first circumnavigation of Earth", year: "1522", region: "EU", empire: "Spanish Empire" },
+  "07-09": { title: "Argentina independence from Spain", year: "1816", region: "AM", empire: "Spanish Empire" },
+  "07-10": { title: "Nikola Tesla born — electrical revolution transforms civilisation", year: "1856", region: "EU", empire: null },
+  "07-11": { title: "World Population Day — global population surpasses 5 billion", year: "1987", region: "GL", empire: null },
+  "07-12": { title: "Julius Caesar born — Rome's greatest general and dictator", year: "100 BCE", region: "EU", empire: "Roman Empire" },
+  "07-13": { title: "Mongols under Batu Khan sack Kiev — Eastern Europe devastated", year: "1240", region: "EU", empire: "Mongol Empire" },
+  "07-14": { title: "Bastille stormed — French Revolution begins", year: "1789", region: "EU", empire: null },
+  "07-15": { title: "Battle of Grunwald — Poland-Lithuania defeats Teutonic Knights", year: "1410", region: "EU", empire: null },
+  "07-16": { title: "First atomic bomb tested at Trinity Site — nuclear age begins", year: "1945", region: "AM", empire: null },
+  "07-17": { title: "Romanov family executed — Russian imperial dynasty ends", year: "1918", region: "EU", empire: "Russian Empire" },
+  "07-18": { title: "Nelson Mandela born — icon of resistance against apartheid", year: "1918", region: "AF", empire: null },
+  "07-19": { title: "Reign of Terror begins in France — Revolution turns violent", year: "1793", region: "EU", empire: null },
+  "07-20": { title: "Moon landing — Apollo 11 lands on the Moon", year: "1969", region: "AM", empire: null },
+  "07-21": { title: "Belgium independence — small nations assert sovereignty in Europe", year: "1831", region: "EU", empire: null },
+  "07-22": { title: "Sack of Béziers — Albigensian Crusade begins in southern France", year: "1209", region: "EU", empire: null },
+  "07-23": { title: "Egypt Revolution — Free Officers Movement overthrows monarchy", year: "1952", region: "AF", empire: null },
+  "07-24": { title: "Simón Bolívar born — liberator of South America from Spanish rule", year: "1783", region: "AM", empire: "Spanish Empire" },
+  "07-25": { title: "Battle of Ankara — Timur defeats Ottomans, captures Sultan Bayezid I", year: "1402", region: "ME", empire: "Ottoman Empire" },
+  "07-26": { title: "Cuba's Moncada Barracks attack — Cuban Revolution begins", year: "1953", region: "AM", empire: null },
+  "07-27": { title: "Korean War armistice — peninsula divided, Cold War frozen conflict", year: "1953", region: "AS", empire: null },
+  "07-28": { title: "World War I declared — Austria-Hungary declares war on Serbia", year: "1914", region: "EU", empire: "Austro-Hungarian Empire" },
+  "07-29": { title: "Bangladesh: Great Famine of Bengal — 3 million die under British rule", year: "1943", region: "BD", empire: "British Empire" },
+  "07-30": { title: "Vanuatu independence from joint British-French rule", year: "1980", region: "AS", empire: null },
+  "07-31": { title: "Ignatius of Loyola dies — Jesuits reshape Catholic response to Reformation", year: "1556", region: "EU", empire: null },
+  "08-01": { title: "Switzerland founded — oldest federal republic in the world", year: "1291", region: "EU", empire: null },
+  "08-02": { title: "Battle of Cannae — Hannibal defeats Rome in most catastrophic Roman loss", year: "216 BCE", region: "EU", empire: "Roman Empire" },
+  "08-03": { title: "Columbus sets sail from Palos — age of discovery begins", year: "1492", region: "EU", empire: "Spanish Empire" },
+  "08-04": { title: "Kublai Khan establishes Yuan Dynasty — Mongols rule China", year: "1271", region: "AS", empire: "Mongol Empire" },
+  "08-05": { title: "Neil Armstrong born — humanity's first steps on the Moon", year: "1930", region: "AM", empire: null },
+  "08-06": { title: "Atomic bomb dropped on Hiroshima — nuclear warfare changes history", year: "1945", region: "AS", empire: null },
+  "08-07": { title: "Côte d'Ivoire independence from France", year: "1960", region: "AF", empire: "French Empire" },
+  "08-08": { title: "Battle of Talas — Arabs defeat Tang China, Islam spreads to Central Asia", year: "751", region: "AS", empire: "Abbasid Caliphate" },
+  "08-09": { title: "Atomic bomb dropped on Nagasaki — Japan surrenders, WWII ends", year: "1945", region: "AS", empire: null },
+  "08-10": { title: "Ecuador independence from Spain", year: "1809", region: "AM", empire: "Spanish Empire" },
+  "08-11": { title: "Chad independence from France", year: "1960", region: "AF", empire: "French Empire" },
+  "08-12": { title: "Battle of Ain Jalut — Mamluks stop Mongol advance into Africa", year: "1260", region: "AF", empire: "Mongol Empire" },
+  "08-13": { title: "Fall of Tenochtitlan — Aztec Empire collapses under Spanish conquest", year: "1521", region: "AM", empire: "Aztec Empire" },
+  "08-14": { title: "Pakistan independence — partition of British India", year: "1947", region: "AS", empire: "British Empire" },
+  "08-15": { title: "India independence — end of British colonial rule", year: "1947", region: "AS", empire: "British Empire" },
+  "08-16": { title: "Battle of Kulikovo — Russia defeats Golden Horde, Mongol power wanes", year: "1380", region: "EU", empire: "Mongol Empire" },
+  "08-17": { title: "Indonesia independence — Dutch colonial era ends in Southeast Asia", year: "1945", region: "AS", empire: null },
+  "08-18": { title: "Genghis Khan dies — Mongol Empire at its peak begins to divide", year: "1227", region: "AS", empire: "Mongol Empire" },
+  "08-19": { title: "Afghanistan independence from Britain", year: "1919", region: "AS", empire: "British Empire" },
+  "08-20": { title: "Trotsky assassinated — Stalin consolidates Soviet totalitarianism", year: "1940", region: "AM", empire: null },
+  "08-21": { title: "Hawaii becomes 50th US state", year: "1959", region: "AM", empire: null },
+  "08-22": { title: "Battle of Bosworth Field — Tudor dynasty begins in England", year: "1485", region: "EU", empire: null },
+  "08-23": { title: "Molotov-Ribbentrop Pact signed — Nazi-Soviet division of Europe", year: "1939", region: "EU", empire: null },
+  "08-24": { title: "Sack of Rome by Visigoths — Western Roman Empire's terminal decline begins", year: "410", region: "EU", empire: "Roman Empire" },
+  "08-25": { title: "Uruguay independence — South American nations complete liberation", year: "1825", region: "AM", empire: "Spanish Empire" },
+  "08-26": { title: "Women's Suffrage Day — 19th Amendment ratified in US", year: "1920", region: "AM", empire: null },
+  "08-27": { title: "Krakatoa erupts — most powerful volcanic explosion in recorded history", year: "1883", region: "AS", empire: null },
+  "08-28": { title: "Martin Luther King Jr delivers 'I Have a Dream' speech", year: "1963", region: "AM", empire: null },
+  "08-29": { title: "Bangladesh: National Sports Day — celebrating Bangladeshi athletic heritage", year: "annual", region: "BD", empire: null },
+  "08-30": { title: "Cleopatra dies — Ptolemaic Egypt falls to Rome", year: "30 BCE", region: "AF", empire: "Roman Empire" },
+  "08-31": { title: "Malaysia independence from Britain — Merdeka Day", year: "1957", region: "AS", empire: "British Empire" },
+  "09-01": { title: "Germany invades Poland — World War II begins", year: "1939", region: "EU", empire: null },
+  "09-02": { title: "Japan formally surrenders — World War II ends", year: "1945", region: "AS", empire: null },
+  "09-03": { title: "Treaty of Paris — American Revolution officially ends", year: "1783", region: "AM", empire: "British Empire" },
+  "09-04": { title: "Western Roman Empire falls — Romulus Augustulus deposed", year: "476", region: "EU", empire: "Roman Empire" },
+  "09-05": { title: "Mother Teresa born — icon of humanitarian work in Calcutta", year: "1910", region: "AS", empire: null },
+  "09-06": { title: "Bangladesh: Assassination of Ziaur Rahman's successor Abdus Sattar", year: "1982", region: "BD", empire: null },
+  "09-07": { title: "Brazil independence from Portugal", year: "1822", region: "AM", empire: "Portuguese Empire" },
+  "09-08": { title: "Capture of Jerusalem by Crusaders — Latin Kingdom established", year: "1099", region: "ME", empire: null },
+  "09-09": { title: "North Korea founded — Korean peninsula divided", year: "1948", region: "AS", empire: null },
+  "09-10": { title: "Suleiman the Magnificent born — Ottoman Empire reaches its zenith", year: "1494", region: "ME", empire: "Ottoman Empire" },
+  "09-11": { title: "9/11 attacks — terrorism reshapes global geopolitics", year: "2001", region: "AM", empire: null },
+  "09-12": { title: "Battle of Marathon — Greece defeats Persia, Western civilisation survives", year: "490 BCE", region: "EU", empire: "Achaemenid Empire" },
+  "09-13": { title: "Battle of Tours — Charles Martel halts Arab expansion into Europe", year: "732", region: "EU", empire: "Umayyad Caliphate" },
+  "09-14": { title: "Napoleon enters Moscow — Russian campaign begins to unravel", year: "1812", region: "EU", empire: null },
+  "09-15": { title: "Battle of the Marne — German advance stopped in WWI", year: "1914", region: "EU", empire: "German Empire" },
+  "09-16": { title: "Mexico independence from Spain", year: "1810", region: "AM", empire: "Spanish Empire" },
+  "09-17": { title: "US Constitution signed — blueprint of modern democracy", year: "1787", region: "AM", empire: null },
+  "09-18": { title: "Chile independence — Spanish South American empire crumbles", year: "1810", region: "AM", empire: "Spanish Empire" },
+  "09-19": { title: "Battle of Saratoga — turning point of American Revolution", year: "1777", region: "AM", empire: "British Empire" },
+  "09-20": { title: "Italian unification — Rome becomes capital of unified Italy", year: "1870", region: "EU", empire: null },
+  "09-21": { title: "Malta independence from Britain", year: "1964", region: "EU", empire: "British Empire" },
+  "09-22": { title: "Mali Empire reaches its peak — Mansa Musa's reign of gold", year: "1324", region: "AF", empire: "Mali Empire" },
+  "09-23": { title: "Saudi Arabia founded — modern Arabian peninsula takes shape", year: "1932", region: "ME", empire: null },
+  "09-24": { title: "Bangladesh: Constitution Day — Bangladesh's constitution adopted", year: "1972", region: "BD", empire: null },
+  "09-25": { title: "Vasco de Balboa becomes first European to see Pacific Ocean", year: "1513", region: "AM", empire: "Spanish Empire" },
+  "09-26": { title: "Battle of Lepanto — Christian forces defeat Ottoman navy", year: "1571", region: "ME", empire: "Ottoman Empire" },
+  "09-27": { title: "Thomas Nast born — political cartoonist who shaped American public opinion", year: "1840", region: "AM", empire: null },
+  "09-28": { title: "Confucius born — philosopher whose thought shapes East Asia to this day", year: "551 BCE", region: "AS", empire: null },
+  "09-29": { title: "Miguel de Cervantes born — author of Don Quixote, first modern novel", year: "1547", region: "EU", empire: null },
+  "09-30": { title: "Bangladesh: Hijri New Year observed — Islamic calendar celebrated", year: "annual", region: "BD", empire: null },
+  "10-01": { title: "People's Republic of China proclaimed — Mao Zedong wins civil war", year: "1949", region: "AS", empire: null },
+  "10-02": { title: "Gandhi born — Mahatma, father of Indian independence", year: "1869", region: "AS", empire: "British Empire" },
+  "10-03": { title: "German reunification — Cold War's European chapter ends", year: "1990", region: "EU", empire: null },
+  "10-04": { title: "Sputnik launched — space age begins, Cold War reaches orbit", year: "1957", region: "EU", empire: null },
+  "10-05": { title: "Death of Sitting Bull's vision — Battle of Little Bighorn aftermath", year: "1877", region: "AM", empire: null },
+  "10-06": { title: "Assassination of Anwar Sadat — Egypt's peace with Israel threatened", year: "1981", region: "AF", empire: null },
+  "10-07": { title: "Battle of Lepanto — last great naval battle of the galley era", year: "1571", region: "ME", empire: "Ottoman Empire" },
+  "10-08": { title: "Bangladesh: Mawlid al-Nabi observed — Prophet Muhammad's birthday", year: "annual", region: "BD", empire: null },
+  "10-09": { title: "Che Guevara executed — Latin American revolutionary era peaks", year: "1967", region: "AM", empire: null },
+  "10-10": { title: "Execution of the October martyrs — Ottoman liberalisation movement suppressed", year: "1915", region: "ME", empire: "Ottoman Empire" },
+  "10-11": { title: "Battle of Hastings begins — Normans reshape England and European history", year: "1066", region: "EU", empire: null },
+  "10-12": { title: "Columbus reaches the Americas — world history forever altered", year: "1492", region: "AM", empire: "Spanish Empire" },
+  "10-13": { title: "Ashoka converts to Buddhism — Maurya Empire's spiritual transformation", year: "261 BCE", region: "AS", empire: "Maurya Empire" },
+  "10-14": { title: "Battle of Hastings — Harold II defeated, Norman conquest complete", year: "1066", region: "EU", empire: null },
+  "10-15": { title: "Death of Virgil — Rome's greatest poet lost before finishing the Aeneid", year: "19 BCE", region: "EU", empire: "Roman Empire" },
+  "10-16": { title: "Marie Antoinette executed — French Revolution's radical phase peaks", year: "1793", region: "EU", empire: null },
+  "10-17": { title: "Haitian Revolution succeeds — first Black republic in history", year: "1806", region: "AM", empire: null },
+  "10-18": { title: "Alaska formally transferred to the US from Russia", year: "1867", region: "AM", empire: "Russian Empire" },
+  "10-19": { title: "Surrender at Yorktown — British defeat ends American Revolutionary War", year: "1781", region: "AM", empire: "British Empire" },
+  "10-20": { title: "Battle of Trafalgar — British naval supremacy secured for a century", year: "1805", region: "EU", empire: null },
+  "10-21": { title: "Bangladesh: Durga Puja — major Hindu festival celebrated across Bangladesh", year: "annual", region: "BD", empire: null },
+  "10-22": { title: "Cuban Missile Crisis announced — closest world came to nuclear war", year: "1962", region: "AM", empire: null },
+  "10-23": { title: "Battle of Mohács — Ottoman Empire defeats Hungary, reshapes Eastern Europe", year: "1526", region: "ME", empire: "Ottoman Empire" },
+  "10-24": { title: "United Nations founded — post-WWII world order institutionalised", year: "1945", region: "GL", empire: null },
+  "10-25": { title: "Battle of Agincourt — Henry V defeats France, Shakespeare immortalises it", year: "1415", region: "EU", empire: null },
+  "10-26": { title: "Austro-Hungarian Empire dissolved — map of Europe redrawn", year: "1918", region: "EU", empire: "Austro-Hungarian Empire" },
+  "10-27": { title: "Theodore Roosevelt born — conservationism and American imperialism shaped", year: "1858", region: "AM", empire: null },
+  "10-28": { title: "Founding of Czechoslovakia — new nations emerge from WWI", year: "1918", region: "EU", empire: "Austro-Hungarian Empire" },
+  "10-29": { title: "Wall Street Crash — Great Depression begins, global economy collapses", year: "1929", region: "AM", empire: null },
+  "10-30": { title: "War of the Worlds broadcast causes panic — media power demonstrated", year: "1938", region: "AM", empire: null },
+  "10-31": { title: "Martin Luther posts 95 Theses — Protestant Reformation begins", year: "1517", region: "EU", empire: null },
+  "11-01": { title: "All Saints' Day — Christian tradition rooted in ancient Roman Lemuria festival", year: "ancient", region: "EU", empire: "Roman Empire" },
+  "11-02": { title: "Balfour Declaration — Britain promises Jewish homeland in Palestine", year: "1917", region: "ME", empire: "British Empire" },
+  "11-03": { title: "Bangladesh: National flag adopted after independence", year: "1971", region: "BD", empire: null },
+  "11-04": { title: "Assassination of Yitzhak Rabin — Middle East peace process derailed", year: "1995", region: "ME", empire: null },
+  "11-05": { title: "Guy Fawkes fails to blow up British Parliament — Gunpowder Plot foiled", year: "1605", region: "EU", empire: null },
+  "11-06": { title: "Bangladesh: Sepoy Mutiny in Dhaka cantonment during 1977 coup attempt", year: "1977", region: "BD", empire: null },
+  "11-07": { title: "Bolshevik Revolution — Soviet Union born, world order transformed", year: "1917", region: "EU", empire: "Russian Empire" },
+  "11-08": { title: "Cortés meets Moctezuma — Spanish-Aztec encounter changes America forever", year: "1519", region: "AM", empire: "Aztec Empire" },
+  "11-09": { title: "Fall of the Berlin Wall — Cold War ends", year: "1989", region: "EU", empire: null },
+  "11-10": { title: "Stanley meets Livingstone — African exploration reaches its peak", year: "1871", region: "AF", empire: null },
+  "11-11": { title: "World War I armistice — 'the war to end all wars' concludes", year: "1918", region: "EU", empire: null },
+  "11-12": { title: "Sun Yat-sen born — father of modern China", year: "1866", region: "AS", empire: null },
+  "11-13": { title: "Battle of Panipat III — Marathas defeated, Mughal decline accelerates", year: "1761", region: "AS", empire: "Mughal Empire" },
+  "11-14": { title: "Jawaharlal Nehru born — first Prime Minister of India", year: "1889", region: "AS", empire: null },
+  "11-15": { title: "Brazil declares republic — Portuguese imperial era in South America ends", year: "1889", region: "AM", empire: "Portuguese Empire" },
+  "11-16": { title: "Atahualpa captured by Pizarro — Inca Empire begins to fall", year: "1532", region: "AM", empire: null },
+  "11-17": { title: "Suez Canal opens — British-French control of global trade routes peaks", year: "1869", region: "AF", empire: null },
+  "11-18": { title: "Morocco independence from France and Spain", year: "1956", region: "AF", empire: "French Empire" },
+  "11-19": { title: "Gettysburg Address — Lincoln redefines meaning of American democracy", year: "1863", region: "AM", empire: null },
+  "11-20": { title: "Nuremberg Trials begin — war crimes accountability established", year: "1945", region: "EU", empire: null },
+  "11-21": { title: "Bangladesh: Sena Dibas — Armed Forces Day", year: "1971", region: "BD", empire: null },
+  "11-22": { title: "Assassination of JFK — America's political innocence ends", year: "1963", region: "AM", empire: null },
+  "11-23": { title: "Bangladesh: Bijoy Dibas preparation — liberation war's final days", year: "1971", region: "BD", empire: null },
+  "11-24": { title: "Charles Darwin publishes On the Origin of Species", year: "1859", region: "EU", empire: null },
+  "11-25": { title: "Suriname independence from the Netherlands", year: "1975", region: "AM", empire: null },
+  "11-26": { title: "Bangladesh: Constitution signed into law", year: "1972", region: "BD", empire: null },
+  "11-27": { title: "First Crusade called by Pope Urban II — centuries of religious warfare begin", year: "1095", region: "EU", empire: null },
+  "11-28": { title: "Albania independence — Ottoman Empire loses another Balkan territory", year: "1912", region: "EU", empire: "Ottoman Empire" },
+  "11-29": { title: "Yugoslavia proclaimed — Balkan nations unite after WWI", year: "1945", region: "EU", empire: null },
+  "11-30": { title: "Bangladesh: Sheikh Mujibur Rahman begins Awami League mobilisation", year: "1970", region: "BD", empire: null },
+  "12-01": { title: "Iceland independence — Nordic nations assert sovereignty", year: "1918", region: "EU", empire: null },
+  "12-02": { title: "Napoleon crowned Emperor — Napoleonic era at its height", year: "1804", region: "EU", empire: null },
+  "12-03": { title: "Bhopal disaster — industrial negligence causes worst chemical catastrophe", year: "1984", region: "AS", empire: null },
+  "12-04": { title: "Battle of Austerlitz — Napoleon's greatest military victory", year: "1805", region: "EU", empire: null },
+  "12-05": { title: "Mozart dies — Classical era's defining genius lost at 35", year: "1791", region: "EU", empire: null },
+  "12-06": { title: "Finland independence from Russia", year: "1917", region: "EU", empire: "Russian Empire" },
+  "12-07": { title: "Pearl Harbor attacked — US enters World War II", year: "1941", region: "AM", empire: null },
+  "12-08": { title: "Assassination of John Lennon — counterculture era's symbol lost", year: "1980", region: "AM", empire: null },
+  "12-09": { title: "Tanzania independence from Britain", year: "1961", region: "AF", empire: "British Empire" },
+  "12-10": { title: "Nobel Peace Prize Day — first awarded in 1901", year: "1901", region: "GL", empire: null },
+  "12-11": { title: "UNICEF founded — post-war commitment to children's welfare", year: "1946", region: "GL", empire: null },
+  "12-12": { title: "Kenya independence from Britain", year: "1963", region: "AF", empire: "British Empire" },
+  "12-13": { title: "Battle of the Bulge begins — Germany's last major offensive in WWII", year: "1944", region: "EU", empire: null },
+  "12-14": { title: "Roald Amundsen reaches South Pole — age of polar exploration peaks", year: "1911", region: "EU", empire: null },
+  "12-15": { title: "Bill of Rights ratified — US constitutional freedoms established", year: "1791", region: "AM", empire: null },
+  "12-16": { title: "Bangladesh: Victory Day — Pakistani forces surrender to Liberation Army", year: "1971", region: "BD", empire: null },
+  "12-17": { title: "Wright Brothers' first flight — air age transforms human civilisation", year: "1903", region: "AM", empire: null },
+  "12-18": { title: "Slavery abolished in US — 13th Amendment ratified", year: "1865", region: "AM", empire: null },
+  "12-19": { title: "Battle of Trenton — Washington crosses Delaware, Revolution revived", year: "1776", region: "AM", empire: "British Empire" },
+  "12-20": { title: "Louisiana Purchase completed — US doubles in size", year: "1803", region: "AM", empire: null },
+  "12-21": { title: "Winter Solstice — ancient civilisations from Stonehenge to Angkor celebrated the sun's return", year: "ancient", region: "GL", empire: null },
+  "12-22": { title: "Bangladesh: Proclamation of Mujibnagar government anniversary", year: "1971", region: "BD", empire: null },
+  "12-23": { title: "Battle of Sarikamish — Ottoman army destroyed by Russian forces in WWI", year: "1914", region: "ME", empire: "Ottoman Empire" },
+  "12-24": { title: "Christmas Eve — Roman Saturnalia merges into Christian tradition", year: "ancient", region: "EU", empire: "Roman Empire" },
+  "12-25": { title: "Coronation of Charlemagne — first Holy Roman Emperor crowned", year: "800", region: "EU", empire: "Carolingian Empire" },
+  "12-26": { title: "Boxing Day Tsunami — Indian Ocean disaster kills 230,000", year: "2004", region: "AS", empire: null },
+  "12-27": { title: "Bangladesh: Ziaur Rahman wins presidential election", year: "1976", region: "BD", empire: null },
+  "12-28": { title: "Proclamation of the Khilafat movement — Muslims unite against British rule", year: "1919", region: "AS", empire: "British Empire" },
+  "12-29": { title: "Wounded Knee massacre — final major conflict of American Indian Wars", year: "1890", region: "AM", empire: null },
+  "12-30": { title: "Bangladesh: Awami League wins landmark general election", year: "2008", region: "BD", empire: null },
+  "12-31": { title: "East India Company dissolved — British Crown takes direct control of India", year: "1858", region: "AS", empire: "British Empire" }
+};
 
 const POINT_DESCS = {
   "Abbasid Caliphate|750": "Abbasids defeat Umayyads at Battle of the Great Zab. Al-Saffah inherits a vast empire but faces fractured loyalty, Shi'a betrayal, independent power brokers, and an Umayyad rival in Spain.",
@@ -6590,6 +7392,8 @@ function openEmpireDetail(name) {
     refEl.innerHTML = '';
   }
 
+  generateCitations(name);
+
   document.getElementById('profile-gallery').style.display = 'none';
   document.getElementById('profile-search-wrap').style.display = 'none';
   document.getElementById('profile-search-empty').style.display = 'none';
@@ -7325,6 +8129,257 @@ document.getElementById('info-share-x').addEventListener('click', () => {
 });
 document.getElementById('info-share-li').addEventListener('click', () => {
   window.open('https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fthe-epoch-institute.org', '_blank');
+});
+
+// ── Today in History ──────────────────────────────────────────────────────────
+(function() {
+  const keys = Object.keys(TODAY_IN_HISTORY);
+
+  function dayOfYear(mm, dd) {
+    // approximate day-of-year for distance comparison (ignores leap years)
+    const months = [0,31,28,31,30,31,30,31,31,30,31,30,31];
+    let d = dd;
+    for (let i = 1; i < mm; i++) d += months[i];
+    return d;
+  }
+
+  const now    = new Date();
+  const todayMM = String(now.getMonth() + 1).padStart(2, '0');
+  const todayDD = String(now.getDate()).padStart(2, '0');
+  const todayKey = todayMM + '-' + todayDD;
+  const todayDoy = dayOfYear(+todayMM, +todayDD);
+
+  let entry = null, matchKey = null, exact = false;
+
+  if (TODAY_IN_HISTORY[todayKey]) {
+    entry = TODAY_IN_HISTORY[todayKey];
+    matchKey = todayKey;
+    exact = true;
+  } else {
+    let best = Infinity;
+    keys.forEach(k => {
+      const [mm, dd] = k.split('-').map(Number);
+      let dist = Math.abs(dayOfYear(mm, dd) - todayDoy);
+      // wrap around year boundary
+      dist = Math.min(dist, 365 - dist);
+      if (dist < best && dist <= 15) { best = dist; matchKey = k; }
+    });
+    if (matchKey) entry = TODAY_IN_HISTORY[matchKey];
+  }
+
+  if (!entry) return; // no match within ±15 days — hide card
+
+  const regionNames = {
+    EU: 'Europe', AS: 'Asia', AM: 'Americas', AF: 'Africa',
+    ME: 'Middle East', BD: 'Bangladesh', GL: 'Global'
+  };
+
+  const card     = document.getElementById('tih-card');
+  const dateEl   = document.getElementById('tih-date');
+  const regionEl = document.getElementById('tih-region');
+  const titleEl  = document.getElementById('tih-title');
+  const yearEl   = document.getElementById('tih-year');
+  const empireEl = document.getElementById('tih-empire-link');
+  const shareEl  = document.getElementById('tih-share-link');
+
+  // Format display date
+  const [emm, edd] = matchKey.split('-');
+  const dispDate = new Date(2000, +emm - 1, +edd)
+    .toLocaleDateString('en-GB', { day: 'numeric', month: 'long' });
+
+  if (!exact) {
+    dateEl.textContent = 'On ' + dispDate + ' •';
+    dateEl.style.opacity = '0.6';
+  } else {
+    dateEl.textContent = 'Today in History · ' + dispDate;
+  }
+
+  regionEl.textContent  = regionNames[entry.region] || entry.region;
+  titleEl.textContent   = entry.title;
+  yearEl.textContent    = entry.year;
+
+  // Empire link
+  if (entry.empire) {
+    empireEl.style.display = '';
+    empireEl.addEventListener('click', e => {
+      e.preventDefault();
+      openExplorer();
+      setTimeout(() => {
+        if (typeof toggleSolo === 'function') toggleSolo(entry.empire);
+      }, 400);
+    });
+  }
+
+  // Share link
+  const tweetText = encodeURIComponent(
+    'On this day in history: ' + entry.title + ' (' + entry.year + ') via @EpochInstitute https://the-epoch-institute.org #history #epoch'
+  );
+  shareEl.href   = 'https://twitter.com/intent/tweet?text=' + tweetText;
+  shareEl.target = '_blank';
+  shareEl.rel    = 'noopener';
+
+  card.style.display = '';
+})();
+
+// ── Open Dataset downloads ────────────────────────────────────────────────────
+function _triggerDownload(content, filename, mimeType) {
+  var blob = new Blob([content], { type: mimeType });
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(function() { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
+}
+
+function downloadEmpireCSV() {
+  var maxPts = Math.max.apply(null, EMPIRES.map(function(e) { return e.points.length; }));
+  var headers = ['name','region','start_year','end_year','peak_year','duration'];
+  for (var i = 0; i < maxPts; i++) headers.push('t_' + i);
+
+  var rows = EMPIRES.map(function(emp) {
+    var pts      = emp.points;
+    var startYear = pts[0][0];
+    var endYear   = pts[pts.length - 1][0];
+    var peakPt    = pts.reduce(function(m, p) { return p[1] >= m[1] ? p : m; });
+    var duration  = Math.round(endYear - startYear);
+    var row = [
+      '"' + String(emp.name).replace(/"/g, '""') + '"',
+      '"' + String(emp.region).replace(/"/g, '""') + '"',
+      startYear, endYear, peakPt[0], duration
+    ];
+    for (var j = 0; j < maxPts; j++) row.push(pts[j] !== undefined ? pts[j][1] : '');
+    return row.join(',');
+  });
+
+  _triggerDownload([headers.join(',')].concat(rows).join('\n'),
+    'epoch-institute-empire-dataset.csv', 'text/csv');
+}
+
+function downloadEmpireJSON() {
+  var obj = {
+    source:        'The Epoch Institute',
+    url:           'https://the-epoch-institute.org',
+    licence:       'CC BY 4.0',
+    retrieved:     new Date().toISOString().split('T')[0],
+    total_empires: EMPIRES.length,
+    empires:       EMPIRES
+  };
+  _triggerDownload(JSON.stringify(obj, null, 2),
+    'epoch-institute-empire-dataset.json', 'application/json');
+}
+
+document.getElementById('dataset-csv-btn').addEventListener('click', downloadEmpireCSV);
+document.getElementById('dataset-json-btn').addEventListener('click', downloadEmpireJSON);
+
+document.getElementById('dataset-copy-cite-btn').addEventListener('click', function() {
+  var text = 'The Epoch Institute Research Team (2024). Empire Trajectory Dataset [Data set]. The Epoch Institute. https://the-epoch-institute.org/#dataset';
+  var self = this;
+  navigator.clipboard.writeText(text).then(function() {
+    var orig = self.textContent;
+    self.textContent = 'Copied ✓';
+    self.style.color = 'var(--gold)';
+    setTimeout(function() { self.textContent = orig; self.style.color = ''; }, 1800);
+  });
+});
+
+document.getElementById('fl-dataset').addEventListener('click', function(e) {
+  e.preventDefault();
+  document.getElementById('dataset').scrollIntoView({ behavior: 'smooth' });
+});
+
+// ── Research Series ───────────────────────────────────────────────────────────
+document.getElementById('series-01-explore-btn').addEventListener('click', function() {
+  var detail = document.getElementById('series-01-detail');
+  detail.classList.add('open');
+  setTimeout(function() { detail.scrollIntoView({ behavior: 'smooth' }); }, 20);
+});
+
+document.querySelectorAll('.series-empire-pill').forEach(function(pill) {
+  pill.addEventListener('click', function() {
+    var name = this.dataset.empire;
+    openProfiles();
+    setTimeout(function() { openEmpireDetail(name); }, 300);
+  });
+});
+
+document.querySelectorAll('.series-notify-link').forEach(function(btn) {
+  btn.addEventListener('click', function(e) {
+    e.preventDefault();
+    openCommunity();
+    setTimeout(function() {
+      var nb = document.getElementById('newsletter-band');
+      if (nb) nb.scrollIntoView({ behavior: 'smooth' });
+    }, 350);
+  });
+});
+
+document.getElementById('fl-series').addEventListener('click', function(e) {
+  e.preventDefault();
+  document.getElementById('research-series').scrollIntoView({ behavior: 'smooth' });
+});
+
+// ── Cite this profile ─────────────────────────────────────────────────────────
+function toSlug(n) {
+  return n.toLowerCase().replace(/['']/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+}
+function generateCitations(name) {
+  const slug = toSlug(name);
+  const url  = 'https://the-epoch-institute.org/empire/' + slug;
+  const now  = new Date();
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const day   = now.getDate();
+  const month = months[now.getMonth()];
+  const year  = now.getFullYear();
+  const accessDay     = day + ' ' + month + ' ' + year;
+  const accessChicago = month + ' ' + day + ', ' + year;
+
+  const cites = [
+    {
+      label: 'Harvard',
+      text: 'The Epoch Institute Research Team (2024). ' + name + '. The Epoch Institute. Retrieved ' + accessDay + ', from ' + url
+    },
+    {
+      label: 'APA',
+      text: 'The Epoch Institute Research Team. (2024). ' + name + ' [Research profile]. The Epoch Institute. ' + url
+    },
+    {
+      label: 'Chicago',
+      text: 'The Epoch Institute Research Team. "' + name + '." The Epoch Institute, 2024. Accessed ' + accessChicago + '. ' + url
+    }
+  ];
+
+  const dropdown = document.getElementById('cite-dropdown');
+  dropdown.innerHTML = cites.map((c, i) =>
+    '<div class="cite-block">' +
+      '<div class="cite-block-header">' +
+        '<span class="cite-label">' + c.label + '</span>' +
+        '<button class="cite-copy-btn" data-cite="' + i + '">Copy</button>' +
+      '</div>' +
+      '<p class="cite-text">' + escHtml(c.text) + '</p>' +
+    '</div>'
+  ).join('');
+
+  dropdown.dataset.cites = JSON.stringify(cites.map(c => c.text));
+  dropdown.classList.remove('open');
+}
+
+document.getElementById('detail-cite-btn').addEventListener('click', function() {
+  document.getElementById('cite-dropdown').classList.toggle('open');
+});
+
+document.getElementById('cite-dropdown').addEventListener('click', function(e) {
+  const btn = e.target.closest('.cite-copy-btn');
+  if (!btn) return;
+  const cites = JSON.parse(document.getElementById('cite-dropdown').dataset.cites || '[]');
+  const text  = cites[+btn.dataset.cite];
+  if (!text) return;
+  navigator.clipboard.writeText(text).then(function() {
+    const orig = btn.textContent;
+    btn.textContent = 'Copied ✓';
+    btn.style.color = 'var(--gold)';
+    setTimeout(function() { btn.textContent = orig; btn.style.color = ''; }, 1800);
+  });
 });
 
 </script>
